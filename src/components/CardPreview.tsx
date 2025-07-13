@@ -1,8 +1,10 @@
 
 import { Card } from '@/components/ui/card';
-import { Heart, Calendar, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Heart, Calendar, MapPin, Download, FileImage } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import { templates } from '@/data/templates';
+import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
 
 interface CardPreviewProps {
   cardData: WeddingCardData;
@@ -30,6 +32,16 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     });
   };
 
+  const handleDownloadImage = () => {
+    downloadAsImage('wedding-card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
+  };
+
+  const handleDownloadPDF = () => {
+    downloadAsPDF('wedding-card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
+  };
+
+  const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
+
   return (
     <div className="sticky top-24">
       <div className="text-center mb-4">
@@ -42,6 +54,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       </div>
       
       <Card 
+        id="wedding-card-preview"
         className="aspect-[3/4] overflow-hidden wedding-card-shadow"
         style={{ 
           background: `linear-gradient(135deg, ${template.colors.secondary} 0%, ${template.colors.primary}15 100%)`,
@@ -56,6 +69,17 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             />
           </div>
           
+          {/* Uploaded Image */}
+          {cardData.uploadedImage && (
+            <div className="mb-6">
+              <img 
+                src={cardData.uploadedImage} 
+                alt="Wedding" 
+                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+              />
+            </div>
+          )}
+
           {/* Names */}
           <div className="space-y-2 mb-8">
             <h1 
@@ -118,6 +142,29 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           </div>
         </div>
       </Card>
+
+      {/* Download Buttons */}
+      {hasContent && (
+        <div className="mt-6 space-y-3">
+          <Button 
+            onClick={handleDownloadImage}
+            className="w-full wedding-gradient text-white"
+            size="lg"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download as Image
+          </Button>
+          <Button 
+            onClick={handleDownloadPDF}
+            variant="outline"
+            className="w-full"
+            size="lg"
+          >
+            <FileImage className="h-4 w-4 mr-2" />
+            Download as PDF
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

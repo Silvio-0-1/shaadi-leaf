@@ -7,6 +7,7 @@ export interface WeddingCardData {
   venue: string;
   message: string;
   templateId: string;
+  uploadedImage?: string;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -16,7 +16,8 @@ const Index = () => {
     weddingDate: '',
     venue: '',
     message: '',
-    templateId: ''
+    templateId: '',
+    uploadedImage: ''
   });
 
   const handleTemplateSelect = (templateId: string) => {

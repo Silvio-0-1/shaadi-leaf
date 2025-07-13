@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar, MapPin, Heart, MessageCircle } from 'lucide-react';
 import { WeddingCardData } from '@/types';
+import ImageUpload from './ImageUpload';
 
 interface CustomizationFormProps {
   cardData: WeddingCardData;
@@ -15,6 +16,10 @@ interface CustomizationFormProps {
 const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) => {
   const handleChange = (field: keyof WeddingCardData, value: string) => {
     onDataChange({ [field]: value });
+  };
+
+  const handleImageUpload = (imageUrl: string) => {
+    onDataChange({ uploadedImage: imageUrl });
   };
 
   return (
@@ -29,6 +34,12 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
       </div>
 
       <div className="space-y-4">
+        {/* Image Upload */}
+        <ImageUpload 
+          onImageUpload={handleImageUpload}
+          currentImage={cardData.uploadedImage}
+        />
+
         {/* Bride's Name */}
         <div className="space-y-2">
           <Label htmlFor="brideName" className="flex items-center text-foreground">
