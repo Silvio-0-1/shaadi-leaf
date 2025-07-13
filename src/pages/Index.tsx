@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { Heart } from 'lucide-react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import TemplateSelector from '@/components/TemplateSelector';
