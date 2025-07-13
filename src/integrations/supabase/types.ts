@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wedding_cards: {
+        Row: {
+          bride_name: string
+          created_at: string
+          groom_name: string
+          id: string
+          message: string | null
+          template_id: string
+          updated_at: string
+          uploaded_image: string | null
+          user_id: string | null
+          venue: string
+          wedding_date: string
+        }
+        Insert: {
+          bride_name: string
+          created_at?: string
+          groom_name: string
+          id?: string
+          message?: string | null
+          template_id: string
+          updated_at?: string
+          uploaded_image?: string | null
+          user_id?: string | null
+          venue: string
+          wedding_date: string
+        }
+        Update: {
+          bride_name?: string
+          created_at?: string
+          groom_name?: string
+          id?: string
+          message?: string | null
+          template_id?: string
+          updated_at?: string
+          uploaded_image?: string | null
+          user_id?: string | null
+          venue?: string
+          wedding_date?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

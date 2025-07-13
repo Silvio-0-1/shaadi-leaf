@@ -1,14 +1,24 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import TemplateSelector from '@/components/TemplateSelector';
 import CustomizationForm from '@/components/CustomizationForm';
 import CardPreview from '@/components/CardPreview';
 import { WeddingCardData } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { useWeddingCards } from '@/hooks/useWeddingCards';
+import { toast } from 'sonner';
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const { user } = useAuth();
+  const { saveCard, loadCard, saving } = useWeddingCards();
+  
   const [currentStep, setCurrentStep] = useState<'hero' | 'template' | 'customize'>('hero');
   const [cardData, setCardData] = useState<WeddingCardData>({
     brideName: '',
@@ -19,6 +29,18 @@ const Index = () => {
     templateId: '',
     uploadedImage: ''
   });
+
+  // Load card for editing if editId is provided
+  useEffect(() => {
+    if (editId && user) {
+      loadCard(editId).then((card) => {
+        if (card) {
+          setCardData(card);
+          setCurrentStep('customize');
+        }
+      });
+    }
+  }, [editId, user, loadCard]);
 
   const handleTemplateSelect = (templateId: string) => {
     setCardData(prev => ({ ...prev, templateId }));
@@ -32,6 +54,22 @@ const Index = () => {
   const startCreating = () => {
     setCurrentStep('template');
   };
+
+  const handleSaveCard = async () => {
+    if (!user) {
+      toast.error('Please sign in to save your wedding card');
+      return;
+    }
+
+    if (!cardData.brideName || !cardData.groomName || !cardData.templateId) {
+      toast.error('Please fill in the bride and groom names');
+      return;
+    }
+
+    await saveCard(cardData);
+  };
+
+  const hasRequiredData = cardData.brideName && cardData.groomName && cardData.templateId;
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,6 +106,20 @@ const Index = () => {
                 cardData={cardData}
                 onDataChange={handleDataChange}
               />
+              
+              {/* Save Card Button - Only show if user is logged in */}
+              {user && hasRequiredData && (
+                <div className="text-center">
+                  <Button
+                    onClick={handleSaveCard}
+                    disabled={saving}
+                    className="wedding-gradient text-white w-full"
+                    size="lg"
+                  >
+                    {saving ? 'Saving...' : (editId ? 'Update Card' : 'Save Card')}
+                  </Button>
+                </div>
+              )}
               
               {/* Back to Templates Button */}
               <div className="text-center">
