@@ -1,89 +1,66 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Wedding-themed design system with romantic colors and elegant fonts */
-
 @layer base {
   :root {
-    --background: 350 20% 98%;
-    --foreground: 345 15% 15%;
-
-    --card: 350 20% 100%;
-    --card-foreground: 345 15% 15%;
-
-    --popover: 350 20% 100%;
-    --popover-foreground: 345 15% 15%;
-
-    --primary: 340 75% 55%;
-    --primary-foreground: 350 20% 98%;
-
-    --secondary: 345 30% 92%;
-    --secondary-foreground: 345 15% 25%;
-
-    --muted: 345 15% 95%;
-    --muted-foreground: 345 8% 45%;
-
-    --accent: 350 40% 90%;
-    --accent-foreground: 345 15% 25%;
-
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 346 77% 49%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 345 20% 88%;
-    --input: 345 20% 88%;
-    --ring: 340 75% 55%;
-
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 346 77% 49%;
     --radius: 0.75rem;
-
-    --sidebar-background: 350 20% 98%;
-    --sidebar-foreground: 345 15% 25%;
-    --sidebar-primary: 340 75% 55%;
-    --sidebar-primary-foreground: 350 20% 98%;
-    --sidebar-accent: 350 40% 90%;
-    --sidebar-accent-foreground: 345 15% 25%;
-    --sidebar-border: 345 20% 88%;
-    --sidebar-ring: 340 75% 55%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --gold-500: 45 93% 47%;
+    --gold-600: 45 93% 37%;
   }
 
   .dark {
-    --background: 345 15% 8%;
-    --foreground: 350 20% 98%;
-
-    --card: 345 15% 10%;
-    --card-foreground: 350 20% 98%;
-
-    --popover: 345 15% 10%;
-    --popover-foreground: 350 20% 98%;
-
-    --primary: 340 75% 65%;
-    --primary-foreground: 345 15% 8%;
-
-    --secondary: 345 15% 18%;
-    --secondary-foreground: 350 20% 98%;
-
-    --muted: 345 15% 15%;
-    --muted-foreground: 345 8% 65%;
-
-    --accent: 345 15% 18%;
-    --accent-foreground: 350 20% 98%;
-
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 346 77% 49%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 345 15% 18%;
-    --input: 345 15% 18%;
-    --ring: 340 75% 65%;
-
-    --sidebar-background: 345 15% 8%;
-    --sidebar-foreground: 350 20% 90%;
-    --sidebar-primary: 340 75% 65%;
-    --sidebar-primary-foreground: 345 15% 8%;
-    --sidebar-accent: 345 15% 18%;
-    --sidebar-accent-foreground: 350 20% 90%;
-    --sidebar-border: 345 15% 18%;
-    --sidebar-ring: 340 75% 65%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 346 77% 49%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -91,39 +68,46 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Custom wedding-themed styles */
-.wedding-gradient {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(340 60% 70%) 100%);
+@layer components {
+  .wedding-gradient {
+    @apply bg-gradient-to-r from-pink-500 via-rose-500 to-red-500;
+  }
+  
+  .wedding-card-shadow {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .font-serif {
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  .hover-lift {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
 }
 
-.wedding-card-shadow {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.floating-animation {
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
-@keyframes fadeInUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -131,12 +115,57 @@
   }
 }
 
-.shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  animation: shimmer 2s infinite;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Loading animation */
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  #wedding-card-preview {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
 }
