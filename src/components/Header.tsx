@@ -1,13 +1,19 @@
 
 import { useState } from 'react';
-import { Heart, Menu, X, User, LogOut } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -16,142 +22,152 @@ const Header = () => {
     navigate('/');
   };
 
-  const navItems = [
-    { name: 'Templates', href: '#templates' },
-    { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
-  ];
-
   return (
-    <header className="fixed top-0 w-full bg-white/80 backdrop-blur-sm border-b border-gray-200 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+    <header className="bg-white/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <Heart className="h-8 w-8 text-primary" fill="currentColor" />
             <span className="font-serif text-xl font-semibold text-foreground">
               Digital Wedding Cards
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="text-foreground hover:text-primary transition-colors font-medium"
+            <Link 
+              to="/" 
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              Home
+            </Link>
+            <Link 
+              to="/pricing" 
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              Pricing
+            </Link>
+            {user && (
+              <Link 
+                to="/dashboard" 
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
               >
-                {item.name}
-              </a>
-            ))}
+                My Cards
+              </Link>
+            )}
           </nav>
 
-          {/* Auth Controls */}
+          {/* Auth Section */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/dashboard')}
-                  className="flex items-center space-x-2"
-                >
-                  <User className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleSignOut}
-                  className="flex items-center space-x-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span className="truncate max-w-32">
+                      {user.email?.split('@')[0] || 'User'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Button
-                onClick={() => navigate('/auth')}
-                className="wedding-gradient text-white"
-              >
-                Sign In
-              </Button>
+              <div className="flex items-center space-x-3">
+                <Link to="/auth">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button className="wedding-gradient text-white">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <div className="flex flex-col space-y-6 mt-6">
-                  <div className="flex items-center space-x-2">
-                    <Heart className="h-6 w-6 text-primary" fill="currentColor" />
-                    <span className="font-serif text-lg font-semibold">
-                      Digital Wedding Cards
-                    </span>
-                  </div>
-                  
-                  <nav className="flex flex-col space-y-4">
-                    {navItems.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        className="text-foreground hover:text-primary transition-colors font-medium py-2"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {item.name}
-                      </a>
-                    ))}
-                  </nav>
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
 
-                  {/* Mobile Auth Controls */}
-                  <div className="border-t pt-6">
-                    {user ? (
-                      <div className="space-y-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            navigate('/dashboard');
-                            setIsOpen(false);
-                          }}
-                          className="w-full flex items-center justify-center space-x-2"
-                        >
-                          <User className="h-4 w-4" />
-                          <span>Dashboard</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            handleSignOut();
-                            setIsOpen(false);
-                          }}
-                          className="w-full flex items-center justify-center space-x-2"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          <span>Sign Out</span>
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={() => {
-                          navigate('/auth');
-                          setIsOpen(false);
-                        }}
-                        className="w-full wedding-gradient text-white"
-                      >
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-border/50">
+            <nav className="flex flex-col space-y-3">
+              <Link 
+                to="/" 
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                to="/pricing" 
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              {user && (
+                <Link 
+                  to="/dashboard" 
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Cards
+                </Link>
+              )}
+              
+              <div className="pt-4 border-t border-border/50">
+                {user ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Signed in as {user.email?.split('@')[0]}
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleSignOut}
+                      className="w-full justify-start"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start">
                         Sign In
                       </Button>
-                    )}
+                    </Link>
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      <Button className="wedding-gradient text-white w-full">
+                        Get Started
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                )}
+              </div>
+            </nav>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

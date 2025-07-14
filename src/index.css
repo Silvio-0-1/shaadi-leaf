@@ -79,8 +79,16 @@
     @apply bg-gradient-to-r from-pink-500 via-rose-500 to-red-500;
   }
   
+  .pricing-gradient {
+    @apply bg-gradient-to-br from-rose-50 via-pink-50 to-peach-50;
+  }
+  
   .wedding-card-shadow {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .soft-shadow {
+    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.1), 0 2px 8px rgba(236, 72, 153, 0.05);
   }
   
   .font-serif {
@@ -101,6 +109,14 @@
   
   .hover-lift:hover {
     transform: translateY(-2px);
+  }
+
+  .romantic-glow {
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.15);
+  }
+
+  .romantic-glow:hover {
+    box-shadow: 0 0 30px rgba(236, 72, 153, 0.25);
   }
 }
 
@@ -158,6 +174,23 @@
   }
 }
 
+/* Pricing page specific animations */
+.pricing-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pricing-card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Romantic background patterns */
+.romantic-pattern {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(236, 72, 153, 0.05) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
 /* Print styles */
 @media print {
   .no-print {
@@ -167,5 +200,45 @@
   #wedding-card-preview {
     box-shadow: none !important;
     border: 1px solid #e5e7eb !important;
+  }
+}
+
+/* Mobile responsiveness for pricing */
+@media (max-width: 768px) {
+  .pricing-card {
+    margin-bottom: 1rem;
+  }
+  
+  .comparison-table {
+    font-size: 0.875rem;
+  }
+}
+
+/* Enhanced romantic elements */
+.heart-float {
+  animation: heartFloat 3s ease-in-out infinite;
+}
+
+@keyframes heartFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.sparkle-animation {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
   }
 }
