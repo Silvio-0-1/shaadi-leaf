@@ -34,7 +34,20 @@ const Dashboard = () => {
         toast.error('Failed to load your wedding cards');
         console.error('Error fetching cards:', error);
       } else {
-        setCards(data || []);
+        // Transform database data to match our TypeScript interface
+        const transformedCards: WeddingCardData[] = (data || []).map(card => ({
+          id: card.id,
+          brideName: card.bride_name,
+          groomName: card.groom_name,
+          weddingDate: card.wedding_date,
+          venue: card.venue,
+          message: card.message || '',
+          templateId: card.template_id,
+          uploadedImage: card.uploaded_image || '',
+          createdAt: card.created_at,
+          updatedAt: card.updated_at,
+        }));
+        setCards(transformedCards);
       }
     } catch (error) {
       toast.error('An error occurred while loading your cards');
@@ -138,14 +151,14 @@ const Dashboard = () => {
               <Card key={card.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="text-lg font-serif">
-                    {card.bride_name} & {card.groom_name}
+                    {card.brideName} & {card.groomName}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {card.wedding_date && (
+                  {card.weddingDate && (
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4 mr-2" />
-                      {formatDate(card.wedding_date)}
+                      {formatDate(card.weddingDate)}
                     </div>
                   )}
                   {card.venue && (
