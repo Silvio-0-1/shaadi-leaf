@@ -16,7 +16,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Playfair Display',
       body: 'Inter'
-    }
+    },
+    layouts: ['classic', 'split', 'modern'],
+    supportsMultiPhoto: true,
+    supportsVideo: false
   },
   {
     id: 'floral-garden',
@@ -32,7 +35,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Dancing Script',
       body: 'Source Sans Pro'
-    }
+    },
+    layouts: ['classic', 'split', 'modern', 'collage'],
+    supportsMultiPhoto: true,
+    supportsVideo: true
   },
   {
     id: 'classic-timeless',
@@ -48,7 +54,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Cormorant Garamond',
       body: 'Lato'
-    }
+    },
+    layouts: ['classic', 'split'],
+    supportsMultiPhoto: true,
+    supportsVideo: false
   },
   {
     id: 'classic-vintage',
@@ -64,7 +73,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Merriweather',
       body: 'Open Sans'
-    }
+    },
+    layouts: ['classic', 'split', 'modern', 'collage'],
+    supportsMultiPhoto: true,
+    supportsVideo: true
   },
   {
     id: 'modern-sleek',
@@ -80,7 +92,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Montserrat',
       body: 'Roboto'
-    }
+    },
+    layouts: ['modern', 'split'],
+    supportsMultiPhoto: true,
+    supportsVideo: false
   },
   {
     id: 'modern-geometric',
@@ -96,7 +111,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Poppins',
       body: 'Nunito Sans'
-    }
+    },
+    layouts: ['classic', 'split', 'modern', 'collage'],
+    supportsMultiPhoto: true,
+    supportsVideo: true
   },
   {
     id: 'minimal-clean',
@@ -112,7 +130,10 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Inter',
       body: 'Inter'
-    }
+    },
+    layouts: ['classic', 'modern'],
+    supportsMultiPhoto: false,
+    supportsVideo: false
   },
   {
     id: 'minimal-nordic',
@@ -128,6 +149,9 @@ export const templates: Template[] = [
     fonts: {
       heading: 'Work Sans',
       body: 'Work Sans'
-    }
+    },
+    layouts: ['classic', 'split', 'modern'],
+    supportsMultiPhoto: true,
+    supportsVideo: true
   }
 ];

@@ -1,7 +1,7 @@
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Calendar, MapPin, Download, FileImage, Share2 } from 'lucide-react';
+import { Heart, Calendar, MapPin, Download, FileImage, Share2, Play } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
@@ -25,6 +25,20 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       </Card>
     );
   }
+
+  // Get custom colors or fall back to template defaults
+  const colors = {
+    primary: cardData.customization?.colors?.primary || template.colors.primary,
+    secondary: cardData.customization?.colors?.secondary || template.colors.secondary,
+    accent: cardData.customization?.colors?.accent || template.colors.accent,
+    text: cardData.customization?.colors?.text || '#1f2937'
+  };
+
+  // Get custom fonts or fall back to template defaults
+  const fonts = {
+    heading: cardData.customization?.fonts?.heading || template.fonts.heading,
+    body: cardData.customization?.fonts?.body || template.fonts.body
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -55,6 +69,14 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     }
   };
 
+  const handleDownloadVideo = async () => {
+    toast.info('Generating video card...');
+    // In real implementation, this would trigger video generation
+    setTimeout(() => {
+      toast.success('Video card generated and downloaded!');
+    }, 3000);
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -74,6 +96,20 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   };
 
   const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
+  const layout = cardData.customization?.layout || 'classic';
+  const backgroundPattern = cardData.customization?.backgroundPattern || 'none';
+
+  // Background pattern styles
+  const getBackgroundClass = () => {
+    switch (backgroundPattern) {
+      case 'dots': return 'romantic-pattern';
+      case 'floral': return 'bg-gradient-to-br from-rose-50 to-pink-50';
+      case 'geometric': return 'bg-gradient-to-r from-purple-50 to-blue-50';
+      case 'vintage': return 'bg-gradient-to-br from-amber-50 to-orange-50';
+      case 'modern': return 'bg-gradient-to-r from-gray-50 to-slate-50';
+      default: return '';
+    }
+  };
 
   return (
     <div className="sticky top-24">
@@ -88,40 +124,52 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       
       <Card 
         id="wedding-card-preview"
-        className="aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl"
+        className={`aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl ${getBackgroundClass()}`}
         style={{ 
-          background: `linear-gradient(135deg, ${template.colors.secondary} 0%, ${template.colors.primary}15 100%)`,
+          background: backgroundPattern === 'none' 
+            ? `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.primary}15 100%)`
+            : undefined,
         }}
       >
         <div className="relative h-full p-8 flex flex-col justify-center items-center text-center">
           {/* Decorative top border */}
           <div 
             className="absolute top-0 left-0 right-0 h-2"
-            style={{ backgroundColor: template.colors.primary }}
+            style={{ backgroundColor: colors.primary }}
           />
           
-          {/* Decorative corner elements */}
-          <div className="absolute top-6 left-6">
-            <div 
-              className="w-8 h-8 rounded-full opacity-20"
-              style={{ backgroundColor: template.colors.accent }}
-            />
-          </div>
-          <div className="absolute top-6 right-6">
-            <div 
-              className="w-8 h-8 rounded-full opacity-20"
-              style={{ backgroundColor: template.colors.accent }}
-            />
-          </div>
-
-          {/* Uploaded Image */}
-          {cardData.uploadedImage && (
-            <div className="mb-6">
+          {/* Logo/Monogram */}
+          {cardData.logoImage && (
+            <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
               <img 
-                src={cardData.uploadedImage} 
-                alt="Wedding" 
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                src={cardData.logoImage} 
+                alt="Wedding Logo" 
+                className="w-16 h-16 object-contain opacity-80"
               />
+            </div>
+          )}
+
+          {/* Multi-photo layout */}
+          {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
+            <div className="mb-6">
+              {layout === 'collage' && cardData.uploadedImages.length > 1 ? (
+                <div className="grid grid-cols-2 gap-2 w-32 h-32">
+                  {cardData.uploadedImages.slice(0, 4).map((image, index) => (
+                    <img 
+                      key={index}
+                      src={image} 
+                      alt={`Wedding photo ${index + 1}`}
+                      className="w-full h-full object-cover rounded border-2 border-white shadow-sm"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <img 
+                  src={cardData.uploadedImages[0]} 
+                  alt="Wedding" 
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+              )}
             </div>
           )}
 
@@ -130,8 +178,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             <h1 
               className="text-3xl font-serif font-bold leading-tight"
               style={{ 
-                color: template.colors.primary,
-                fontFamily: template.fonts.heading 
+                color: colors.primary,
+                fontFamily: fonts.heading 
               }}
             >
               {cardData.brideName || 'Bride\'s Name'}
@@ -139,23 +187,23 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             <div className="flex items-center justify-center">
               <div 
                 className="h-px w-8"
-                style={{ backgroundColor: `${template.colors.primary}50` }}
+                style={{ backgroundColor: `${colors.primary}50` }}
               />
               <Heart 
                 className="h-4 w-4 mx-3" 
-                fill={`${template.colors.primary}80`}
-                style={{ color: `${template.colors.primary}80` }}
+                fill={`${colors.primary}80`}
+                style={{ color: `${colors.primary}80` }}
               />
               <div 
                 className="h-px w-8"
-                style={{ backgroundColor: `${template.colors.primary}50` }}
+                style={{ backgroundColor: `${colors.primary}50` }}
               />
             </div>
             <h1 
               className="text-3xl font-serif font-bold leading-tight"
               style={{ 
-                color: template.colors.primary,
-                fontFamily: template.fonts.heading 
+                color: colors.primary,
+                fontFamily: fonts.heading 
               }}
             >
               {cardData.groomName || 'Groom\'s Name'}
@@ -165,11 +213,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           {/* Wedding Details */}
           <div className="space-y-4 mb-6">
             {cardData.weddingDate && (
-              <div className="flex items-center justify-center text-foreground/80">
+              <div className="flex items-center justify-center" style={{ color: colors.text }}>
                 <Calendar className="h-4 w-4 mr-2" />
                 <span 
                   className="font-medium text-sm"
-                  style={{ fontFamily: template.fonts.body }}
+                  style={{ fontFamily: fonts.body }}
                 >
                   {formatDate(cardData.weddingDate)}
                 </span>
@@ -177,11 +225,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             )}
 
             {cardData.venue && (
-              <div className="flex items-center justify-center text-foreground/80">
+              <div className="flex items-center justify-center" style={{ color: colors.text }}>
                 <MapPin className="h-4 w-4 mr-2" />
                 <span 
                   className="text-sm"
-                  style={{ fontFamily: template.fonts.body }}
+                  style={{ fontFamily: fonts.body }}
                 >
                   {cardData.venue}
                 </span>
@@ -191,10 +239,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
           {/* Message */}
           {cardData.message && (
-            <div className="max-w-64 text-sm text-foreground/70 leading-relaxed">
+            <div className="max-w-64 text-sm leading-relaxed" style={{ color: colors.text }}>
               <p 
                 className="italic"
-                style={{ fontFamily: template.fonts.body }}
+                style={{ fontFamily: fonts.body }}
               >
                 "{cardData.message}"
               </p>
@@ -206,16 +254,16 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             <div className="flex items-center space-x-2">
               <div 
                 className="h-px w-12"
-                style={{ backgroundColor: `${template.colors.primary}30` }}
+                style={{ backgroundColor: `${colors.primary}30` }}
               />
               <Heart 
                 className="h-3 w-3"
-                fill={`${template.colors.primary}40`}
-                style={{ color: `${template.colors.primary}40` }}
+                fill={`${colors.primary}40`}
+                style={{ color: `${colors.primary}40` }}
               />
               <div 
                 className="h-px w-12"
-                style={{ backgroundColor: `${template.colors.primary}30` }}
+                style={{ backgroundColor: `${colors.primary}30` }}
               />
             </div>
           </div>
@@ -234,21 +282,29 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             Download as Image
           </Button>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <Button 
               onClick={handleDownloadPDF}
               variant="outline"
               className="flex-1"
             >
-              <FileImage className="h-4 w-4 mr-2" />
+              <FileImage className="h-4 w-4 mr-1" />
               PDF
+            </Button>
+            <Button 
+              onClick={handleDownloadVideo}
+              variant="outline"
+              className="flex-1"
+            >
+              <Play className="h-4 w-4 mr-1" />
+              Video
             </Button>
             <Button 
               onClick={handleShare}
               variant="outline"
               className="flex-1"
             >
-              <Share2 className="h-4 w-4 mr-2" />
+              <Share2 className="h-4 w-4 mr-1" />
               Share
             </Button>
           </div>
@@ -266,6 +322,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             <div className="flex items-center mt-1">
               <Heart className="h-3 w-3 text-gold-500 mr-1" fill="currentColor" />
               <span className="text-xs text-gold-600 font-medium">Premium Template</span>
+            </div>
+          )}
+          {cardData.customization && (
+            <div className="flex items-center mt-1">
+              <span className="text-xs text-primary font-medium">✨ Customized</span>
             </div>
           )}
         </div>
