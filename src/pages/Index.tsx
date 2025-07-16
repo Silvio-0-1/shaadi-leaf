@@ -78,7 +78,7 @@ const Index = () => {
       {currentStep === 'hero' && (
         <div>
           <HeroSection />
-          <div className="text-center pb-12">
+          <div className="text-center pb-8">
             <button
               onClick={startCreating}
               className="wedding-gradient text-white px-8 py-4 rounded-lg text-lg font-medium hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"

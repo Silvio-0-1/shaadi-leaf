@@ -6,7 +6,7 @@ const HeroSection = () => {
     <section className="py-20 px-4 text-center bg-gradient-to-br from-background via-muted/30 to-background">
       <div className="container mx-auto max-w-6xl">
         {/* Main Hero Content */}
-        <div className="mb-16">
+        <div className="mb-12">
           <div className="flex items-center justify-center mb-6">
             <Heart className="h-16 w-16 text-primary mr-4" fill="currentColor" />
             <Sparkles className="h-12 w-12 text-primary/70" />
@@ -25,7 +25,7 @@ const HeroSection = () => {
             Share your special day with beautiful digital invitations that your guests will treasure.
           </p>
           
-          <div className="flex flex-wrap items-center justify-center gap-6 text-muted-foreground mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-muted-foreground mb-8">
             <div className="flex items-center">
               <Users className="h-5 w-5 mr-2" />
               <span>No Design Skills Required</span>
@@ -42,7 +42,7 @@ const HeroSection = () => {
         </div>
 
         {/* Feature Highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="p-6 rounded-xl bg-card border border-border/50 hover:shadow-lg transition-all duration-300">
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <Sparkles className="h-6 w-6 text-primary" />
@@ -75,7 +75,7 @@ const HeroSection = () => {
         </div>
 
         {/* Sample Cards Preview */}
-        <div className="mb-12">
+        <div className="mb-8">
           <h2 className="font-serif text-3xl font-semibold mb-8 text-foreground">
             Beautiful Templates for Every Style
           </h2>
