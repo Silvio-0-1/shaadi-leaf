@@ -10,17 +10,45 @@ export const downloadAsImage = async (elementId: string, fileName: string = 'wed
   }
 
   try {
+    // Wait for fonts and images to load
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     const canvas = await html2canvas(element, {
       backgroundColor: null,
-      scale: 2, // Higher quality
+      scale: 3, // Higher quality
       logging: false,
-      useCORS: true
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      imageTimeout: 15000,
+      onclone: (clonedDoc) => {
+        // Ensure all styles are applied to cloned document
+        const clonedElement = clonedDoc.getElementById(elementId);
+        if (clonedElement) {
+          // Copy computed styles
+          const originalStyles = window.getComputedStyle(element);
+          clonedElement.style.cssText = originalStyles.cssText;
+          
+          // Ensure background gradients are preserved
+          const allElements = clonedElement.querySelectorAll('*');
+          const originalElements = element.querySelectorAll('*');
+          
+          allElements.forEach((el, index) => {
+            if (originalElements[index]) {
+              const originalStyle = window.getComputedStyle(originalElements[index]);
+              (el as HTMLElement).style.background = originalStyle.background;
+              (el as HTMLElement).style.fontFamily = originalStyle.fontFamily;
+              (el as HTMLElement).style.color = originalStyle.color;
+            }
+          });
+        }
+      }
     });
 
     // Create download link
     const link = document.createElement('a');
     link.download = `${fileName}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = canvas.toDataURL('image/png', 1.0);
     link.click();
   } catch (error) {
     console.error('Error generating image:', error);
@@ -35,27 +63,92 @@ export const downloadAsPDF = async (elementId: string, fileName: string = 'weddi
   }
 
   try {
+    // Wait for fonts and images to load
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     const canvas = await html2canvas(element, {
       backgroundColor: '#ffffff',
-      scale: 2,
+      scale: 3,
       logging: false,
-      useCORS: true
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      imageTimeout: 15000,
+      onclone: (clonedDoc) => {
+        const clonedElement = clonedDoc.getElementById(elementId);
+        if (clonedElement) {
+          const originalStyles = window.getComputedStyle(element);
+          clonedElement.style.cssText = originalStyles.cssText;
+          
+          const allElements = clonedElement.querySelectorAll('*');
+          const originalElements = element.querySelectorAll('*');
+          
+          allElements.forEach((el, index) => {
+            if (originalElements[index]) {
+              const originalStyle = window.getComputedStyle(originalElements[index]);
+              (el as HTMLElement).style.background = originalStyle.background;
+              (el as HTMLElement).style.fontFamily = originalStyle.fontFamily;
+              (el as HTMLElement).style.color = originalStyle.color;
+            }
+          });
+        }
+      }
     });
 
-    const imgData = canvas.toDataURL('image/png');
+    // Create a proper PDF with good margins and layout
+    const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: 'a4'
+      format: 'a4',
+      compress: true
     });
 
-    // Calculate dimensions to fit A4
-    const imgWidth = 150;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    const x = (210 - imgWidth) / 2; // Center horizontally
-    const y = 20;
+    // Add title and metadata
+    pdf.setProperties({
+      title: `${fileName} - Wedding Invitation`,
+      subject: 'Wedding Invitation Card',
+      author: 'Digital Wedding Cards',
+      creator: 'Digital Wedding Cards Platform'
+    });
 
-    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+    // Calculate optimal dimensions while maintaining aspect ratio
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxWidth = pageWidth - (margin * 2);
+    const maxHeight = pageHeight - (margin * 2) - 20; // Extra space for header
+
+    const imgWidth = maxWidth;
+    const imgHeight = (canvas.height * maxWidth) / canvas.width;
+
+    // If image is too tall, scale it down
+    let finalWidth = imgWidth;
+    let finalHeight = imgHeight;
+    
+    if (imgHeight > maxHeight) {
+      finalHeight = maxHeight;
+      finalWidth = (canvas.width * maxHeight) / canvas.height;
+    }
+
+    // Center the image
+    const x = (pageWidth - finalWidth) / 2;
+    const y = margin + 10;
+
+    // Add a subtle header
+    pdf.setFontSize(8);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text('Digital Wedding Cards', pageWidth / 2, margin / 2, { align: 'center' });
+
+    // Add the main image
+    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight, undefined, 'FAST');
+
+    // Add a subtle footer
+    pdf.setFontSize(6);
+    pdf.setTextColor(180, 180, 180);
+    const footerY = pageHeight - 10;
+    pdf.text('Created with love at digitalweddingcards.com', pageWidth / 2, footerY, { align: 'center' });
+
     pdf.save(`${fileName}.pdf`);
   } catch (error) {
     console.error('Error generating PDF:', error);

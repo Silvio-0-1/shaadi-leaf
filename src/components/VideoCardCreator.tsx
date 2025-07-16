@@ -1,11 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Play, Pause, Download, Music, Sparkles, Video } from 'lucide-react';
+import { Play, Pause, Download, Music, Sparkles, Video, Volume2 } from 'lucide-react';
 import { VideoCardData } from '@/types';
 import { toast } from 'sonner';
 
@@ -17,13 +17,16 @@ interface VideoCardCreatorProps {
 const VideoCardCreator = ({ cardData, onDataChange }: VideoCardCreatorProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const musicTracks = [
-    { id: 'romantic-piano', name: 'Romantic Piano', duration: 30 },
-    { id: 'wedding-bells', name: 'Wedding Bells', duration: 45 },
-    { id: 'classical-strings', name: 'Classical Strings', duration: 60 },
-    { id: 'gentle-acoustic', name: 'Gentle Acoustic', duration: 30 },
-    { id: 'orchestral-love', name: 'Orchestral Love Theme', duration: 90 }
+    { id: 'romantic-piano', name: 'Romantic Piano', duration: 30, url: '/audio/romantic-piano.mp3' },
+    { id: 'wedding-bells', name: 'Wedding Bells', duration: 45, url: '/audio/wedding-bells.mp3' },
+    { id: 'classical-strings', name: 'Classical Strings', duration: 60, url: '/audio/classical-strings.mp3' },
+    { id: 'gentle-acoustic', name: 'Gentle Acoustic', duration: 30, url: '/audio/gentle-acoustic.mp3' },
+    { id: 'orchestral-love', name: 'Orchestral Love Theme', duration: 90, url: '/audio/orchestral-love.mp3' }
   ];
 
   const transitionStyles = [
@@ -52,22 +55,174 @@ const VideoCardCreator = ({ cardData, onDataChange }: VideoCardCreatorProps) => 
   };
 
   const generateVideoPreview = async () => {
+    if (!cardData.brideName || !cardData.groomName) {
+      toast.error('Please add bride and groom names first');
+      return;
+    }
+
     setIsGenerating(true);
     toast.info('Generating video preview...');
     
-    // Simulate video generation (in real app, this would call a video generation API)
-    setTimeout(() => {
+    try {
+      // Create a video preview using canvas animation
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = 800;
+      canvas.height = 1200;
+
+      // Create frames for animation
+      const frames: ImageData[] = [];
+      const duration = cardData.videoSettings?.duration || 30;
+      const fps = 24;
+      const totalFrames = duration * fps;
+
+      for (let frame = 0; frame < totalFrames; frame++) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Background gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#fdf2f8');
+        gradient.addColorStop(1, '#fce7f3');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Animated elements based on frame
+        const progress = frame / totalFrames;
+        
+        // Floating hearts animation
+        if (cardData.videoSettings?.animationStyle === 'floating') {
+          for (let i = 0; i < 5; i++) {
+            const x = 100 + i * 150 + Math.sin(progress * 4 + i) * 20;
+            const y = 200 + Math.cos(progress * 3 + i) * 30;
+            const opacity = 0.3 + Math.sin(progress * 2 + i) * 0.2;
+            
+            ctx.fillStyle = `rgba(244, 63, 94, ${opacity})`;
+            ctx.font = '24px serif';
+            ctx.fillText('♥', x, y);
+          }
+        }
+
+        // Names with fade-in effect
+        const nameOpacity = Math.min(1, progress * 3);
+        ctx.fillStyle = `rgba(244, 63, 94, ${nameOpacity})`;
+        ctx.font = 'bold 48px serif';
+        ctx.textAlign = 'center';
+        
+        const brideName = cardData.brideName;
+        const groomName = cardData.groomName;
+        
+        ctx.fillText(brideName, canvas.width / 2, canvas.height / 2 - 50);
+        ctx.fillText('&', canvas.width / 2, canvas.height / 2);
+        ctx.fillText(groomName, canvas.width / 2, canvas.height / 2 + 50);
+
+        // Wedding date
+        if (cardData.weddingDate) {
+          ctx.fillStyle = `rgba(107, 114, 128, ${nameOpacity})`;
+          ctx.font = '24px serif';
+          const date = new Date(cardData.weddingDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+          ctx.fillText(date, canvas.width / 2, canvas.height / 2 + 120);
+        }
+
+        frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      }
+
+      // Convert frames to video blob (simplified for demo)
+      const videoBlob = await createVideoFromFrames(frames, fps);
+      const videoUrl = URL.createObjectURL(videoBlob);
+      setVideoPreviewUrl(videoUrl);
+      
       setIsGenerating(false);
       toast.success('Video preview generated!');
-    }, 3000);
+    } catch (error) {
+      console.error('Video generation error:', error);
+      setIsGenerating(false);
+      toast.error('Failed to generate video preview');
+    }
+  };
+
+  const createVideoFromFrames = async (frames: ImageData[], fps: number): Promise<Blob> => {
+    // In a real implementation, you would use WebCodecs API or a library like FFmpeg.js
+    // For now, we'll create a simple animated WebM using MediaRecorder
+    
+    const canvas = canvasRef.current;
+    if (!canvas) throw new Error('Canvas not available');
+    
+    const stream = canvas.captureStream(fps);
+    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    const chunks: BlobPart[] = [];
+    
+    return new Promise((resolve, reject) => {
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+      
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        resolve(blob);
+      };
+      
+      recorder.onerror = reject;
+      
+      recorder.start();
+      
+      // Animate the canvas for recording
+      let frameIndex = 0;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      const animate = () => {
+        if (frameIndex < frames.length) {
+          ctx.putImageData(frames[frameIndex], 0, 0);
+          frameIndex++;
+          setTimeout(animate, 1000 / fps);
+        } else {
+          recorder.stop();
+        }
+      };
+      
+      animate();
+    });
   };
 
   const downloadVideo = async () => {
+    if (!videoPreviewUrl) {
+      toast.error('Please generate a video preview first');
+      return;
+    }
+
     toast.info('Preparing video download...');
-    // In a real implementation, this would trigger video generation and download
-    setTimeout(() => {
+    
+    try {
+      const link = document.createElement('a');
+      link.href = videoPreviewUrl;
+      link.download = `${cardData.brideName}-${cardData.groomName}-wedding-video.webm`;
+      link.click();
+      
       toast.success('Video downloaded successfully!');
-    }, 2000);
+    } catch (error) {
+      toast.error('Failed to download video');
+    }
+  };
+
+  const togglePlayback = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
 
   return (
@@ -114,7 +269,10 @@ const VideoCardCreator = ({ cardData, onDataChange }: VideoCardCreatorProps) => 
               <SelectContent>
                 {musicTracks.map((track) => (
                   <SelectItem key={track.id} value={track.id}>
-                    {track.name} ({track.duration}s)
+                    <div className="flex items-center">
+                      <Volume2 className="h-3 w-3 mr-2" />
+                      {track.name} ({track.duration}s)
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -176,11 +334,30 @@ const VideoCardCreator = ({ cardData, onDataChange }: VideoCardCreatorProps) => 
       {/* Video Preview */}
       <Card className="p-6">
         <h4 className="font-semibold mb-4">Video Preview</h4>
-        <div className="aspect-video bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/25">
-          {isGenerating ? (
+        <div className="aspect-video bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/25 relative overflow-hidden">
+          {videoPreviewUrl ? (
+            <div className="relative w-full h-full">
+              <video
+                ref={videoRef}
+                src={videoPreviewUrl}
+                className="w-full h-full object-cover rounded-lg"
+                controls
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+              />
+              <button
+                onClick={togglePlayback}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+              >
+                {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+              </button>
+            </div>
+          ) : isGenerating ? (
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Generating preview...</p>
+              <p className="text-sm text-muted-foreground">Generating video preview...</p>
+              <p className="text-xs text-muted-foreground mt-1">This may take a moment</p>
             </div>
           ) : (
             <div className="text-center">
@@ -193,6 +370,9 @@ const VideoCardCreator = ({ cardData, onDataChange }: VideoCardCreatorProps) => 
             </div>
           )}
         </div>
+        
+        {/* Hidden canvas for video generation */}
+        <canvas ref={canvasRef} className="hidden" />
       </Card>
 
       {/* Actions */}
@@ -211,13 +391,14 @@ const VideoCardCreator = ({ cardData, onDataChange }: VideoCardCreatorProps) => 
           ) : (
             <>
               <Play className="h-4 w-4 mr-2" />
-              Preview Video
+              {videoPreviewUrl ? 'Regenerate' : 'Generate'} Preview
             </>
           )}
         </Button>
         
         <Button 
           onClick={downloadVideo}
+          disabled={!videoPreviewUrl}
           className="wedding-gradient w-full"
         >
           <Download className="h-4 w-4 mr-2" />

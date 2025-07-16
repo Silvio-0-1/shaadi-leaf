@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, MapPin, Heart, MessageCircle, Settings, Image, Video, Crown } from 'lucide-react';
 import { WeddingCardData, VideoCardData } from '@/types';
@@ -47,25 +46,6 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
 
   const handleCustomizationChange = (customization: any) => {
     onDataChange({ customization });
-  };
-
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-    
-    if (!cardData.brideName.trim()) {
-      errors.brideName = 'Bride\'s name is required';
-    }
-    
-    if (!cardData.groomName.trim()) {
-      errors.groomName = 'Groom\'s name is required';
-    }
-    
-    if (cardData.weddingDate && new Date(cardData.weddingDate) < new Date()) {
-      errors.weddingDate = 'Wedding date cannot be in the past';
-    }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
   };
 
   const getFieldError = (field: string) => validationErrors[field];
@@ -233,16 +213,8 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
         </TabsContent>
       </Tabs>
 
-      {/* Form Actions */}
+      {/* Form Info */}
       <div className="pt-4 border-t">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={validateForm}
-          className="w-full mb-3"
-        >
-          Validate Details
-        </Button>
         <p className="text-xs text-muted-foreground text-center">
           Changes are automatically saved and reflected in the preview
         </p>
