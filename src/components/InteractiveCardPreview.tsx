@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,13 +40,30 @@ const defaultPositions: CardElements = {
 };
 
 const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate }: InteractiveCardPreviewProps) => {
-  const [positions, setPositions] = useState<CardElements>(initialPositions || defaultPositions);
-  const [history, setHistory] = useState<CardElements[]>([initialPositions || defaultPositions]);
+  const template = templates.find(t => t.id === cardData.templateId);
+  
+  // Use template's default positions if available, otherwise use general defaults
+  const getDefaultPositions = (): CardElements => {
+    if (template?.defaultPositions) {
+      return template.defaultPositions;
+    }
+    return {
+      brideName: { x: 0, y: -40 },
+      groomName: { x: 0, y: 40 },
+      heartIcon: { x: 0, y: 0 },
+      weddingDate: { x: 0, y: 120 },
+      venue: { x: 0, y: 150 },
+      message: { x: 0, y: 200 },
+      photo: { x: 0, y: -120 },
+      logo: { x: 0, y: -180 },
+    };
+  };
+
+  const [positions, setPositions] = useState<CardElements>(initialPositions || getDefaultPositions());
+  const [history, setHistory] = useState<CardElements[]>([initialPositions || getDefaultPositions()]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   
-  const template = templates.find(t => t.id === cardData.templateId);
-
   // Update positions when component receives new initialPositions
   useEffect(() => {
     if (initialPositions) {
@@ -127,8 +143,9 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
   };
 
   const reset = () => {
-    setPositions(defaultPositions);
-    setHistory([defaultPositions]);
+    const defaultPos = getDefaultPositions();
+    setPositions(defaultPos);
+    setHistory([defaultPos]);
     setHistoryIndex(0);
   };
 
@@ -145,6 +162,26 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
       case 'modern': return 'bg-gradient-to-r from-gray-50 to-slate-50';
       default: return '';
     }
+  };
+
+  // Get background style for custom templates
+  const getBackgroundStyle = () => {
+    if (template?.backgroundImage) {
+      return {
+        backgroundImage: `url(${template.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      };
+    }
+    
+    if (backgroundPattern === 'none') {
+      return {
+        background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.primary}15 100%)`
+      };
+    }
+    
+    return {};
   };
 
   return (
@@ -182,19 +219,17 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
       <Card 
         ref={cardRef}
         id="card-preview"
-        className={`aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl relative ${getBackgroundClass()}`}
-        style={{ 
-          background: backgroundPattern === 'none' 
-            ? `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.primary}15 100%)`
-            : undefined,
-        }}
+        className={`aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl relative ${!template?.backgroundImage ? getBackgroundClass() : ''}`}
+        style={getBackgroundStyle()}
       >
         <div className="relative h-full flex items-center justify-center">
-          {/* Decorative top border */}
-          <div 
-            className="absolute top-0 left-0 right-0 h-2"
-            style={{ backgroundColor: colors.primary }}
-          />
+          {/* Decorative top border - only show if no custom background */}
+          {!template?.backgroundImage && (
+            <div 
+              className="absolute top-0 left-0 right-0 h-2"
+              style={{ backgroundColor: colors.primary }}
+            />
+          )}
 
           {/* Logo/Monogram */}
           {cardData.logoImage && (
@@ -360,24 +395,26 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
             </DraggableElement>
           )}
 
-          {/* Decorative Footer */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-            <div className="flex items-center space-x-2">
-              <div 
-                className="h-px w-12"
-                style={{ backgroundColor: `${colors.primary}30` }}
-              />
-              <Heart 
-                className="h-3 w-3"
-                fill={`${colors.primary}40`}
-                style={{ color: `${colors.primary}40` }}
-              />
-              <div 
-                className="h-px w-12"
-                style={{ backgroundColor: `${colors.primary}30` }}
-              />
+          {/* Decorative Footer - only show if no custom background */}
+          {!template?.backgroundImage && (
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+              <div className="flex items-center space-x-2">
+                <div 
+                  className="h-px w-12"
+                  style={{ backgroundColor: `${colors.primary}30` }}
+                />
+                <Heart 
+                  className="h-3 w-3"
+                  fill={`${colors.primary}40`}
+                  style={{ color: `${colors.primary}40` }}
+                />
+                <div 
+                  className="h-px w-12"
+                  style={{ backgroundColor: `${colors.primary}30` }}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </Card>
     </div>

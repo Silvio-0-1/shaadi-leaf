@@ -30,10 +30,26 @@ export interface TemplateCustomization {
   layout?: string;
 }
 
+export interface ElementPosition {
+  x: number;
+  y: number;
+}
+
+export interface CardElements {
+  brideName: ElementPosition;
+  groomName: ElementPosition;
+  heartIcon: ElementPosition;
+  weddingDate: ElementPosition;
+  venue: ElementPosition;
+  message: ElementPosition;
+  photo: ElementPosition;
+  logo: ElementPosition;
+}
+
 export interface Template {
   id: string;
   name: string;
-  category: 'floral' | 'classic' | 'modern' | 'minimal';
+  category: 'floral' | 'classic' | 'modern' | 'minimal' | 'custom';
   thumbnail: string;
   isPremium: boolean;
   colors: {
@@ -48,6 +64,8 @@ export interface Template {
   layouts?: string[]; // Available layout variations
   supportsMultiPhoto?: boolean;
   supportsVideo?: boolean;
+  backgroundImage?: string; // Custom background image for template
+  defaultPositions?: CardElements; // Predefined positions for elements
 }
 
 export interface VideoCardData extends WeddingCardData {

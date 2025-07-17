@@ -153,5 +153,66 @@ export const templates: Template[] = [
     layouts: ['classic', 'split', 'modern'],
     supportsMultiPhoto: true,
     supportsVideo: true
+  },
+  // Custom template examples
+  {
+    id: 'custom-invitation-1',
+    name: 'Royal Invitation',
+    category: 'custom',
+    thumbnail: '/placeholder.svg',
+    isPremium: true,
+    colors: {
+      primary: '#8b5cf6',
+      secondary: '#faf5ff',
+      accent: '#a78bfa'
+    },
+    fonts: {
+      heading: 'Playfair Display',
+      body: 'Inter'
+    },
+    layouts: ['custom'],
+    supportsMultiPhoto: true,
+    supportsVideo: true,
+    backgroundImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=1000&fit=crop',
+    defaultPositions: {
+      brideName: { x: -50, y: -60 },
+      groomName: { x: 50, y: 60 },
+      heartIcon: { x: 0, y: 0 },
+      weddingDate: { x: 0, y: 120 },
+      venue: { x: 0, y: 150 },
+      message: { x: 0, y: 200 },
+      photo: { x: -100, y: -100 },
+      logo: { x: 100, y: -150 },
+    }
+  },
+  {
+    id: 'custom-invitation-2',
+    name: 'Garden Party',
+    category: 'custom',
+    thumbnail: '/placeholder.svg',
+    isPremium: false,
+    colors: {
+      primary: '#16a34a',
+      secondary: '#f0fdf4',
+      accent: '#22c55e'
+    },
+    fonts: {
+      heading: 'Dancing Script',
+      body: 'Inter'
+    },
+    layouts: ['custom'],
+    supportsMultiPhoto: true,
+    supportsVideo: false,
+    backgroundImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=1000&fit=crop',
+    defaultPositions: {
+      brideName: { x: 0, y: -80 },
+      groomName: { x: 0, y: -40 },
+      heartIcon: { x: 0, y: -10 },
+      weddingDate: { x: 0, y: 80 },
+      venue: { x: 0, y: 110 },
+      message: { x: 0, y: 150 },
+      photo: { x: 0, y: -140 },
+      logo: { x: 0, y: -180 },
+    }
   }
 ];

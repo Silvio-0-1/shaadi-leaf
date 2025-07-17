@@ -134,6 +134,22 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     };
   };
 
+  // Get background style for custom templates
+  const getBackgroundStyle = () => {
+    if (template?.backgroundImage) {
+      return {
+        backgroundImage: `url(${template.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      };
+    }
+    
+    return {
+      background: `linear-gradient(135deg, ${template?.colors.secondary} 0%, ${template?.colors.primary}15 100%)`
+    };
+  };
+
   const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
 
   if (!template) {
@@ -191,15 +207,16 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           <Card 
             id="card-preview"
             className="aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl"
-            style={{ 
-              background: `linear-gradient(135deg, ${template.colors.secondary} 0%, ${template.colors.primary}15 100%)`,
-            }}
+            style={getBackgroundStyle()}
           >
             <div className="relative h-full p-8 flex flex-col justify-center items-center text-center">
-              <div 
-                className="absolute top-0 left-0 right-0 h-2"
-                style={{ backgroundColor: template.colors.primary }}
-              />
+              {/* Decorative top border - only show if no custom background */}
+              {!template.backgroundImage && (
+                <div 
+                  className="absolute top-0 left-0 right-0 h-2"
+                  style={{ backgroundColor: template.colors.primary }}
+                />
+              )}
               
               {cardData.logoImage && (
                 <div style={getElementStyle('logo', { position: 'absolute', top: '24px', left: '50%', transform: 'translateX(-50%)' })}>
@@ -297,23 +314,26 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 </div>
               )}
 
-              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-                <div className="flex items-center space-x-2">
-                  <div 
-                    className="h-px w-12"
-                    style={{ backgroundColor: `${template.colors.primary}30` }}
-                  />
-                  <Heart 
-                    className="h-3 w-3"
-                    fill={`${template.colors.primary}40`}
-                    style={{ color: `${template.colors.primary}40` }}
-                  />
-                  <div 
-                    className="h-px w-12"
-                    style={{ backgroundColor: `${template.colors.primary}30` }}
-                  />
+              {/* Decorative Footer - only show if no custom background */}
+              {!template.backgroundImage && (
+                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+                  <div className="flex items-center space-x-2">
+                    <div 
+                      className="h-px w-12"
+                      style={{ backgroundColor: `${template.colors.primary}30` }}
+                    />
+                    <Heart 
+                      className="h-3 w-3"
+                      fill={`${template.colors.primary}40`}
+                      style={{ color: `${template.colors.primary}40` }}
+                    />
+                    <div 
+                      className="h-px w-12"
+                      style={{ backgroundColor: `${template.colors.primary}30` }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </Card>
         )}
@@ -376,6 +396,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             {cardData.customization && (
               <div className="flex items-center mt-1">
                 <span className="text-xs text-primary font-medium">✨ Customized</span>
+              </div>
+            )}
+            {template.category === 'custom' && (
+              <div className="flex items-center mt-1">
+                <span className="text-xs text-purple-600 font-medium">🎨 Custom Template</span>
               </div>
             )}
           </div>
