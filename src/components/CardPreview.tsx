@@ -117,6 +117,23 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     setSavedPositions(positions);
   };
 
+  // Helper function to get element style with saved positions
+  const getElementStyle = (elementKey: keyof CardElements, defaultStyle: any = {}) => {
+    if (!savedPositions || !savedPositions[elementKey]) {
+      return defaultStyle;
+    }
+    
+    const position = savedPositions[elementKey];
+    return {
+      ...defaultStyle,
+      position: 'absolute' as const,
+      left: '50%',
+      top: '50%',
+      transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
+      zIndex: 10,
+    };
+  };
+
   const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
 
   if (!template) {
@@ -185,7 +202,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               />
               
               {cardData.logoImage && (
-                <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
+                <div style={getElementStyle('logo', { position: 'absolute', top: '24px', left: '50%', transform: 'translateX(-50%)' })}>
                   <img 
                     src={cardData.logoImage} 
                     alt="Wedding Logo" 
@@ -195,7 +212,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               )}
 
               {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
-                <div className="mb-6">
+                <div style={getElementStyle('photo', { marginBottom: '24px' })}>
                   <img 
                     src={cardData.uploadedImages[0]} 
                     alt="Wedding" 
@@ -204,14 +221,20 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 </div>
               )}
 
-              <div className="space-y-3 mb-8">
+              <div className={`space-y-3 mb-8 ${savedPositions ? 'contents' : ''}`}>
                 <h1 
                   className="text-3xl font-serif font-bold leading-tight"
-                  style={{ color: template.colors.primary }}
+                  style={{ 
+                    color: template.colors.primary,
+                    ...getElementStyle('brideName')
+                  }}
                 >
                   {cardData.brideName || 'Bride\'s Name'}
                 </h1>
-                <div className="flex items-center justify-center">
+                <div 
+                  className="flex items-center justify-center"
+                  style={getElementStyle('heartIcon')}
+                >
                   <div 
                     className="h-px w-8"
                     style={{ backgroundColor: `${template.colors.primary}50` }}
@@ -228,15 +251,21 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 </div>
                 <h1 
                   className="text-3xl font-serif font-bold leading-tight"
-                  style={{ color: template.colors.primary }}
+                  style={{ 
+                    color: template.colors.primary,
+                    ...getElementStyle('groomName')
+                  }}
                 >
                   {cardData.groomName || 'Groom\'s Name'}
                 </h1>
               </div>
 
-              <div className="space-y-4 mb-6">
+              <div className={`space-y-4 mb-6 ${savedPositions ? 'contents' : ''}`}>
                 {cardData.weddingDate && (
-                  <div className="flex items-center justify-center text-gray-700">
+                  <div 
+                    className="flex items-center justify-center text-gray-700"
+                    style={getElementStyle('weddingDate')}
+                  >
                     <Calendar className="h-4 w-4 mr-2" />
                     <span className="font-medium text-sm">
                       {formatDate(cardData.weddingDate)}
@@ -245,7 +274,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 )}
 
                 {cardData.venue && (
-                  <div className="flex items-center justify-center text-gray-700">
+                  <div 
+                    className="flex items-center justify-center text-gray-700"
+                    style={getElementStyle('venue')}
+                  >
                     <MapPin className="h-4 w-4 mr-2" />
                     <span className="text-sm">
                       {cardData.venue}
@@ -255,7 +287,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               </div>
 
               {cardData.message && (
-                <div className="max-w-64 text-sm leading-relaxed text-gray-700">
+                <div 
+                  className="max-w-64 text-sm leading-relaxed text-gray-700"
+                  style={getElementStyle('message')}
+                >
                   <span className="italic">
                     "{cardData.message}"
                   </span>
