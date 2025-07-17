@@ -48,6 +48,12 @@ const Header = () => {
             >
               Pricing
             </Link>
+            <Link 
+              to="/contact" 
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              Contact
+            </Link>
             {user && (
               <Link 
                 to="/dashboard" 
@@ -124,6 +130,13 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Pricing
+              </Link>
+              <Link 
+                to="/contact" 
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
               </Link>
               {user && (
                 <Link 
