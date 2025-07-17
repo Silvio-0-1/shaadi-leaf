@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_packages: {
+        Row: {
+          active: boolean | null
+          bonus_credits: number | null
+          created_at: string
+          credits: number
+          id: string
+          name: string
+          popular: boolean | null
+          price_inr: number
+        }
+        Insert: {
+          active?: boolean | null
+          bonus_credits?: number | null
+          created_at?: string
+          credits: number
+          id?: string
+          name: string
+          popular?: boolean | null
+          price_inr: number
+        }
+        Update: {
+          active?: boolean | null
+          bonus_credits?: number | null
+          created_at?: string
+          credits?: number
+          id?: string
+          name?: string
+          popular?: boolean | null
+          price_inr?: number
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          action_type: string | null
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          reference_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          action_type?: string | null
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          reference_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string | null
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          reference_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -35,6 +101,30 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -85,7 +175,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_credits: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+          p_description: string
+          p_reference_id?: string
+        }
+        Returns: undefined
+      }
+      deduct_credits: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+          p_action_type: string
+          p_description: string
+          p_reference_id?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

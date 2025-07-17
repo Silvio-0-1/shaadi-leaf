@@ -2,20 +2,22 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-export const downloadAsImage = async (elementId: string, fileName: string = 'wedding-card') => {
+export const downloadAsImage = async (elementId: string, fileName: string = 'wedding-card', quality: 'low' | 'high' = 'high') => {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error('Element not found for download');
-    return;
+    throw new Error('Card preview not found');
   }
 
   try {
     // Wait for fonts and images to load
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    const scale = quality === 'high' ? 3 : 1.5; // Different scales for different qualities
+    
     const canvas = await html2canvas(element, {
       backgroundColor: null,
-      scale: 3, // Higher quality
+      scale,
       logging: false,
       useCORS: true,
       allowTaint: true,
@@ -47,11 +49,13 @@ export const downloadAsImage = async (elementId: string, fileName: string = 'wed
 
     // Create download link
     const link = document.createElement('a');
-    link.download = `${fileName}.png`;
-    link.href = canvas.toDataURL('image/png', 1.0);
+    const qualitySuffix = quality === 'high' ? '-hd' : '';
+    link.download = `${fileName}${qualitySuffix}.png`;
+    link.href = canvas.toDataURL('image/png', quality === 'high' ? 1.0 : 0.8);
     link.click();
   } catch (error) {
     console.error('Error generating image:', error);
+    throw new Error('Failed to generate image');
   }
 };
 
@@ -59,7 +63,7 @@ export const downloadAsPDF = async (elementId: string, fileName: string = 'weddi
   const element = document.getElementById(elementId);
   if (!element) {
     console.error('Element not found for download');
-    return;
+    throw new Error('Card preview not found');
   }
 
   try {
@@ -152,5 +156,6 @@ export const downloadAsPDF = async (elementId: string, fileName: string = 'weddi
     pdf.save(`${fileName}.pdf`);
   } catch (error) {
     console.error('Error generating PDF:', error);
+    throw new Error('Failed to generate PDF');
   }
 };
