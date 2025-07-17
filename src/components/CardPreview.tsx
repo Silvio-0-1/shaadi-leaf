@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -136,8 +137,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   return (
     <>
-      <div className="sticky top-24">
-        <div className="text-center mb-4">
+      <div className="sticky top-24 space-y-6">
+        <div className="text-center">
           <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">
             Live Preview
           </h2>
@@ -264,12 +265,12 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             {/* Message */}
             {cardData.message && (
               <div className="max-w-64 text-sm leading-relaxed" style={{ color: colors.text }}>
-                <p 
+                <span 
                   className="italic"
                   style={{ fontFamily: fonts.body }}
                 >
                   "{cardData.message}"
-                </p>
+                </span>
               </div>
             )}
 
@@ -296,7 +297,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
         {/* Action Buttons */}
         {hasContent && (
-          <div className="mt-6 space-y-3">
+          <div className="space-y-3">
             <Button 
               onClick={() => handleDownloadAttempt('image')}
               className="w-full wedding-gradient text-white hover:shadow-lg transition-all"
@@ -337,7 +338,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
         {/* Template Info */}
         {template && (
-          <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+          <div className="p-3 bg-muted/30 rounded-lg">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Template:</span>
               <span className="font-medium">{template.name}</span>

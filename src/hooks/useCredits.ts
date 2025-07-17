@@ -39,7 +39,7 @@ export const useCredits = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch user credits
+  // Fetch user credits with better error handling
   const { data: userCredits, isLoading: creditsLoading } = useQuery({
     queryKey: ['userCredits', user?.id],
     queryFn: async () => {
@@ -49,10 +49,36 @@ export const useCredits = () => {
         .from('user_credits')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single
 
       if (error) {
         console.error('Error fetching credits:', error);
+        // If user doesn't have credits record, try to create one
+        if (error.code === 'PGRST116') {
+          try {
+            const { data: newRecord, error: insertError } = await supabase
+              .from('user_credits')
+              .insert({ user_id: user.id, balance: 100 })
+              .select()
+              .single();
+            
+            if (!insertError) {
+              // Also create welcome transaction
+              await supabase
+                .from('credit_transactions')
+                .insert({
+                  user_id: user.id,
+                  amount: 100,
+                  transaction_type: 'signup_bonus',
+                  description: 'Welcome bonus - 100 free credits'
+                });
+              
+              return newRecord;
+            }
+          } catch (initError) {
+            console.error('Error initializing credits:', initError);
+          }
+        }
         return null;
       }
       return data;
