@@ -72,11 +72,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     try {
       switch (type) {
         case 'image':
-          await downloadAsImage('wedding-card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
+          await downloadAsImage('card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
           toast.success('Card downloaded as image!');
           break;
         case 'pdf':
-          await downloadAsPDF('wedding-card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
+          await downloadAsPDF('card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
           toast.success('Card downloaded as PDF!');
           break;
         case 'video':
@@ -88,6 +88,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           break;
       }
     } catch (error) {
+      console.error('Download error:', error);
       toast.error(`Failed to download ${type}`);
     }
   };
@@ -146,7 +147,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         </div>
         
         <Card 
-          id="wedding-card-preview"
+          id="card-preview"
           className={`aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl ${getBackgroundClass()}`}
           style={{ 
             background: backgroundPattern === 'none' 
