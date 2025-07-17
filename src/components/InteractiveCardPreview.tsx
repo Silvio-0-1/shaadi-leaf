@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Calendar, MapPin, Undo2, Redo2, RotateCcw } from 'lucide-react';
@@ -9,6 +9,8 @@ import DraggableElement from './DraggableElement';
 
 interface InteractiveCardPreviewProps {
   cardData: WeddingCardData;
+  initialPositions?: CardElements | null;
+  onPositionsUpdate?: (positions: CardElements) => void;
 }
 
 interface ElementPosition {
@@ -38,13 +40,29 @@ const defaultPositions: CardElements = {
   logo: { x: 0, y: -180 },
 };
 
-const InteractiveCardPreview = ({ cardData }: InteractiveCardPreviewProps) => {
-  const [positions, setPositions] = useState<CardElements>(defaultPositions);
-  const [history, setHistory] = useState<CardElements[]>([defaultPositions]);
+const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate }: InteractiveCardPreviewProps) => {
+  const [positions, setPositions] = useState<CardElements>(initialPositions || defaultPositions);
+  const [history, setHistory] = useState<CardElements[]>([initialPositions || defaultPositions]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   
   const template = templates.find(t => t.id === cardData.templateId);
+
+  // Update positions when component receives new initialPositions
+  useEffect(() => {
+    if (initialPositions) {
+      setPositions(initialPositions);
+      setHistory([initialPositions]);
+      setHistoryIndex(0);
+    }
+  }, [initialPositions]);
+
+  // Notify parent component when positions change
+  useEffect(() => {
+    if (onPositionsUpdate) {
+      onPositionsUpdate(positions);
+    }
+  }, [positions, onPositionsUpdate]);
   
   if (!template) {
     return (

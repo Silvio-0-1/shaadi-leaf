@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,11 +15,28 @@ interface CardPreviewProps {
   cardData: WeddingCardData;
 }
 
+interface ElementPosition {
+  x: number;
+  y: number;
+}
+
+interface CardElements {
+  brideName: ElementPosition;
+  groomName: ElementPosition;
+  heartIcon: ElementPosition;
+  weddingDate: ElementPosition;
+  venue: ElementPosition;
+  message: ElementPosition;
+  photo: ElementPosition;
+  logo: ElementPosition;
+}
+
 const CardPreview = ({ cardData }: CardPreviewProps) => {
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [pendingDownload, setPendingDownload] = useState<'image' | 'pdf' | 'video' | null>(null);
   const [isInteractive, setIsInteractive] = useState(false);
+  const [savedPositions, setSavedPositions] = useState<CardElements | null>(null);
   
   const template = templates.find(t => t.id === cardData.templateId);
 
@@ -91,6 +109,14 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     }
   };
 
+  const handleToggleInteractive = () => {
+    setIsInteractive(!isInteractive);
+  };
+
+  const handlePositionsUpdate = (positions: CardElements) => {
+    setSavedPositions(positions);
+  };
+
   const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
 
   if (!template) {
@@ -128,7 +154,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           </p>
           <div className="flex justify-center mt-4">
             <Button
-              onClick={() => setIsInteractive(!isInteractive)}
+              onClick={handleToggleInteractive}
               variant={isInteractive ? "default" : "outline"}
               size="sm"
             >
@@ -139,7 +165,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         </div>
         
         {isInteractive ? (
-          <InteractiveCardPreview cardData={cardData} />
+          <InteractiveCardPreview 
+            cardData={cardData} 
+            initialPositions={savedPositions}
+            onPositionsUpdate={handlePositionsUpdate}
+          />
         ) : (
           <Card 
             id="card-preview"
@@ -262,17 +292,17 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               size="lg"
             >
               <Download className="h-4 w-4 mr-2" />
-              Download as Image
+              Download as Image (10 Credits)
             </Button>
             
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button 
                 onClick={() => handleDownloadAttempt('pdf')}
                 variant="outline"
                 className="flex-1"
               >
                 <FileImage className="h-4 w-4 mr-1" />
-                PDF
+                PDF (30 Credits)
               </Button>
               <Button 
                 onClick={() => handleDownloadAttempt('video')}
@@ -280,17 +310,18 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 className="flex-1"
               >
                 <Play className="h-4 w-4 mr-1" />
-                Video
-              </Button>
-              <Button 
-                onClick={handleShare}
-                variant="outline"
-                className="flex-1"
-              >
-                <Share2 className="h-4 w-4 mr-1" />
-                Share
+                Video (50 Credits)
               </Button>
             </div>
+            
+            <Button 
+              onClick={handleShare}
+              variant="outline"
+              className="w-full"
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
           </div>
         )}
 
