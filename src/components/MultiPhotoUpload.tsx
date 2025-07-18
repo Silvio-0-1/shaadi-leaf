@@ -16,9 +16,16 @@ const MultiPhotoUpload = ({ images, onImagesChange, maxImages = 4 }: MultiPhotoU
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (files: FileList) => {
-    const newImages: string[] = [];
     const remainingSlots = maxImages - images.length;
     const filesToProcess = Math.min(files.length, remainingSlots);
+    
+    if (filesToProcess === 0) {
+      toast.warning('Maximum number of images reached');
+      return;
+    }
+
+    const processedImages: string[] = [];
+    let processedCount = 0;
 
     for (let i = 0; i < filesToProcess; i++) {
       const file = files[i];
@@ -26,14 +33,22 @@ const MultiPhotoUpload = ({ images, onImagesChange, maxImages = 4 }: MultiPhotoU
         const reader = new FileReader();
         reader.onload = (e) => {
           const imageUrl = e.target?.result as string;
-          newImages.push(imageUrl);
+          processedImages.push(imageUrl);
+          processedCount++;
           
-          if (newImages.length === filesToProcess) {
-            onImagesChange([...images, ...newImages]);
-            toast.success(`${newImages.length} image(s) uploaded successfully!`);
+          // Only update when all files are processed
+          if (processedCount === filesToProcess) {
+            onImagesChange([...images, ...processedImages]);
+            toast.success(`${processedImages.length} image(s) uploaded successfully!`);
           }
         };
         reader.readAsDataURL(file);
+      } else {
+        processedCount++;
+        if (processedCount === filesToProcess && processedImages.length > 0) {
+          onImagesChange([...images, ...processedImages]);
+          toast.success(`${processedImages.length} image(s) uploaded successfully!`);
+        }
       }
     }
 

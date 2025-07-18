@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
@@ -16,7 +16,9 @@ import { toast } from 'sonner';
 
 const Index = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const editId = searchParams.get('edit');
+  const templateParam = searchParams.get('template');
   const { user } = useAuth();
   const { saveCard, loadCard, saving } = useWeddingCards();
   
@@ -43,6 +45,14 @@ const Index = () => {
     }
   }, [editId, user, loadCard]);
 
+  // Handle template selection from URL parameter
+  useEffect(() => {
+    if (templateParam) {
+      setCardData(prev => ({ ...prev, templateId: templateParam }));
+      setCurrentStep('customize');
+    }
+  }, [templateParam]);
+
   const handleTemplateSelect = (templateId: string) => {
     setCardData(prev => ({ ...prev, templateId }));
     setCurrentStep('customize');
@@ -53,7 +63,7 @@ const Index = () => {
   };
 
   const startCreating = () => {
-    setCurrentStep('template');
+    navigate('/templates');
   };
 
   const handleSaveCard = async () => {
@@ -90,14 +100,6 @@ const Index = () => {
         </div>
       )}
 
-      {currentStep === 'template' && (
-        <div className="container mx-auto px-4 py-12">
-          <TemplateSelector
-            selectedTemplate={cardData.templateId}
-            onTemplateSelect={handleTemplateSelect}
-          />
-        </div>
-      )}
 
       {currentStep === 'customize' && (
         <div className="container mx-auto px-4 py-12">
@@ -125,7 +127,7 @@ const Index = () => {
               {/* Back to Templates Button */}
               <div className="text-center">
                 <button
-                  onClick={() => setCurrentStep('template')}
+                  onClick={() => navigate('/templates')}
                   className="text-primary hover:text-primary/80 font-medium underline underline-offset-4"
                 >
                   ← Change Template
