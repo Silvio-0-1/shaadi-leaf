@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Templates from "./pages/Templates";
+import Customize from "./pages/Customize";
+import AdminDashboard from "./pages/AdminDashboard";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
@@ -27,6 +29,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/templates" element={<Templates />} />
+            <Route path="/customize" element={<Customize />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />

@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { Heart, Menu, X, User, LogOut, Settings, ShoppingCart } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Settings, ShoppingCart, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import CreditBalance from './CreditBalance';
 import CreditStore from './CreditStore';
 import {
@@ -18,6 +19,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreditStore, setShowCreditStore] = useState(false);
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -51,6 +53,12 @@ const Header = () => {
                 className="text-muted-foreground hover:text-foreground transition-colors font-medium"
               >
                 Contact
+              </Link>
+              <Link 
+                to="/templates" 
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+              >
+                Templates
               </Link>
               {user && (
                 <Link 
@@ -90,6 +98,15 @@ const Header = () => {
                         <Settings className="mr-2 h-4 w-4" />
                         Dashboard
                       </DropdownMenuItem>
+                      {isAdmin && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => navigate('/admin')}>
+                            <Shield className="mr-2 h-4 w-4" />
+                            Admin Dashboard
+                          </DropdownMenuItem>
+                        </>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
@@ -140,6 +157,13 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Contact
+                </Link>
+                <Link 
+                  to="/templates" 
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Templates
                 </Link>
                 {user && (
                   <Link 

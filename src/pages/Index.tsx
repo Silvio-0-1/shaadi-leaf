@@ -22,7 +22,7 @@ const Index = () => {
   const { user } = useAuth();
   const { saveCard, loadCard, saving } = useWeddingCards();
   
-  const [currentStep, setCurrentStep] = useState<'hero' | 'template' | 'customize'>('hero');
+  const [currentStep, setCurrentStep] = useState<'hero'>('hero');
   const [cardData, setCardData] = useState<WeddingCardData>({
     brideName: '',
     groomName: '',
@@ -33,29 +33,22 @@ const Index = () => {
     uploadedImage: ''
   });
 
-  // Load card for editing if editId is provided
+  // Redirect to customize page if editing
   useEffect(() => {
-    if (editId && user) {
-      loadCard(editId).then((card) => {
-        if (card) {
-          setCardData(card);
-          setCurrentStep('customize');
-        }
-      });
+    if (editId) {
+      navigate(`/customize?edit=${editId}`);
     }
-  }, [editId, user, loadCard]);
+  }, [editId, navigate]);
 
-  // Handle template selection from URL parameter
+  // Redirect to customize page if template is selected
   useEffect(() => {
     if (templateParam) {
-      setCardData(prev => ({ ...prev, templateId: templateParam }));
-      setCurrentStep('customize');
+      navigate(`/customize?template=${templateParam}`);
     }
-  }, [templateParam]);
+  }, [templateParam, navigate]);
 
   const handleTemplateSelect = (templateId: string) => {
-    setCardData(prev => ({ ...prev, templateId }));
-    setCurrentStep('customize');
+    navigate(`/customize?template=${templateId}`);
   };
 
   const handleDataChange = (newData: Partial<WeddingCardData>) => {
@@ -101,51 +94,6 @@ const Index = () => {
       )}
 
 
-      {currentStep === 'customize' && (
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <CustomizationForm
-                cardData={cardData}
-                onDataChange={handleDataChange}
-              />
-              
-              {/* Save Card Button - Only show if user is logged in */}
-              {user && hasRequiredData && (
-                <div className="text-center">
-                  <Button
-                    onClick={handleSaveCard}
-                    disabled={saving}
-                    className="wedding-gradient text-white w-full"
-                    size="lg"
-                  >
-                    {saving ? 'Saving...' : (editId ? 'Update Card' : 'Save Card')}
-                  </Button>
-                </div>
-              )}
-              
-              {/* Back to Templates Button */}
-              <div className="text-center">
-                <button
-                  onClick={() => navigate('/templates')}
-                  className="text-primary hover:text-primary/80 font-medium underline underline-offset-4"
-                >
-                  ← Change Template
-                </button>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <CardPreview cardData={cardData} />
-              
-              {/* Download Section - Only show if card has required data */}
-              {hasRequiredData && user && (
-                <DownloadSection cardId="card-preview" />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="bg-muted/30 py-12 mt-20">

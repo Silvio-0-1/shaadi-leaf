@@ -14,8 +14,8 @@ const Templates = () => {
   const [showCreator, setShowCreator] = useState(false);
 
   const handleTemplateSelect = (templateId: string) => {
-    // Navigate to home with the selected template
-    navigate(`/?template=${templateId}`);
+    // Navigate to customize page with the selected template
+    navigate(`/customize?template=${templateId}`);
   };
 
   const handleTemplateCreated = (template: Template) => {
