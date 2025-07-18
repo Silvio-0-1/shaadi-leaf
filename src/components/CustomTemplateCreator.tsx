@@ -9,12 +9,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Upload, Palette, Type, Save, Eye } from 'lucide-react';
 import { Template, CardElements } from '@/types';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CustomTemplateCreatorProps {
   onTemplateCreated: (template: Template) => void;
 }
 
 const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps) => {
+  const { user } = useAuth();
   const [templateData, setTemplateData] = useState({
     name: '',
     category: 'custom' as const,
@@ -63,49 +66,80 @@ const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps
     }));
   };
 
-  const handleCreateTemplate = () => {
+const handleCreateTemplate = async () => {
     if (!templateData.name) {
       toast.error('Please enter a template name');
       return;
     }
 
-    const newTemplate: Template = {
-      id: `custom-${Date.now()}`,
-      name: templateData.name,
-      category: 'custom',
-      thumbnail: templateData.backgroundImage || '/placeholder.svg',
-      isPremium: templateData.isPremium,
-      colors: {
-        primary: templateData.primaryColor,
-        secondary: templateData.secondaryColor,
-        accent: templateData.accentColor
-      },
-      fonts: {
-        heading: templateData.headingFont,
-        body: templateData.bodyFont
-      },
-      layouts: ['custom'],
-      supportsMultiPhoto: true,
-      supportsVideo: false,
-      backgroundImage: templateData.backgroundImage,
-      defaultPositions
-    };
+    if (!user) {
+      toast.error('You must be logged in to create templates');
+      return;
+    }
 
-    onTemplateCreated(newTemplate);
-    toast.success('Custom template created successfully!');
-    
-    // Reset form
-    setTemplateData({
-      name: '',
-      category: 'custom',
-      backgroundImage: '',
-      primaryColor: '#8b5cf6',
-      secondaryColor: '#faf5ff',
-      accentColor: '#a78bfa',
-      headingFont: 'Playfair Display',
-      bodyFont: 'Inter',
-      isPremium: false
-    });
+    try {
+      const { data, error } = await supabase
+        .from('custom_templates')
+        .insert({
+          name: templateData.name,
+          category: 'custom',
+          background_image: templateData.backgroundImage,
+          created_by: user.id,
+          colors: {
+            primary: templateData.primaryColor,
+            secondary: templateData.secondaryColor,
+            accent: templateData.accentColor
+          } as any,
+          fonts: {
+            heading: templateData.headingFont,
+            body: templateData.bodyFont
+          } as any,
+          default_positions: defaultPositions as any,
+          is_premium: templateData.isPremium
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating template:', error);
+        toast.error('Failed to create template. Please try again.');
+        return;
+      }
+
+      const newTemplate: Template = {
+        id: data.id,
+        name: data.name,
+        category: 'custom' as const,
+        thumbnail: data.background_image || '/placeholder.svg',
+        isPremium: data.is_premium,
+        colors: data.colors as any,
+        fonts: data.fonts as any,
+        layouts: ['custom'],
+        supportsMultiPhoto: true,
+        supportsVideo: false,
+        backgroundImage: data.background_image,
+        defaultPositions: data.default_positions as any
+      };
+
+      onTemplateCreated(newTemplate);
+      toast.success('Custom template created successfully!');
+      
+      // Reset form
+      setTemplateData({
+        name: '',
+        category: 'custom',
+        backgroundImage: '',
+        primaryColor: '#8b5cf6',
+        secondaryColor: '#faf5ff',
+        accentColor: '#a78bfa',
+        headingFont: 'Playfair Display',
+        bodyFont: 'Inter',
+        isPremium: false
+      });
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast.error('Failed to create template. Please try again.');
+    }
   };
 
   const fontOptions = [

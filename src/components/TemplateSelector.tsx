@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Check } from 'lucide-react';
 import { templates } from '@/data/templates';
 import { Template } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TemplateSelectorProps {
   selectedTemplate: string;
@@ -13,18 +14,59 @@ interface TemplateSelectorProps {
 
 const TemplateSelector = ({ selectedTemplate, onTemplateSelect }: TemplateSelectorProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [customTemplates, setCustomTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const categories = [
     { id: 'all', name: 'All Templates' },
     { id: 'floral', name: 'Floral' },
     { id: 'classic', name: 'Classic' },
     { id: 'modern', name: 'Modern' },
-    { id: 'minimal', name: 'Minimal' }
+    { id: 'minimal', name: 'Minimal' },
+    { id: 'custom', name: 'Custom' }
   ];
 
+  useEffect(() => {
+    const fetchCustomTemplates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('custom_templates')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching custom templates:', error);
+        } else {
+          const formattedTemplates: Template[] = data.map(template => ({
+            id: template.id,
+            name: template.name,
+            category: 'custom' as const,
+            thumbnail: template.background_image || '/placeholder.svg',
+            isPremium: template.is_premium,
+            colors: template.colors as any,
+            fonts: template.fonts as any,
+            layouts: ['custom'],
+            supportsMultiPhoto: true,
+            supportsVideo: false,
+            backgroundImage: template.background_image,
+            defaultPositions: template.default_positions as any
+          }));
+          setCustomTemplates(formattedTemplates);
+        }
+      } catch (error) {
+        console.error('Error fetching custom templates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomTemplates();
+  }, []);
+
+  const allTemplates = [...templates, ...customTemplates];
   const filteredTemplates = selectedCategory === 'all' 
-    ? templates 
-    : templates.filter(template => template.category === selectedCategory);
+    ? allTemplates 
+    : allTemplates.filter(template => template.category === selectedCategory);
 
   return (
     <div className="space-y-6">
