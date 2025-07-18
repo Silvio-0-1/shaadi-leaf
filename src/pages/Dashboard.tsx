@@ -115,6 +115,12 @@ const Dashboard = () => {
                 onClick={() => navigate('/')}
                 variant="outline"
               >
+                Home
+              </Button>
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Create New Card
               </Button>

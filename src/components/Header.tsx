@@ -47,12 +47,6 @@ const Header = () => {
                 Home
               </Link>
               <Link 
-                to="/pricing" 
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-              >
-                Pricing
-              </Link>
-              <Link 
                 to="/contact" 
                 className="text-muted-foreground hover:text-foreground transition-colors font-medium"
               >
@@ -139,13 +133,6 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Home
-                </Link>
-                <Link 
-                  to="/pricing" 
-                  className="text-muted-foreground hover:text-foreground transition-colors font-medium py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Pricing
                 </Link>
                 <Link 
                   to="/contact" 

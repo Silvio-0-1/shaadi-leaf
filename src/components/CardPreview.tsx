@@ -230,11 +230,29 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
               {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
                 <div style={getElementStyle('photo', { marginBottom: '24px' })}>
-                  <img 
-                    src={cardData.uploadedImages[0]} 
-                    alt="Wedding" 
-                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
+                  {cardData.uploadedImages.length === 1 ? (
+                    <img 
+                      src={cardData.uploadedImages[0]} 
+                      alt="Wedding" 
+                      className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                    />
+                  ) : (
+                    <div className="flex flex-wrap justify-center gap-2 max-w-48">
+                      {cardData.uploadedImages.slice(0, 4).map((image, index) => (
+                        <img 
+                          key={index}
+                          src={image} 
+                          alt={`Wedding ${index + 1}`} 
+                          className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow-md"
+                        />
+                      ))}
+                      {cardData.uploadedImages.length > 4 && (
+                        <div className="w-16 h-16 rounded-lg border-2 border-white shadow-md bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                          +{cardData.uploadedImages.length - 4}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 

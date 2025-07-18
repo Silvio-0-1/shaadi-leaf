@@ -10,6 +10,11 @@ export const useWeddingCards = () => {
   const saveCard = async (cardData: WeddingCardData) => {
     setSaving(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const cardToSave = {
         bride_name: cardData.brideName,
         groom_name: cardData.groomName,
@@ -18,6 +23,7 @@ export const useWeddingCards = () => {
         message: cardData.message || '',
         template_id: cardData.templateId,
         uploaded_image: cardData.uploadedImage || null,
+        user_id: user.id,
       };
 
       if (cardData.id) {
