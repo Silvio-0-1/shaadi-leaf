@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Header from '@/components/Header';
 import TemplateSelector from '@/components/TemplateSelector';
-import CustomTemplateCreator from '@/components/CustomTemplateCreator';
+import VisualTemplateBuilder from '@/components/VisualTemplateBuilder';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Template } from '@/types';
 
@@ -54,7 +54,7 @@ const Templates = () => {
         </div>
         
         {showCreator ? (
-          <CustomTemplateCreator onTemplateCreated={handleTemplateCreated} />
+          <VisualTemplateBuilder onTemplateCreated={handleTemplateCreated} />
         ) : (
           <TemplateSelector
             selectedTemplate=""
