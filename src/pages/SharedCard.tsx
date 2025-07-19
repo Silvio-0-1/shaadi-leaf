@@ -1,12 +1,14 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Calendar, MapPin, ArrowLeft, Loader2 } from 'lucide-react';
+import { Heart, Calendar, MapPin, Loader2, Sparkles } from 'lucide-react';
 import { templates } from '@/data/templates';
 import { WeddingCardData, CardElements } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 const SharedCard = () => {
   const { id } = useParams();
@@ -15,6 +17,65 @@ const SharedCard = () => {
   const [elementPositions, setElementPositions] = useState<CardElements | null>(null);
   const [loading, setLoading] = useState(true);
   const [animate, setAnimate] = useState(false);
+
+  // Confetti animation function
+  const triggerConfetti = () => {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 }
+    };
+
+    function fire(particleRatio: number, opts: any) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+        shapes: ['heart'],
+        colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1', '#ff69b4']
+      });
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+
+    fire(0.2, {
+      spread: 60,
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+
+    // Add sparkle effect
+    setTimeout(() => {
+      confetti({
+        particleCount: 50,
+        spread: 360,
+        startVelocity: 30,
+        gravity: 0.5,
+        ticks: 300,
+        colors: ['#FFD700', '#FFA500', '#FF69B4', '#87CEEB'],
+        shapes: ['star'],
+        scalar: 0.8
+      });
+    }, 500);
+  };
 
   useEffect(() => {
     const loadSharedCard = async () => {
@@ -69,8 +130,11 @@ const SharedCard = () => {
         setCardData(mappedCardData);
         setElementPositions(elementPositions);
         
-        // Trigger animation after a short delay
-        setTimeout(() => setAnimate(true), 500);
+        // Trigger animation and confetti after a short delay
+        setTimeout(() => {
+          setAnimate(true);
+          triggerConfetti();
+        }, 800);
         
       } catch (error) {
         console.error('Error loading shared card:', error);
@@ -127,6 +191,10 @@ const SharedCard = () => {
     return defaultStyle;
   };
 
+  const handleCreateCardClick = () => {
+    window.open('https://shaadileaf.com/', '_blank');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -146,7 +214,6 @@ const SharedCard = () => {
           <h1 className="text-2xl font-semibold">Card Not Found</h1>
           <p className="text-muted-foreground">This wedding card is no longer available.</p>
           <Button onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
             Go Home
           </Button>
         </div>
@@ -187,30 +254,51 @@ const SharedCard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-10 left-10 animate-pulse">
+          <Heart className="h-6 w-6 text-pink-300 opacity-60" fill="currentColor" />
+        </div>
+        <div className="absolute top-20 right-20 animate-pulse delay-1000">
+          <Sparkles className="h-5 w-5 text-rose-300 opacity-50" />
+        </div>
+        <div className="absolute bottom-32 left-16 animate-pulse delay-500">
+          <Heart className="h-4 w-4 text-pink-200 opacity-40" fill="currentColor" />
+        </div>
+        <div className="absolute bottom-40 right-24 animate-pulse delay-700">
+          <Sparkles className="h-6 w-6 text-rose-200 opacity-60" />
+        </div>
+      </div>
+
+      <div className="w-full max-w-md space-y-6 z-10">
+        {/* Enhanced Header Section */}
         <div className="text-center">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Create Your Own Card
-          </Button>
-          <div className={`transition-all duration-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <h1 className="text-2xl font-serif font-semibold text-foreground mb-2">
-              You're Invited!
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {cardData.brideName} & {cardData.groomName} are getting married
-            </p>
+          <div className={`transition-all duration-1500 ${animate ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
+            <div className="relative mb-6">
+              <div className="absolute -inset-4 bg-gradient-to-r from-pink-200 via-rose-200 to-pink-200 rounded-full blur-xl opacity-30 animate-pulse"></div>
+              <h1 className="relative text-4xl font-serif font-bold text-foreground mb-3 bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent">
+                You're Invited!
+              </h1>
+              <div className="flex items-center justify-center space-x-3 mb-2">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-pink-300"></div>
+                <Heart className="h-5 w-5 text-pink-500 animate-pulse" fill="currentColor" />
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-pink-300"></div>
+              </div>
+              <p className="text-lg text-muted-foreground font-medium">
+                <span className="text-pink-600 font-semibold">{cardData.brideName}</span>
+                <span className="mx-2 text-pink-400">&</span>
+                <span className="text-pink-600 font-semibold">{cardData.groomName}</span>
+                <br />
+                <span className="text-base text-muted-foreground italic">are getting married</span>
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className={`transition-all duration-1000 delay-300 ${animate ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <div className={`transition-all duration-1500 delay-500 ${animate ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
           <Card 
-            className="aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl"
+            className="aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-500 hover:shadow-2xl border-2 border-pink-100"
             style={getBackgroundStyle()}
           >
             <div className="relative h-full p-8 flex flex-col justify-center items-center text-center">
@@ -353,10 +441,10 @@ const SharedCard = () => {
           </Card>
         </div>
 
-        <div className={`text-center transition-all duration-1000 delay-600 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className={`text-center transition-all duration-1500 delay-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <Button 
-            onClick={() => navigate('/templates')}
-            className="wedding-gradient text-white hover:shadow-lg transition-all"
+            onClick={handleCreateCardClick}
+            className="wedding-gradient text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105 px-8 py-3 text-lg font-semibold"
           >
             Create Your Own Wedding Card
           </Button>
