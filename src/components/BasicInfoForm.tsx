@@ -118,7 +118,7 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
           <h3 className="font-medium text-foreground">Event Details</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="weddingDate" className="text-sm font-medium text-foreground">
               Wedding Date
@@ -153,45 +153,46 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
 
       {/* Personal Message */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="h-5 w-5 text-primary" />
-            <h3 className="font-medium text-foreground">Personal Message</h3>
-          </div>
-          <Button
-            type="button"
-            onClick={generateAIMessage}
-            disabled={generatingMessage || !cardData.brideName || !cardData.groomName}
-            variant="outline"
-            size="sm"
-            className="text-xs"
-          >
-            {generatingMessage ? (
-              <>
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-3 w-3 mr-1" />
-                Generate with AI
-              </>
-            )}
-          </Button>
+        <div className="flex items-center space-x-2 mb-3">
+          <MessageCircle className="h-5 w-5 text-primary" />
+          <h3 className="font-medium text-foreground">Personal Message</h3>
         </div>
         
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Textarea
             id="message"
             placeholder="Add a personal message or invitation text..."
             value={cardData.message}
             onChange={(e) => handleChange('message', e.target.value)}
-            className="resize-none min-h-[100px]"
+            className="resize-none min-h-[120px]"
             maxLength={250}
           />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Click "Generate with AI" for professional messages</span>
-            <span>{cardData.message.length}/250</span>
+          
+          <div className="flex items-center justify-between">
+            <Button
+              type="button"
+              onClick={generateAIMessage}
+              disabled={generatingMessage || !cardData.brideName || !cardData.groomName}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              {generatingMessage ? (
+                <>
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Generate with AI
+                </>
+              )}
+            </Button>
+            
+            <span className="text-xs text-muted-foreground">
+              {cardData.message.length}/250
+            </span>
           </div>
         </div>
       </div>

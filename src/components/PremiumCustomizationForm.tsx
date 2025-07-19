@@ -130,18 +130,11 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
         {/* Tab Content */}
         <div className="p-4">
           <TabsContent value="basic" className="space-y-0 mt-0">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Heart className="h-4 w-4 text-rose-500" />
-                <h3 className="font-medium">Essential Details</h3>
-              </div>
-              
-              <BasicInfoForm
-                cardData={cardData}
-                onDataChange={onDataChange}
-                validationErrors={validationErrors}
-              />
-            </div>
+            <BasicInfoForm
+              cardData={cardData}
+              onDataChange={onDataChange}
+              validationErrors={validationErrors}
+            />
           </TabsContent>
 
           <TabsContent value="photos" className="space-y-0 mt-0">
@@ -167,7 +160,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Palette className="h-4 w-4 text-purple-500" />
-                <h3 className="font-medium">Typography & Style</h3>
+                <h3 className="font-medium">Fonts</h3>
               </div>
               
               <TemplateEditor

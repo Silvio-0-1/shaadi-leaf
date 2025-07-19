@@ -54,17 +54,21 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
     } : defaultPositions;
 
     // Initialize photos array for multiple images
-    if (cardData.uploadedImages && cardData.uploadedImages.length > 1) {
-      const photosArray = cardData.uploadedImages.map((_, index) => ({
-        id: `photo-${index}`,
-        position: { 
-          x: (index % 2 === 0 ? -70 : 70) + (index * 15), 
-          y: -140 + (Math.floor(index / 2) * 160) 
-        },
-        size: { width: 100, height: 100 }
-      }));
-      
-      return { ...basePositions, photos: photosArray };
+    if (cardData.uploadedImages && cardData.uploadedImages.length > 0) {
+      if (cardData.uploadedImages.length === 1) {
+        return { ...basePositions, photos: [] };
+      } else {
+        const photosArray = cardData.uploadedImages.map((_, index) => ({
+          id: `photo-${index}`,
+          position: { 
+            x: (index % 2 === 0 ? -70 : 70) + (index * 15), 
+            y: -140 + (Math.floor(index / 2) * 160) 
+          },
+          size: { width: 100, height: 100 }
+        }));
+        
+        return { ...basePositions, photos: photosArray };
+      }
     }
     
     return basePositions;
