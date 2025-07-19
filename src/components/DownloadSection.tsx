@@ -1,5 +1,5 @@
 
-import { Download, Image, FileText, Video, Music, Mic } from 'lucide-react';
+import { Download, Image, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CreditActionButton from './CreditActionButton';
@@ -13,31 +13,17 @@ interface DownloadSectionProps {
 const DownloadSection = ({ cardId }: DownloadSectionProps) => {
   const { CREDIT_COSTS } = useCredits();
 
-  const handleDownloadLowRes = async () => {
-    await downloadAsImage(cardId, 'wedding-card-low-res', 'low');
-  };
-
-  const handleDownloadHighRes = async () => {
-    await downloadAsImage(cardId, 'wedding-card-high-res', 'high');
+  const handleDownloadImage = async () => {
+    await downloadAsImage(cardId, 'wedding-card', 'high');
   };
 
   const handleDownloadPDF = async () => {
     await downloadAsPDF(cardId, 'wedding-card');
   };
 
-  const handleDownloadVideo = async () => {
-    // Video download logic would go here
-    throw new Error('Video download feature coming soon!');
-  };
-
-  const handleAddMusic = async () => {
-    // Music addition logic would go here
-    throw new Error('Music feature coming soon!');
-  };
-
-  const handleAIVoiceover = async () => {
-    // AI voiceover logic would go here
-    throw new Error('AI voiceover feature coming soon!');
+  const handleShareableLink = async () => {
+    // Shareable link logic would go here
+    console.log('Creating shareable link...');
   };
 
   return (
@@ -49,34 +35,18 @@ const DownloadSection = ({ cardId }: DownloadSectionProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <CreditActionButton
-            creditCost={CREDIT_COSTS.DOWNLOAD_LOW_RES}
-            actionType="download_low_res"
-            actionName="Download Low-Res Image"
-            onAction={handleDownloadLowRes}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <Image className="mr-2 h-4 w-4" />
-            Low-Res Image
-            <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.DOWNLOAD_LOW_RES}
-            </Badge>
-          </CreditActionButton>
-
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <CreditActionButton
             creditCost={CREDIT_COSTS.DOWNLOAD_HIGH_RES}
-            actionType="download_high_res"
-            actionName="Download High-Res Image"
-            onAction={handleDownloadHighRes}
+            actionType="download_image"
+            actionName="Download Image"
+            onAction={handleDownloadImage}
             variant="outline"
             size="sm"
             className="w-full justify-start"
           >
             <Image className="mr-2 h-4 w-4" />
-            High-Res Image
+            Download Image
             <Badge variant="secondary" className="ml-auto">
               {CREDIT_COSTS.DOWNLOAD_HIGH_RES}
             </Badge>
@@ -92,57 +62,25 @@ const DownloadSection = ({ cardId }: DownloadSectionProps) => {
             className="w-full justify-start"
           >
             <FileText className="mr-2 h-4 w-4" />
-            PDF
+            Download PDF
             <Badge variant="secondary" className="ml-auto">
               {CREDIT_COSTS.DOWNLOAD_PDF}
             </Badge>
           </CreditActionButton>
 
           <CreditActionButton
-            creditCost={CREDIT_COSTS.DOWNLOAD_VIDEO}
-            actionType="download_video"
-            actionName="Download Video Card"
-            onAction={handleDownloadVideo}
+            creditCost={0}
+            actionType="shareable_link"
+            actionName="Create Shareable Link"
+            onAction={handleShareableLink}
             variant="outline"
             size="sm"
             className="w-full justify-start"
           >
-            <Video className="mr-2 h-4 w-4" />
-            Video Card
+            <Download className="mr-2 h-4 w-4" />
+            Shareable Link
             <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.DOWNLOAD_VIDEO}
-            </Badge>
-          </CreditActionButton>
-
-          <CreditActionButton
-            creditCost={CREDIT_COSTS.ADD_MUSIC}
-            actionType="add_music"
-            actionName="Add Background Music"
-            onAction={handleAddMusic}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <Music className="mr-2 h-4 w-4" />
-            Add Music
-            <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.ADD_MUSIC}
-            </Badge>
-          </CreditActionButton>
-
-          <CreditActionButton
-            creditCost={CREDIT_COSTS.AI_VOICEOVER}
-            actionType="ai_voiceover"
-            actionName="AI Voiceover"
-            onAction={handleAIVoiceover}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <Mic className="mr-2 h-4 w-4" />
-            AI Voiceover
-            <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.AI_VOICEOVER}
+              Free
             </Badge>
           </CreditActionButton>
         </div>

@@ -57,13 +57,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
       color: 'bg-blue-500/10 text-blue-600 border-blue-200'
     },
     {
-      id: 'logo',
-      label: 'Logo',
-      icon: Crown,
-      description: 'Monogram & branding',
-      color: 'bg-amber-500/10 text-amber-600 border-amber-200'
-    },
-    {
       id: 'design',
       label: 'Design',
       icon: Palette,
@@ -74,7 +67,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
       id: 'video',
       label: 'Video',
       icon: Video,
-      description: 'Animated features',
+      description: 'Coming soon',
       color: 'bg-green-500/10 text-green-600 border-green-200'
     }
   ];
@@ -94,25 +87,16 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
       <div className="p-6 pb-0">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h2 className="font-serif text-2xl font-bold text-foreground">
-                Customize Your Card
-              </h2>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Create your perfect wedding invitation with our premium editor
-            </p>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="font-serif text-2xl font-bold text-foreground">
+              Premium Editor
+            </h2>
           </div>
-          
-          <div className="text-right">
-            <Badge variant="secondary" className="mb-1">
-              {getTabCount()}/5 Sections
-            </Badge>
-            <p className="text-xs text-muted-foreground">
-              Completed
-            </p>
-          </div>
+          <p className="text-muted-foreground text-sm">
+            Create your perfect wedding invitation with our premium editor
+          </p>
+        </div>
         </div>
         
         <Separator />
@@ -121,25 +105,29 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
       {/* Navigation Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="px-6 pt-4">
-          <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/30">
+          <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-muted/30">
             {tabConfig.map((tab) => {
               const Icon = tab.icon;
               const isCompleted = 
                 (tab.id === 'basic' && (cardData.brideName || cardData.groomName)) ||
                 (tab.id === 'photos' && cardData.uploadedImages?.length) ||
-                (tab.id === 'logo' && cardData.logoImage) ||
                 (tab.id === 'design' && cardData.customization?.fonts) ||
                 (tab.id === 'video' && false); // Video not implemented yet
+
+              const isVideoTab = tab.id === 'video';
 
               return (
                 <TabsTrigger 
                   key={tab.id}
                   value={tab.id} 
-                  className="flex flex-col items-center space-y-2 h-16 px-2 data-[state=active]:bg-white data-[state=active]:shadow-sm relative"
+                  disabled={isVideoTab}
+                  className={`flex flex-col items-center space-y-2 h-16 px-2 data-[state=active]:bg-white data-[state=active]:shadow-sm relative ${
+                    isVideoTab ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   <div className="flex items-center gap-1.5">
                     <Icon className="h-4 w-4" />
-                    {isCompleted && (
+                    {isCompleted && !isVideoTab && (
                       <div className="w-2 h-2 bg-green-500 rounded-full" />
                     )}
                   </div>
@@ -191,20 +179,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
             </div>
           </TabsContent>
 
-          <TabsContent value="logo" className="space-y-0 mt-0">
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Crown className="h-5 w-5 text-amber-500" />
-                <h3 className="text-lg font-semibold">Logo & Monogram</h3>
-                <Badge variant="outline" className="ml-auto">Optional</Badge>
-              </div>
-              
-              <LogoUpload
-                logo={cardData.logoImage}
-                onLogoChange={handleLogoChange}
-              />
-            </div>
-          </TabsContent>
 
           <TabsContent value="design" className="space-y-0 mt-0">
             <div className="space-y-6">
@@ -223,17 +197,31 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
           </TabsContent>
 
           <TabsContent value="video" className="space-y-0 mt-0">
-            <div className="space-y-6">
+            <div className="space-y-6 relative">
               <div className="flex items-center gap-2 mb-4">
                 <Video className="h-5 w-5 text-green-500" />
                 <h3 className="text-lg font-semibold">Video Features</h3>
-                <Badge variant="outline" className="ml-auto">Premium</Badge>
+                <Badge variant="outline" className="ml-auto">Coming Soon</Badge>
               </div>
               
-              <VideoCardCreator
-                cardData={cardData as VideoCardData}
-                onDataChange={onDataChange}
-              />
+              <div className="relative">
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/50 z-10 rounded-lg flex items-center justify-center">
+                  <div className="text-center space-y-2">
+                    <Video className="h-12 w-12 text-muted-foreground mx-auto" />
+                    <h4 className="font-semibold text-lg">Video Features Coming Soon</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Animated cards, video backgrounds, and more exciting features are on the way!
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="blur-sm pointer-events-none">
+                  <VideoCardCreator
+                    cardData={cardData as VideoCardData}
+                    onDataChange={onDataChange}
+                  />
+                </div>
+              </div>
             </div>
           </TabsContent>
         </div>

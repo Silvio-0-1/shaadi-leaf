@@ -92,13 +92,18 @@ const Customize = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Panel - Customization Form */}
-          <div className="space-y-6">
+          <div className="lg:col-span-1 space-y-6">
             <PremiumCustomizationForm
               cardData={cardData}
               onDataChange={handleDataChange}
             />
+          </div>
+          
+          {/* Right Panel - Premium Live Editor */}
+          <div className="lg:col-span-2 space-y-6">
+            <PremiumCardEditor cardData={cardData} />
             
             {/* Action Buttons */}
             <div className="space-y-4">
@@ -126,11 +131,6 @@ const Customize = () => {
                 <DownloadSection cardId="card-preview" />
               )}
             </div>
-          </div>
-          
-          {/* Right Panel - Premium Live Editor */}
-          <div className="space-y-6">
-            <PremiumCardEditor cardData={cardData} />
           </div>
         </div>
       </div>

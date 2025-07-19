@@ -310,6 +310,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
 
       {/* Premium Card Preview */}
       <Card 
+        id="card-preview"
         ref={cardRef}
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white"
         style={getBackgroundStyle()}
