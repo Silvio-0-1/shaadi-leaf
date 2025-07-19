@@ -5,24 +5,24 @@ import { Button } from '@/components/ui/button';
 const HeroSection = () => {
   return (
     <section className="relative py-24 px-4 overflow-hidden">
-      {/* Background with animated elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="absolute top-20 left-10 w-20 h-20 bg-primary/5 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-32 right-16 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-gold-500/5 rounded-full blur-lg animate-pulse delay-500"></div>
+      {/* Simplified background with better contrast */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/10 to-background">
+        <div className="absolute top-20 left-10 w-20 h-20 bg-primary/3 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute bottom-32 right-16 w-32 h-32 bg-rose-500/3 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-primary/2 rounded-full blur-lg animate-pulse delay-500"></div>
       </div>
       
       <div className="container mx-auto max-w-7xl relative">
-        {/* Main Hero Content */}
+        {/* Main Hero Content - Remove animation delays for immediate visibility */}
         <div className="text-center mb-20">
-          <div className="flex items-center justify-center mb-8 animate-fade-in">
+          <div className="flex items-center justify-center mb-8 opacity-100">
             <div className="relative">
-              <Heart className="h-20 w-20 text-primary mr-4 heart-float" fill="currentColor" />
-              <Sparkles className="h-8 w-8 text-primary/70 absolute -top-2 -right-2 sparkle-animation" />
+              <Heart className="h-20 w-20 text-primary mr-4 animate-pulse" fill="currentColor" />
+              <Sparkles className="h-8 w-8 text-primary/70 absolute -top-2 -right-2 animate-pulse" />
             </div>
           </div>
           
-          <h1 className="font-serif text-6xl md:text-8xl font-bold text-foreground mb-8 leading-tight animate-slide-up">
+          <h1 className="font-serif text-6xl md:text-8xl font-bold text-foreground mb-8 leading-tight opacity-100">
             Create Your Perfect
             <br />
             <span className="wedding-gradient bg-clip-text text-transparent relative">
@@ -31,29 +31,29 @@ const HeroSection = () => {
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed animate-fade-in delay-300">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed opacity-100">
             Transform your special day into a stunning digital experience. Design, customize, and share 
             beautiful wedding invitations that capture the essence of your love story.
           </p>
           
-          {/* Feature badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mb-12 animate-fade-in delay-500">
-            <div className="flex items-center bg-card/50 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover-lift">
+          {/* Feature badges - Visible immediately */}
+          <div className="flex flex-wrap items-center justify-center gap-6 mb-12 opacity-100">
+            <div className="flex items-center bg-card/80 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover:shadow-md transition-shadow">
               <CheckCircle className="h-4 w-4 text-primary mr-2" />
               <span className="text-sm font-medium">No Design Experience Required</span>
             </div>
-            <div className="flex items-center bg-card/50 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover-lift">
-              <Star className="h-4 w-4 text-gold-500 mr-2" fill="currentColor" />
+            <div className="flex items-center bg-card/80 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover:shadow-md transition-shadow">
+              <Star className="h-4 w-4 text-primary mr-2" fill="currentColor" />
               <span className="text-sm font-medium">Premium Templates</span>
             </div>
-            <div className="flex items-center bg-card/50 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover-lift">
+            <div className="flex items-center bg-card/80 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover:shadow-md transition-shadow">
               <Download className="h-4 w-4 text-primary mr-2" />
               <span className="text-sm font-medium">Instant Download</span>
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="animate-fade-in delay-700">
+          {/* CTA Button - Visible immediately */}
+          <div className="opacity-100">
             <Button 
               size="lg" 
               className="wedding-gradient text-white px-12 py-6 text-lg font-semibold rounded-full hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group"
@@ -64,8 +64,8 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Enhanced Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        {/* Enhanced Feature Grid - Simplified animations */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 opacity-100">
           {[
             {
               icon: Sparkles,
@@ -83,13 +83,12 @@ const HeroSection = () => {
               icon: Download,
               title: "Multiple Formats",
               description: "Download high-quality images, PDFs, or share directly via social media and messaging apps.",
-              color: "text-gold-500"
+              color: "text-primary"
             }
           ].map((feature, index) => (
             <div 
               key={index}
-              className={`group p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 animate-fade-in`}
-              style={{ animationDelay: `${800 + index * 150}ms` }}
+              className="group p-8 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
             >
               <div className="relative mb-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -108,24 +107,24 @@ const HeroSection = () => {
         </div>
 
         {/* Enhanced Sample Preview */}
-        <div className="mb-16">
-          <h2 className="font-serif text-4xl font-semibold mb-4 text-center animate-fade-in">
+        <div className="mb-16 opacity-100">
+          <h2 className="font-serif text-4xl font-semibold mb-4 text-center">
             Stunning Templates for Every Style
           </h2>
-          <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto animate-fade-in delay-200">
+          <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
             From elegant classics to modern minimalist designs, find the perfect template for your celebration.
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto animate-fade-in delay-400">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             {[
-              { gradient: "from-rose-100 to-pink-100", icon: Heart, label: "Romantic" },
-              { gradient: "from-gold-100 to-yellow-100", icon: Star, label: "Elegant" },
-              { gradient: "from-purple-100 to-indigo-100", icon: Sparkles, label: "Modern" },
-              { gradient: "from-green-100 to-teal-100", icon: Users, label: "Classic" }
+              { gradient: "from-rose-50 to-pink-50", icon: Heart, label: "Romantic" },
+              { gradient: "from-amber-50 to-yellow-50", icon: Star, label: "Elegant" },
+              { gradient: "from-purple-50 to-indigo-50", icon: Sparkles, label: "Modern" },
+              { gradient: "from-green-50 to-teal-50", icon: Users, label: "Classic" }
             ].map((template, i) => (
               <div 
                 key={i}
-                className={`group aspect-[3/4] bg-gradient-to-br ${template.gradient} rounded-xl border border-border/30 flex flex-col items-center justify-center hover:scale-105 transition-all duration-500 hover:shadow-lg cursor-pointer romantic-glow`}
+                className={`group aspect-[3/4] bg-gradient-to-br ${template.gradient} rounded-xl border border-border/30 flex flex-col items-center justify-center hover:scale-105 transition-all duration-500 hover:shadow-lg cursor-pointer`}
               >
                 <template.icon className="h-12 w-12 text-primary/60 mb-3 group-hover:scale-110 transition-transform" fill={template.icon === Heart ? "currentColor" : "none"} />
                 <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
@@ -137,7 +136,7 @@ const HeroSection = () => {
         </div>
 
         {/* Enhanced CTA Section */}
-        <div className="relative bg-gradient-to-r from-muted/20 via-muted/30 to-muted/20 rounded-3xl p-12 md:p-16 text-center animate-fade-in delay-600">
+        <div className="relative bg-gradient-to-r from-muted/20 via-muted/30 to-muted/20 rounded-3xl p-12 md:p-16 text-center opacity-100">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-rose-500/5 to-primary/5 rounded-3xl"></div>
           <div className="relative">
             <div className="flex items-center justify-center mb-6">
