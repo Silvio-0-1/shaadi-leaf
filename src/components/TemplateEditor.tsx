@@ -100,11 +100,6 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
 
   return (
     <Card className="p-6 space-y-6">
-      <div className="flex items-center space-x-2">
-        <Type className="h-5 w-5 text-primary" />
-        <h3 className="font-serif text-xl font-semibold">Font Customization</h3>
-      </div>
-
       <div className="space-y-6">
         <div className="space-y-2">
           <Label>Bride & Groom Names</Label>

@@ -58,7 +58,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
     },
     {
       id: 'design',
-      label: 'Design',
+      label: 'Fonts',
       icon: Palette,
       description: 'Fonts & styling',
       color: 'bg-purple-500/10 text-purple-600 border-purple-200'
@@ -142,7 +142,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
               <div className="flex items-center gap-2 mb-3">
                 <Image className="h-4 w-4 text-blue-500" />
                 <h3 className="font-medium">Photo Gallery</h3>
-                <Badge variant="outline" className="ml-auto text-xs">Max 4</Badge>
               </div>
               
               <MultiPhotoUpload
@@ -160,7 +159,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Palette className="h-4 w-4 text-purple-500" />
-                <h3 className="font-medium">Fonts</h3>
+                <h3 className="font-medium">Fonts Customization</h3>
               </div>
               
               <TemplateEditor

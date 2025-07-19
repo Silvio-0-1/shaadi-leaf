@@ -86,6 +86,28 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
     }
   }, []);
 
+  // Debug photos
+  useEffect(() => {
+    console.log('Debug - cardData.uploadedImages:', cardData.uploadedImages);
+    console.log('Debug - positions.photos:', positions.photos);
+    
+    // Reinitialize photos when uploadedImages changes
+    if (cardData.uploadedImages && cardData.uploadedImages.length > 1) {
+      const photosArray = cardData.uploadedImages.map((_, index) => ({
+        id: `photo-${index}`,
+        position: { 
+          x: (index % 2 === 0 ? -70 : 70) + (index * 15), 
+          y: -140 + (Math.floor(index / 2) * 160) 
+        },
+        size: { width: 100, height: 100 }
+      }));
+      
+      if (!positions.photos || positions.photos.length !== cardData.uploadedImages.length) {
+        setPositions(prev => ({ ...prev, photos: photosArray }));
+      }
+    }
+  }, [cardData.uploadedImages]);
+
   // Update parent when positions change
   useEffect(() => {
     onPositionsUpdate?.(positions);
