@@ -25,6 +25,9 @@ export interface TemplateCustomization {
   fonts?: {
     heading?: string;
     body?: string;
+    date?: string;
+    venue?: string;
+    message?: string;
   };
   backgroundPattern?: string;
   layout?: string;
