@@ -3,15 +3,24 @@ import { useState, useRef } from 'react';
 import { Upload, X, Image, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 interface MultiPhotoUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
+  photoShape?: 'square' | 'circle' | 'rounded';
+  onPhotoShapeChange?: (shape: 'square' | 'circle' | 'rounded') => void;
 }
 
-const MultiPhotoUpload = ({ images, onImagesChange, maxImages = 4 }: MultiPhotoUploadProps) => {
+const MultiPhotoUpload = ({ 
+  images, 
+  onImagesChange, 
+  maxImages = 4,
+  photoShape = 'rounded',
+  onPhotoShapeChange
+}: MultiPhotoUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,6 +86,19 @@ const MultiPhotoUpload = ({ images, onImagesChange, maxImages = 4 }: MultiPhotoU
 
   const canAddMore = images.length < maxImages;
 
+  const getImageClasses = () => {
+    const baseClasses = "w-full h-24 object-cover";
+    switch (photoShape) {
+      case 'circle':
+        return `${baseClasses} rounded-full`;
+      case 'square':
+        return `${baseClasses} rounded-none`;
+      case 'rounded':
+      default:
+        return `${baseClasses} rounded-md`;
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -86,6 +108,23 @@ const MultiPhotoUpload = ({ images, onImagesChange, maxImages = 4 }: MultiPhotoU
         </span>
       </div>
 
+      {/* Photo Shape Selector */}
+      {onPhotoShapeChange && (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Photo Shape</Label>
+          <Select value={photoShape} onValueChange={onPhotoShapeChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select photo shape" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rounded">Rounded</SelectItem>
+              <SelectItem value="square">Square</SelectItem>
+              <SelectItem value="circle">Circle</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* Image Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {images.map((image, index) => (
@@ -93,7 +132,7 @@ const MultiPhotoUpload = ({ images, onImagesChange, maxImages = 4 }: MultiPhotoU
             <img 
               src={image} 
               alt={`Wedding photo ${index + 1}`}
-              className="w-full h-24 object-cover rounded-md"
+              className={getImageClasses()}
             />
             <Button
               variant="destructive"

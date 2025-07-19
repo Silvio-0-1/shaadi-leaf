@@ -40,6 +40,15 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
     toast.success(`${images.length} photo(s) updated`);
   };
 
+  const handlePhotoShapeChange = (shape: 'square' | 'circle' | 'rounded') => {
+    onDataChange({ 
+      customization: {
+        ...cardData.customization,
+        photoShape: shape
+      }
+    });
+  };
+
   const handleLogoChange = (logo: string) => {
     onDataChange({ logoImage: logo });
   };
@@ -186,7 +195,9 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
           <MultiPhotoUpload
             images={cardData.uploadedImages || []}
             onImagesChange={handleImagesChange}
-            maxImages={6}
+            maxImages={4}
+            photoShape={cardData.customization?.photoShape || 'rounded'}
+            onPhotoShapeChange={handlePhotoShapeChange}
           />
         </TabsContent>
 

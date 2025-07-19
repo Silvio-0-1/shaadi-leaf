@@ -202,6 +202,22 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     };
   };
 
+  // Get photo classes based on shape
+  const getPhotoClasses = (isMainPhoto: boolean = false) => {
+    const photoShape = cardData.customization?.photoShape || 'rounded';
+    const baseClasses = isMainPhoto ? "w-24 h-24 object-cover border-4 border-white shadow-lg" : "w-16 h-16 object-cover border-2 border-white shadow-md";
+    
+    switch (photoShape) {
+      case 'circle':
+        return `${baseClasses} rounded-full`;
+      case 'square':
+        return `${baseClasses} rounded-none`;
+      case 'rounded':
+      default:
+        return `${baseClasses} ${isMainPhoto ? 'rounded-full' : 'rounded-lg'}`;
+    }
+  };
+
   const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
 
   if (!template) {
@@ -286,7 +302,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                     <img 
                       src={cardData.uploadedImages[0]} 
                       alt="Wedding" 
-                      className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                      className={getPhotoClasses(true)}
                     />
                   ) : (
                     <div className="flex flex-wrap justify-center gap-2 max-w-48">
@@ -295,14 +311,9 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                           key={index}
                           src={image} 
                           alt={`Wedding ${index + 1}`} 
-                          className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow-md"
+                          className={getPhotoClasses(false)}
                         />
                       ))}
-                      {cardData.uploadedImages.length > 4 && (
-                        <div className="w-16 h-16 rounded-lg border-2 border-white shadow-md bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                          +{cardData.uploadedImages.length - 4}
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

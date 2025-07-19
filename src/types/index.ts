@@ -28,6 +28,7 @@ export interface TemplateCustomization {
   };
   backgroundPattern?: string;
   layout?: string;
+  photoShape?: 'square' | 'circle' | 'rounded';
 }
 
 export interface ElementPosition {
