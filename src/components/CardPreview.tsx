@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -188,6 +187,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const handleToggleInteractive = () => {
     setIsInteractive(!isInteractive);
+    // Don't reset positions when toggling - preserve them
   };
 
   const handlePositionsUpdate = (positions: CardElements) => {
@@ -209,6 +209,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         top: '50%',
         transform: `translate(-50%, -50%) translate(${element.position.x}px, ${element.position.y}px)`,
         zIndex: 10,
+        width: `${element.size.width}px`,
+        height: `${element.size.height}px`,
       };
     }
     
@@ -243,7 +245,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const getPhotoClasses = (isMainPhoto: boolean = false) => {
     const photoShape = cardData.customization?.photoShape || 'rounded';
-    const baseClasses = isMainPhoto ? "w-24 h-24 object-cover border-4 border-white shadow-lg" : "w-16 h-16 object-cover border-2 border-white shadow-md";
+    const baseClasses = isMainPhoto ? "object-cover border-4 border-white shadow-lg" : "object-cover border-2 border-white shadow-md";
     
     switch (photoShape) {
       case 'circle':
@@ -252,7 +254,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         return `${baseClasses} rounded-none`;
       case 'rounded':
       default:
-        return `${baseClasses} ${isMainPhoto ? 'rounded-full' : 'rounded-lg'}`;
+        return `${baseClasses} ${isMainPhoto ? 'rounded-lg' : 'rounded-lg'}`;
     }
   };
 
@@ -353,23 +355,49 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               )}
 
               {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
-                <div style={getElementStyle('photo', { marginBottom: '24px' })}>
+                <div style={savedPositions?.photos ? { position: 'relative' } : getElementStyle('photo', { marginBottom: '24px' })}>
                   {cardData.uploadedImages.length === 1 ? (
                     <img 
                       src={cardData.uploadedImages[0]} 
                       alt="Wedding" 
                       className={getPhotoClasses(true)}
+                      style={savedPositions?.photo ? {
+                        width: `${savedPositions.photo.size.width}px`,
+                        height: `${savedPositions.photo.size.height}px`,
+                        objectFit: 'cover'
+                      } : {
+                        width: '96px',
+                        height: '96px',
+                        objectFit: 'cover'
+                      }}
                     />
                   ) : (
                     <div className="flex flex-wrap justify-center gap-2 max-w-48">
-                      {cardData.uploadedImages.slice(0, 4).map((image, index) => (
-                        <img 
-                          key={index}
-                          src={image} 
-                          alt={`Wedding ${index + 1}`} 
-                          className={getPhotoClasses(false)}
-                        />
-                      ))}
+                      {cardData.uploadedImages.slice(0, 4).map((image, index) => {
+                        const photoPosition = savedPositions?.photos?.find(p => p.id === `photo-${index}`);
+                        return (
+                          <img 
+                            key={index}
+                            src={image} 
+                            alt={`Wedding ${index + 1}`} 
+                            className={getPhotoClasses(false)}
+                            style={photoPosition ? {
+                              position: 'absolute',
+                              left: '50%',
+                              top: '50%',
+                              transform: `translate(-50%, -50%) translate(${photoPosition.position.x}px, ${photoPosition.position.y}px)`,
+                              width: `${photoPosition.size.width}px`,
+                              height: `${photoPosition.size.height}px`,
+                              objectFit: 'cover',
+                              zIndex: 10
+                            } : {
+                              width: '64px',
+                              height: '64px',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -495,11 +523,16 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               disabled={loadingStates.image}
             >
               {loadingStates.image ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Downloading...
+                </>
               ) : (
-                <Download className="h-4 w-4 mr-2" />
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download as Image (10 Credits)
+                </>
               )}
-              {loadingStates.image ? 'Downloading...' : 'Download as Image (10 Credits)'}
             </Button>
             
             <div className="grid grid-cols-2 gap-2">

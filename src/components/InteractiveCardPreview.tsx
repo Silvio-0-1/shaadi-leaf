@@ -31,7 +31,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
   const template = templates.find(t => t.id === cardData.templateId);
   
   // Use template's default positions if available, otherwise use general defaults
-  const getDefaultPositions = (): CardElements => {
+  const getDefaultPositions = useCallback((): CardElements => {
     if (template?.defaultPositions) {
       return {
         ...template.defaultPositions,
@@ -40,13 +40,17 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
       };
     }
     return defaultPositions;
-  };
+  }, [template?.defaultPositions]);
 
   const [positions, setPositions] = useState<CardElements>(() => {
-    const initial = initialPositions || getDefaultPositions();
+    if (initialPositions) {
+      return initialPositions;
+    }
+    
+    const initial = getDefaultPositions();
     
     // Initialize individual photos if we have multiple images
-    if (cardData.uploadedImages && cardData.uploadedImages.length > 1 && !initial.photos?.length) {
+    if (cardData.uploadedImages && cardData.uploadedImages.length > 1) {
       const photosArray: IndividualPhotoElement[] = cardData.uploadedImages.map((_, index) => ({
         id: `photo-${index}`,
         position: { 
@@ -69,9 +73,9 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
   const [historyIndex, setHistoryIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   
-  // Update positions when component receives new initialPositions
+  // Update positions when component receives new initialPositions - but only if they're different
   useEffect(() => {
-    if (initialPositions) {
+    if (initialPositions && JSON.stringify(initialPositions) !== JSON.stringify(positions)) {
       setPositions(initialPositions);
       setHistory([initialPositions]);
       setHistoryIndex(0);
@@ -144,75 +148,95 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     if (elementId.startsWith('photo-')) {
       // Handle individual photo movement
       const photoId = elementId;
-      const newPositions = { 
-        ...positions, 
-        photos: positions.photos?.map(photo => 
-          photo.id === photoId 
-            ? { ...photo, position: newPosition }
-            : photo
-        ) || []
-      };
-      setPositions(newPositions);
-      
-      // Add to history
-      const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push(newPositions);
-      setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
+      setPositions(prevPositions => {
+        const newPositions = { 
+          ...prevPositions, 
+          photos: prevPositions.photos?.map(photo => 
+            photo.id === photoId 
+              ? { ...photo, position: newPosition }
+              : photo
+          ) || []
+        };
+        
+        // Add to history
+        setHistory(prevHistory => {
+          const newHistory = prevHistory.slice(0, historyIndex + 1);
+          newHistory.push(newPositions);
+          setHistoryIndex(newHistory.length - 1);
+          return newHistory;
+        });
+        
+        return newPositions;
+      });
     } else {
       // Handle other elements
-      const newPositions = { 
-        ...positions, 
-        [elementId]: elementId === 'photo' 
-          ? { ...positions.photo, position: newPosition }
-          : newPosition 
-      };
-      setPositions(newPositions);
-      
-      // Add to history
-      const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push(newPositions);
-      setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
+      setPositions(prevPositions => {
+        const newPositions = { 
+          ...prevPositions, 
+          [elementId]: elementId === 'photo' 
+            ? { ...prevPositions.photo, position: newPosition }
+            : newPosition 
+        };
+        
+        // Add to history
+        setHistory(prevHistory => {
+          const newHistory = prevHistory.slice(0, historyIndex + 1);
+          newHistory.push(newPositions);
+          setHistoryIndex(newHistory.length - 1);
+          return newHistory;
+        });
+        
+        return newPositions;
+      });
     }
-  }, [positions, history, historyIndex]);
+  }, [historyIndex]);
 
   const handlePhotoResize = useCallback((photoId: string, newSize: { width: number; height: number }) => {
     if (photoId.startsWith('photo-')) {
-      // Handle individual photo resize
-      const newPositions = {
-        ...positions,
-        photos: positions.photos?.map(photo =>
-          photo.id === photoId
-            ? { ...photo, size: newSize }
-            : photo
-        ) || []
-      };
-      setPositions(newPositions);
-      
-      // Add to history
-      const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push(newPositions);
-      setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
+      // Handle individual photo resize - maintain aspect ratio
+      setPositions(prevPositions => {
+        const newPositions = {
+          ...prevPositions,
+          photos: prevPositions.photos?.map(photo =>
+            photo.id === photoId
+              ? { ...photo, size: newSize }
+              : photo
+          ) || []
+        };
+        
+        // Add to history
+        setHistory(prevHistory => {
+          const newHistory = prevHistory.slice(0, historyIndex + 1);
+          newHistory.push(newPositions);
+          setHistoryIndex(newHistory.length - 1);
+          return newHistory;
+        });
+        
+        return newPositions;
+      });
     } else {
-      // Handle single photo resize
-      const newPositions = {
-        ...positions,
-        photo: {
-          ...positions.photo,
-          size: newSize
-        }
-      };
-      setPositions(newPositions);
-      
-      // Add to history
-      const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push(newPositions);
-      setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
+      // Handle single photo resize - maintain aspect ratio
+      setPositions(prevPositions => {
+        const newPositions = {
+          ...prevPositions,
+          photo: {
+            ...prevPositions.photo,
+            size: newSize
+          }
+        };
+        
+        // Add to history
+        setHistory(prevHistory => {
+          const newHistory = prevHistory.slice(0, historyIndex + 1);
+          newHistory.push(newPositions);
+          setHistoryIndex(newHistory.length - 1);
+          return newHistory;
+        });
+        
+        return newPositions;
+      });
     }
-  }, [positions, history, historyIndex]);
+  }, [historyIndex]);
 
   const undo = () => {
     if (historyIndex > 0) {
@@ -363,12 +387,17 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                   onResize={(size) => handlePhotoResize('photo', size)}
                   minSize={{ width: 60, height: 60 }}
                   maxSize={{ width: 200, height: 200 }}
+                  maintainAspectRatio={true}
                 >
                   <img 
                     src={cardData.uploadedImages[0]} 
                     alt="Wedding" 
                     className={getPhotoClasses()}
-                    style={{ objectFit: 'cover' }}
+                    style={{ 
+                      objectFit: 'cover',
+                      width: '100%',
+                      height: '100%'
+                    }}
                   />
                 </DraggableElement>
               ) : (
@@ -386,6 +415,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                       onResize={(size) => handlePhotoResize(photo.id, size)}
                       minSize={{ width: 50, height: 50 }}
                       maxSize={{ width: 150, height: 150 }}
+                      maintainAspectRatio={true}
                     >
                       <img 
                         src={cardData.uploadedImages[index]} 
@@ -395,7 +425,11 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                           cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                           'rounded-lg'
                         }`}
-                        style={{ objectFit: 'cover' }}
+                        style={{ 
+                          objectFit: 'cover',
+                          width: '100%',
+                          height: '100%'
+                        }}
                       />
                     </DraggableElement>
                   )

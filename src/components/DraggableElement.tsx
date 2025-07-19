@@ -12,6 +12,7 @@ interface DraggableElementProps {
   onResize?: (size: { width: number; height: number }) => void;
   minSize?: { width: number; height: number };
   maxSize?: { width: number; height: number };
+  maintainAspectRatio?: boolean;
 }
 
 const DraggableElement = ({ 
@@ -24,7 +25,8 @@ const DraggableElement = ({
   size = { width: 100, height: 100 },
   onResize,
   minSize = { width: 50, height: 50 },
-  maxSize = { width: 300, height: 300 }
+  maxSize = { width: 300, height: 300 },
+  maintainAspectRatio = false
 }: DraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -33,9 +35,17 @@ const DraggableElement = ({
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0 });
   const [startSize, setStartSize] = useState({ width: 0, height: 0 });
   const [resizeDirection, setResizeDirection] = useState<string>('');
+  const [aspectRatio, setAspectRatio] = useState<number>(1);
   const elementRef = useRef<HTMLDivElement>(null);
 
   const isPhotoElement = id.startsWith('photo') || id === 'photo';
+
+  // Calculate initial aspect ratio
+  useEffect(() => {
+    if (maintainAspectRatio && size.width && size.height) {
+      setAspectRatio(size.width / size.height);
+    }
+  }, [size.width, size.height, maintainAspectRatio]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!containerRef.current || isResizing) return;
@@ -93,37 +103,85 @@ const DraggableElement = ({
       switch (resizeDirection) {
         case 'se': // bottom-right
           newWidth = startSize.width + deltaX;
-          newHeight = startSize.height + deltaY;
+          if (maintainAspectRatio) {
+            newHeight = newWidth / aspectRatio;
+          } else {
+            newHeight = startSize.height + deltaY;
+          }
           break;
         case 'sw': // bottom-left
           newWidth = startSize.width - deltaX;
-          newHeight = startSize.height + deltaY;
+          if (maintainAspectRatio) {
+            newHeight = newWidth / aspectRatio;
+          } else {
+            newHeight = startSize.height + deltaY;
+          }
           break;
         case 'ne': // top-right
           newWidth = startSize.width + deltaX;
-          newHeight = startSize.height - deltaY;
+          if (maintainAspectRatio) {
+            newHeight = newWidth / aspectRatio;
+          } else {
+            newHeight = startSize.height - deltaY;
+          }
           break;
         case 'nw': // top-left
           newWidth = startSize.width - deltaX;
-          newHeight = startSize.height - deltaY;
+          if (maintainAspectRatio) {
+            newHeight = newWidth / aspectRatio;
+          } else {
+            newHeight = startSize.height - deltaY;
+          }
           break;
         case 'e': // right
           newWidth = startSize.width + deltaX;
+          if (maintainAspectRatio) {
+            newHeight = newWidth / aspectRatio;
+          }
           break;
         case 'w': // left
           newWidth = startSize.width - deltaX;
+          if (maintainAspectRatio) {
+            newHeight = newWidth / aspectRatio;
+          }
           break;
         case 'n': // top
           newHeight = startSize.height - deltaY;
+          if (maintainAspectRatio) {
+            newWidth = newHeight * aspectRatio;
+          }
           break;
         case 's': // bottom
           newHeight = startSize.height + deltaY;
+          if (maintainAspectRatio) {
+            newWidth = newHeight * aspectRatio;
+          }
           break;
       }
       
       // Apply constraints
       newWidth = Math.max(minSize.width, Math.min(maxSize.width, newWidth));
       newHeight = Math.max(minSize.height, Math.min(maxSize.height, newHeight));
+      
+      // Maintain aspect ratio if needed
+      if (maintainAspectRatio) {
+        if (newWidth / aspectRatio > maxSize.height) {
+          newWidth = maxSize.height * aspectRatio;
+        }
+        if (newHeight * aspectRatio > maxSize.width) {
+          newHeight = maxSize.width / aspectRatio;
+        }
+        
+        // Ensure minimum size constraints are met
+        if (newWidth < minSize.width) {
+          newWidth = minSize.width;
+          newHeight = newWidth / aspectRatio;
+        }
+        if (newHeight < minSize.height) {
+          newHeight = minSize.height;
+          newWidth = newHeight * aspectRatio;
+        }
+      }
       
       onResize({ width: newWidth, height: newHeight });
     }
@@ -144,7 +202,7 @@ const DraggableElement = ({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, isResizing, dragStart, startPosition, resizeStart, startSize, resizeDirection]);
+  }, [isDragging, isResizing, dragStart, startPosition, resizeStart, startSize, resizeDirection, aspectRatio]);
 
   const resizeHandles = [
     { direction: 'nw', cursor: 'nw-resize', position: 'top-0 left-0 -translate-x-1/2 -translate-y-1/2' },
@@ -172,11 +230,13 @@ const DraggableElement = ({
     >
       <div 
         className={`${isDragging || isResizing ? 'shadow-lg' : ''} transition-shadow relative ${
-          isPhotoElement ? 'border-2 border-white group-hover:border-white' : ''
+          isPhotoElement ? 'border-2 border-white shadow-lg group-hover:border-white' : ''
         }`}
         style={{
           border: isPhotoElement ? '2px solid white' : 'none',
           borderRadius: isPhotoElement ? '4px' : '0',
+          width: '100%',
+          height: '100%'
         }}
       >
         {children}
