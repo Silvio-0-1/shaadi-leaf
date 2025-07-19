@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -139,10 +140,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         venue: cardData.venue,
         message: cardData.message || '',
         template_id: cardData.templateId,
-        uploaded_images: cardData.uploadedImages || [],
+        uploaded_images: JSON.stringify(cardData.uploadedImages || []),
         logo_image: cardData.logoImage || null,
-        customization: cardData.customization || {},
-        element_positions: savedPositions || null,
+        customization: JSON.stringify(cardData.customization || {}),
+        element_positions: JSON.stringify(savedPositions || null),
         user_id: user.id,
         is_public: true
       };
