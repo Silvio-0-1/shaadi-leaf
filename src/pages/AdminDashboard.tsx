@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   ArrowLeft, 
   Plus, 
@@ -11,11 +14,15 @@ import {
   Eye,
   Crown,
   Settings,
-  BarChart3
+  BarChart3,
+  Coins,
+  Users,
+  FileText
 } from 'lucide-react';
 import Header from '@/components/Header';
 import VisualTemplateBuilder from '@/components/VisualTemplateBuilder';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useAdminCredits } from '@/hooks/useAdminCredits';
 import { Template } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { templates } from '@/data/templates';
@@ -35,9 +42,14 @@ import {
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { isAdmin, loading: roleLoading } = useUserRole();
-  const [activeTab, setActiveTab] = useState<'templates' | 'create' | 'analytics'>('templates');
+  const { usersWithCredits, isLoading: creditsLoading, addCredits, deductCredits, isManaging } = useAdminCredits();
+  const [activeTab, setActiveTab] = useState<'templates' | 'create' | 'analytics' | 'credits'>('templates');
   const [customTemplates, setCustomTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreditDialog, setShowCreditDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [creditAmount, setCreditAmount] = useState('');
+  const [creditDescription, setCreditDescription] = useState('');
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -111,6 +123,38 @@ const AdminDashboard = () => {
     toast.success('Template created successfully');
   };
 
+  const handleCreditAction = async (action: 'add' | 'deduct') => {
+    if (!selectedUser || !creditAmount || !creditDescription) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    const amount = parseInt(creditAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      if (action === 'add') {
+        await addCredits(selectedUser.id, amount, creditDescription);
+      } else {
+        await deductCredits(selectedUser.id, amount, creditDescription);
+      }
+      setShowCreditDialog(false);
+      setCreditAmount('');
+      setCreditDescription('');
+      setSelectedUser(null);
+    } catch (error) {
+      console.error('Credit action failed:', error);
+    }
+  };
+
+  const openCreditDialog = (user: any) => {
+    setSelectedUser(user);
+    setShowCreditDialog(true);
+  };
+
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -147,9 +191,54 @@ const AdminDashboard = () => {
               Admin Dashboard
             </h1>
             <p className="text-muted-foreground mt-2">
-              Manage templates and monitor system performance
+              Manage templates, users, and system performance
             </p>
           </div>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Templates</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{allTemplates.length}</div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{usersWithCredits?.length || 0}</div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
+              <Coins className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {usersWithCredits?.reduce((sum, user) => sum + user.balance, 0) || 0}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Analytics</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Navigation Tabs */}
@@ -167,6 +256,13 @@ const AdminDashboard = () => {
           >
             <Plus className="h-4 w-4 mr-2" />
             Create Template
+          </Button>
+          <Button
+            variant={activeTab === 'credits' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('credits')}
+          >
+            <Coins className="h-4 w-4 mr-2" />
+            Credit Management
           </Button>
           <Button
             variant={activeTab === 'analytics' ? 'default' : 'outline'}
@@ -284,6 +380,49 @@ const AdminDashboard = () => {
           <VisualTemplateBuilder onTemplateCreated={handleTemplateCreated} />
         )}
 
+        {/* Credit Management */}
+        {activeTab === 'credits' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">User Credit Management</h2>
+              <div className="text-sm text-muted-foreground">
+                Total Credits in System: {usersWithCredits?.reduce((sum, user) => sum + user.balance, 0) || 0}
+              </div>
+            </div>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {creditsLoading ? (
+                    <div className="text-center py-8">Loading users...</div>
+                  ) : (
+                    usersWithCredits?.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <h3 className="font-medium">{user.full_name || 'No Name'}</h3>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Coins className="h-4 w-4 text-yellow-500" />
+                            <span className="text-sm font-medium">{user.balance} Credits</span>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => openCreditDialog(user)}
+                          disabled={isManaging}
+                        >
+                          Manage Credits
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Analytics */}
         {activeTab === 'analytics' && (
           <div className="space-y-6">
@@ -329,6 +468,60 @@ const AdminDashboard = () => {
             </Card>
           </div>
         )}
+
+        {/* Credit Management Dialog */}
+        <Dialog open={showCreditDialog} onOpenChange={setShowCreditDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Manage Credits for {selectedUser?.full_name || selectedUser?.email}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Coins className="h-4 w-4 text-yellow-500" />
+                <span>Current Balance: {selectedUser?.balance} Credits</span>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="credit-amount">Amount</Label>
+                <Input
+                  id="credit-amount"
+                  type="number"
+                  placeholder="Enter credit amount"
+                  value={creditAmount}
+                  onChange={(e) => setCreditAmount(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="credit-description">Description</Label>
+                <Input
+                  id="credit-description"
+                  placeholder="Reason for credit change"
+                  value={creditDescription}
+                  onChange={(e) => setCreditDescription(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button 
+                  onClick={() => handleCreditAction('add')}
+                  disabled={isManaging}
+                  className="flex-1"
+                >
+                  Add Credits
+                </Button>
+                <Button 
+                  onClick={() => handleCreditAction('deduct')}
+                  disabled={isManaging}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Deduct Credits
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

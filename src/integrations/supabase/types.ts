@@ -250,6 +250,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_manage_credits: {
+        Args: {
+          p_target_user_id: string
+          p_amount: number
+          p_operation: string
+          p_description: string
+          p_admin_user_id: string
+        }
+        Returns: boolean
+      }
       deduct_credits: {
         Args: {
           p_user_id: string
