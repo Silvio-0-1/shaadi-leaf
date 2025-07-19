@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -88,12 +89,9 @@ const Customize = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Templates
           </Button>
-          <h1 className="text-3xl font-serif font-semibold text-foreground">
-            Customize Your Wedding Card
-          </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="space-y-6">
             <CustomizationForm
               cardData={cardData}

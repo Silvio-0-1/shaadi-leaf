@@ -99,6 +99,20 @@ const MultiPhotoUpload = ({
     }
   };
 
+  const getPreviewContainerClasses = () => {
+    // For the preview grid, we use aspect-square to ensure perfect squares/circles
+    const baseClasses = "aspect-square overflow-hidden";
+    switch (photoShape) {
+      case 'circle':
+        return `${baseClasses} rounded-full`;
+      case 'square':
+        return `${baseClasses} rounded-none`;
+      case 'rounded':
+      default:
+        return `${baseClasses} rounded-md`;
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -128,11 +142,13 @@ const MultiPhotoUpload = ({
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {images.map((image, index) => (
           <Card key={index} className="relative p-2 group">
-            <img 
-              src={image} 
-              alt={`Wedding photo ${index + 1}`}
-              className={getImageClasses()}
-            />
+            <div className={getPreviewContainerClasses()}>
+              <img 
+                src={image} 
+                alt={`Wedding photo ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <Button
               variant="destructive"
               size="sm"

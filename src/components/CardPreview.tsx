@@ -187,7 +187,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const handleToggleInteractive = () => {
     setIsInteractive(!isInteractive);
-    // Don't reset positions when toggling - preserve them
   };
 
   const handlePositionsUpdate = (positions: CardElements) => {
@@ -245,7 +244,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const getPhotoClasses = (isMainPhoto: boolean = false) => {
     const photoShape = cardData.customization?.photoShape || 'rounded';
-    const baseClasses = isMainPhoto ? "object-cover border-4 border-white shadow-lg" : "object-cover border-2 border-white shadow-md";
+    const baseClasses = isMainPhoto ? "border-4 border-white shadow-lg" : "border-2 border-white shadow-md";
     
     switch (photoShape) {
       case 'circle':
@@ -357,18 +356,27 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
                 <div style={savedPositions?.photos ? { position: 'relative' } : getElementStyle('photo', { marginBottom: '24px' })}>
                   {cardData.uploadedImages.length === 1 ? (
-                    <img 
-                      src={cardData.uploadedImages[0]} 
-                      alt="Wedding" 
+                    <div 
                       className={getPhotoClasses(true)}
                       style={savedPositions?.photo ? {
+                        position: 'absolute',
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(-50%, -50%) translate(${savedPositions.photo.position.x}px, ${savedPositions.photo.position.y}px)`,
                         width: `${savedPositions.photo.size.width}px`,
                         height: `${savedPositions.photo.size.height}px`,
-                        objectFit: 'cover'
+                        backgroundImage: `url(${cardData.uploadedImages[0]})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        zIndex: 10
                       } : {
                         width: '96px',
                         height: '96px',
-                        objectFit: 'cover'
+                        backgroundImage: `url(${cardData.uploadedImages[0]})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
                       }}
                     />
                   ) : (
@@ -376,10 +384,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                       {cardData.uploadedImages.slice(0, 4).map((image, index) => {
                         const photoPosition = savedPositions?.photos?.find(p => p.id === `photo-${index}`);
                         return (
-                          <img 
+                          <div 
                             key={index}
-                            src={image} 
-                            alt={`Wedding ${index + 1}`} 
                             className={getPhotoClasses(false)}
                             style={photoPosition ? {
                               position: 'absolute',
@@ -388,12 +394,18 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                               transform: `translate(-50%, -50%) translate(${photoPosition.position.x}px, ${photoPosition.position.y}px)`,
                               width: `${photoPosition.size.width}px`,
                               height: `${photoPosition.size.height}px`,
-                              objectFit: 'cover',
+                              backgroundImage: `url(${image})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat',
                               zIndex: 10
                             } : {
                               width: '64px',
                               height: '64px',
-                              objectFit: 'cover'
+                              backgroundImage: `url(${image})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat'
                             }}
                           />
                         );

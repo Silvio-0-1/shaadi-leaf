@@ -1,3 +1,4 @@
+
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,23 +33,12 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
   
   // Use template's default positions if available, otherwise use general defaults
   const getDefaultPositions = useCallback((): CardElements => {
-    if (template?.defaultPositions) {
-      return {
-        ...template.defaultPositions,
-        photo: template.defaultPositions.photo || defaultPositions.photo,
-        photos: []
-      };
-    }
-    return defaultPositions;
-  }, [template?.defaultPositions]);
+    const basePositions = template?.defaultPositions ? {
+      ...template.defaultPositions,
+      photo: template.defaultPositions.photo || defaultPositions.photo,
+      photos: []
+    } : defaultPositions;
 
-  const [positions, setPositions] = useState<CardElements>(() => {
-    if (initialPositions) {
-      return initialPositions;
-    }
-    
-    const initial = getDefaultPositions();
-    
     // Initialize individual photos if we have multiple images
     if (cardData.uploadedImages && cardData.uploadedImages.length > 1) {
       const photosArray: IndividualPhotoElement[] = cardData.uploadedImages.map((_, index) => ({
@@ -61,19 +51,34 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
       }));
       
       return {
-        ...initial,
+        ...basePositions,
         photos: photosArray
       };
     }
     
-    return initial;
+    return basePositions;
+  }, [template?.defaultPositions, cardData.uploadedImages]);
+
+  const [positions, setPositions] = useState<CardElements>(() => {
+    if (initialPositions) {
+      return initialPositions;
+    }
+    return getDefaultPositions();
   });
 
-  const [history, setHistory] = useState<CardElements[]>([positions]);
+  const [history, setHistory] = useState<CardElements[]>([]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   
-  // Update positions when component receives new initialPositions - but only if they're different
+  // Initialize history when positions change for the first time
+  useEffect(() => {
+    if (history.length === 0) {
+      setHistory([positions]);
+      setHistoryIndex(0);
+    }
+  }, [positions, history.length]);
+
+  // Update positions when component receives new initialPositions
   useEffect(() => {
     if (initialPositions && JSON.stringify(initialPositions) !== JSON.stringify(positions)) {
       setPositions(initialPositions);
@@ -193,7 +198,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
 
   const handlePhotoResize = useCallback((photoId: string, newSize: { width: number; height: number }) => {
     if (photoId.startsWith('photo-')) {
-      // Handle individual photo resize - maintain aspect ratio
+      // Handle individual photo resize
       setPositions(prevPositions => {
         const newPositions = {
           ...prevPositions,
@@ -215,7 +220,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
         return newPositions;
       });
     } else {
-      // Handle single photo resize - maintain aspect ratio
+      // Handle single photo resize
       setPositions(prevPositions => {
         const newPositions = {
           ...prevPositions,
@@ -389,14 +394,15 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                   maxSize={{ width: 200, height: 200 }}
                   maintainAspectRatio={true}
                 >
-                  <img 
-                    src={cardData.uploadedImages[0]} 
-                    alt="Wedding" 
+                  <div 
                     className={getPhotoClasses()}
                     style={{ 
-                      objectFit: 'cover',
-                      width: '100%',
-                      height: '100%'
+                      width: `${positions.photo.size.width}px`,
+                      height: `${positions.photo.size.height}px`,
+                      backgroundImage: `url(${cardData.uploadedImages[0]})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
                     }}
                   />
                 </DraggableElement>
@@ -417,18 +423,19 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                       maxSize={{ width: 150, height: 150 }}
                       maintainAspectRatio={true}
                     >
-                      <img 
-                        src={cardData.uploadedImages[index]} 
-                        alt={`Wedding photo ${index + 1}`}
-                        className={`w-full h-full object-cover border-4 border-white shadow-lg ${
+                      <div 
+                        className={`w-full h-full border-4 border-white shadow-lg ${
                           cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                           cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                           'rounded-lg'
                         }`}
                         style={{ 
-                          objectFit: 'cover',
-                          width: '100%',
-                          height: '100%'
+                          width: `${photo.size.width}px`,
+                          height: `${photo.size.height}px`,
+                          backgroundImage: `url(${cardData.uploadedImages[index]})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
                         }}
                       />
                     </DraggableElement>
