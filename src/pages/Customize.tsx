@@ -5,7 +5,6 @@ import { ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
 import CustomizationForm from '@/components/CustomizationForm';
 import CardPreview from '@/components/CardPreview';
-import DownloadSection from '@/components/DownloadSection';
 import { WeddingCardData } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeddingCards } from '@/hooks/useWeddingCards';
@@ -118,11 +117,6 @@ const Customize = () => {
           
           <div className="space-y-6">
             <CardPreview cardData={cardData} />
-            
-            {/* Download Section - Only show if card has required data */}
-            {hasRequiredData && user && (
-              <DownloadSection cardId="card-preview" />
-            )}
           </div>
         </div>
       </div>
