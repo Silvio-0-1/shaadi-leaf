@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Download, FileImage, Share2, Play, Settings, Calendar, MapPin, Loader2 } from 'lucide-react';
+import { Heart, Download, FileImage, Share2, Play, Settings, Calendar, MapPin, Loader2, Link, Check } from 'lucide-react';
 import { WeddingCardData, CardElements } from '@/types';
 import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
@@ -10,6 +10,7 @@ import { useCredits } from '@/hooks/useCredits';
 import AuthDialog from './AuthDialog';
 import InteractiveCardPreview from './InteractiveCardPreview';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CardPreviewProps {
   cardData: WeddingCardData;
@@ -17,7 +18,7 @@ interface CardPreviewProps {
 
 const CardPreview = ({ cardData }: CardPreviewProps) => {
   const { user } = useAuth();
-  const { deductCredits, hasEnoughCredits, CREDIT_COSTS } = useCredits();
+  const { deductCredits, hasEnoughCredits } = useCredits();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [pendingDownload, setPendingDownload] = useState<'image' | 'pdf' | 'video' | null>(null);
   const [isInteractive, setIsInteractive] = useState(false);
@@ -28,6 +29,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     video: false,
     share: false
   });
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   
   const template = templates.find(t => t.id === cardData.templateId);
 
@@ -56,7 +59,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     setLoadingStates(prev => ({ ...prev, [type]: true }));
     
     try {
-      // Determine credit cost based on download type
       let creditCost = 0;
       let actionType = '';
       let description = '';
@@ -79,20 +81,17 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           break;
       }
 
-      // Check if user has enough credits
       if (!hasEnoughCredits(creditCost)) {
         toast.error(`Insufficient credits! You need ${creditCost} credits for this download.`);
         return;
       }
 
-      // Deduct credits first
       const success = await deductCredits(creditCost, actionType, description);
       if (!success) {
         toast.error('Failed to deduct credits. Please try again.');
         return;
       }
 
-      // Proceed with download
       switch (type) {
         case 'image':
           await downloadAsImage('card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
@@ -123,24 +122,66 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     }
   };
 
-  const handleShare = async () => {
+  const generateShareableLink = async () => {
     setLoadingStates(prev => ({ ...prev, share: true }));
     
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: `${cardData.brideName} & ${cardData.groomName} Wedding`,
-          text: `You're invited to our wedding!`,
-          url: window.location.href
-        });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success('Link copied to clipboard!');
+      if (!user) {
+        setShowAuthDialog(true);
+        return;
       }
+
+      // Save card data to database for sharing
+      const shareableCardData = {
+        bride_name: cardData.brideName,
+        groom_name: cardData.groomName,
+        wedding_date: cardData.weddingDate,
+        venue: cardData.venue,
+        message: cardData.message || '',
+        template_id: cardData.templateId,
+        uploaded_images: cardData.uploadedImages || [],
+        logo_image: cardData.logoImage || null,
+        customization: cardData.customization || {},
+        element_positions: savedPositions || null,
+        user_id: user.id,
+        is_public: true
+      };
+
+      const { data, error } = await supabase
+        .from('shared_wedding_cards')
+        .insert([shareableCardData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const shareUrl = `${window.location.origin}/shared/${data.id}`;
+      setShareUrl(shareUrl);
+      
+      // Copy to clipboard
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        toast.success('Shareable link copied to clipboard!');
+      } else {
+        toast.success('Shareable link generated!');
+      }
+      
     } catch (error) {
-      // User cancelled or error occurred
+      console.error('Share error:', error);
+      toast.error('Failed to generate shareable link');
     } finally {
       setLoadingStates(prev => ({ ...prev, share: false }));
+    }
+  };
+
+  const copyShareLink = async () => {
+    if (shareUrl && navigator.clipboard) {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success('Link copied to clipboard!');
     }
   };
 
@@ -152,7 +193,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     setSavedPositions(positions);
   };
 
-  // Helper function to get element style with saved positions
   const getElementStyle = (elementKey: keyof CardElements, defaultStyle: any = {}) => {
     if (!savedPositions || !savedPositions[elementKey]) {
       return defaultStyle;
@@ -160,7 +200,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     
     const element = savedPositions[elementKey];
     
-    // Handle photo element which has position and size
     if (elementKey === 'photo' && 'position' in element) {
       return {
         ...defaultStyle,
@@ -172,7 +211,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       };
     }
     
-    // Handle regular elements with x, y coordinates
     if ('x' in element && 'y' in element) {
       return {
         ...defaultStyle,
@@ -187,7 +225,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     return defaultStyle;
   };
 
-  // Get background style for custom templates
   const getBackgroundStyle = () => {
     if (template?.backgroundImage) {
       return {
@@ -203,7 +240,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     };
   };
 
-  // Get photo classes based on shape
   const getPhotoClasses = (isMainPhoto: boolean = false) => {
     const photoShape = cardData.customization?.photoShape || 'rounded';
     const baseClasses = isMainPhoto ? "w-24 h-24 object-cover border-4 border-white shadow-lg" : "w-16 h-16 object-cover border-2 border-white shadow-md";
@@ -279,7 +315,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             style={getBackgroundStyle()}
           >
             <div className="relative h-full p-8 flex flex-col justify-center items-center text-center">
-              {/* Decorative top border - only show if no custom background */}
               {!template.backgroundImage && (
                 <div 
                   className="absolute top-0 left-0 right-0 h-2"
@@ -396,7 +431,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 </div>
               )}
 
-              {/* Decorative Footer - only show if no custom background */}
               {!template.backgroundImage && (
                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
                   <div className="flex items-center space-x-2">
@@ -467,7 +501,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
             </div>
             
             <Button 
-              onClick={handleShare}
+              onClick={generateShareableLink}
               variant="outline"
               className="w-full"
               disabled={loadingStates.share}
@@ -477,8 +511,37 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               ) : (
                 <Share2 className="h-4 w-4 mr-2" />
               )}
-              {loadingStates.share ? 'Sharing...' : 'Share'}
+              {loadingStates.share ? 'Generating Link...' : 'Share Card'}
             </Button>
+
+            {shareUrl && (
+              <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                <p className="text-sm font-medium text-foreground">Shareable Link:</p>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="text" 
+                    value={shareUrl} 
+                    readOnly 
+                    className="flex-1 text-xs bg-background border rounded px-2 py-1 text-muted-foreground"
+                  />
+                  <Button
+                    onClick={copyShareLink}
+                    size="sm"
+                    variant="outline"
+                    className="px-2"
+                  >
+                    {copied ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <Link className="h-3 w-3" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Anyone with this link can view your wedding card
+                </p>
+              </div>
+            )}
           </div>
         )}
 

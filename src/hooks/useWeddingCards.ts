@@ -22,7 +22,9 @@ export const useWeddingCards = () => {
         venue: cardData.venue,
         message: cardData.message || '',
         template_id: cardData.templateId,
-        uploaded_image: cardData.uploadedImage || null,
+        uploaded_images: cardData.uploadedImages || [],
+        logo_image: cardData.logoImage || null,
+        customization: cardData.customization || {},
         user_id: user.id,
       };
 
@@ -73,7 +75,9 @@ export const useWeddingCards = () => {
         venue: data.venue,
         message: data.message || '',
         templateId: data.template_id,
-        uploadedImage: data.uploaded_image || '',
+        uploadedImages: data.uploaded_images || [],
+        logoImage: data.logo_image || '',
+        customization: data.customization || {},
         createdAt: data.created_at,
         updatedAt: data.updated_at,
       };
