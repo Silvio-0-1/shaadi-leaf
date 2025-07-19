@@ -102,84 +102,77 @@ const DraggableElement = ({
       // Handle different resize directions
       switch (resizeDirection) {
         case 'se': // bottom-right
-          newWidth = startSize.width + deltaX;
+          newWidth = Math.max(minSize.width, startSize.width + deltaX);
           if (maintainAspectRatio) {
             newHeight = newWidth / aspectRatio;
           } else {
-            newHeight = startSize.height + deltaY;
+            newHeight = Math.max(minSize.height, startSize.height + deltaY);
           }
           break;
         case 'sw': // bottom-left
-          newWidth = startSize.width - deltaX;
+          newWidth = Math.max(minSize.width, startSize.width - deltaX);
           if (maintainAspectRatio) {
             newHeight = newWidth / aspectRatio;
           } else {
-            newHeight = startSize.height + deltaY;
+            newHeight = Math.max(minSize.height, startSize.height + deltaY);
           }
           break;
         case 'ne': // top-right
-          newWidth = startSize.width + deltaX;
+          newWidth = Math.max(minSize.width, startSize.width + deltaX);
           if (maintainAspectRatio) {
             newHeight = newWidth / aspectRatio;
           } else {
-            newHeight = startSize.height - deltaY;
+            newHeight = Math.max(minSize.height, startSize.height - deltaY);
           }
           break;
         case 'nw': // top-left
-          newWidth = startSize.width - deltaX;
+          newWidth = Math.max(minSize.width, startSize.width - deltaX);
           if (maintainAspectRatio) {
             newHeight = newWidth / aspectRatio;
           } else {
-            newHeight = startSize.height - deltaY;
+            newHeight = Math.max(minSize.height, startSize.height - deltaY);
           }
           break;
         case 'e': // right
-          newWidth = startSize.width + deltaX;
+          newWidth = Math.max(minSize.width, startSize.width + deltaX);
           if (maintainAspectRatio) {
             newHeight = newWidth / aspectRatio;
           }
           break;
         case 'w': // left
-          newWidth = startSize.width - deltaX;
+          newWidth = Math.max(minSize.width, startSize.width - deltaX);
           if (maintainAspectRatio) {
             newHeight = newWidth / aspectRatio;
           }
           break;
         case 'n': // top
-          newHeight = startSize.height - deltaY;
+          newHeight = Math.max(minSize.height, startSize.height - deltaY);
           if (maintainAspectRatio) {
             newWidth = newHeight * aspectRatio;
           }
           break;
         case 's': // bottom
-          newHeight = startSize.height + deltaY;
+          newHeight = Math.max(minSize.height, startSize.height + deltaY);
           if (maintainAspectRatio) {
             newWidth = newHeight * aspectRatio;
           }
           break;
       }
       
-      // Apply constraints
-      newWidth = Math.max(minSize.width, Math.min(maxSize.width, newWidth));
-      newHeight = Math.max(minSize.height, Math.min(maxSize.height, newHeight));
+      // Apply max constraints
+      newWidth = Math.min(maxSize.width, newWidth);
+      newHeight = Math.min(maxSize.height, newHeight);
       
       // Maintain aspect ratio if needed
       if (maintainAspectRatio) {
         if (newWidth / aspectRatio > maxSize.height) {
           newWidth = maxSize.height * aspectRatio;
-        }
-        if (newHeight * aspectRatio > maxSize.width) {
+          newHeight = maxSize.height;
+        } else if (newHeight * aspectRatio > maxSize.width) {
           newHeight = maxSize.width / aspectRatio;
-        }
-        
-        // Ensure minimum size constraints are met
-        if (newWidth < minSize.width) {
-          newWidth = minSize.width;
+          newWidth = maxSize.width;
+        } else {
           newHeight = newWidth / aspectRatio;
-        }
-        if (newHeight < minSize.height) {
-          newHeight = minSize.height;
-          newWidth = newHeight * aspectRatio;
         }
       }
       
@@ -229,15 +222,7 @@ const DraggableElement = ({
       onMouseDown={handleMouseDown}
     >
       <div 
-        className={`${isDragging || isResizing ? 'shadow-lg' : ''} transition-shadow relative ${
-          isPhotoElement ? 'border-2 border-white shadow-lg group-hover:border-white' : ''
-        }`}
-        style={{
-          border: isPhotoElement ? '2px solid white' : 'none',
-          borderRadius: isPhotoElement ? '4px' : '0',
-          width: '100%',
-          height: '100%'
-        }}
+        className={`${isDragging || isResizing ? 'shadow-lg' : ''} transition-shadow relative w-full h-full`}
       >
         {children}
         

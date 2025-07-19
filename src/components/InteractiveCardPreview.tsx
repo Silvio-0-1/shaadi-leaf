@@ -33,6 +33,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
   
   // Use template's default positions if available, otherwise use general defaults
   const getDefaultPositions = useCallback((): CardElements => {
+    console.log('Getting default positions for cardData:', cardData);
     const basePositions = template?.defaultPositions ? {
       ...template.defaultPositions,
       photo: template.defaultPositions.photo || defaultPositions.photo,
@@ -57,26 +58,25 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     }
     
     return basePositions;
-  }, [template?.defaultPositions, cardData.uploadedImages]);
+  }, [template?.defaultPositions, cardData.uploadedImages?.length]);
 
   const [positions, setPositions] = useState<CardElements>(() => {
-    if (initialPositions) {
-      return initialPositions;
-    }
-    return getDefaultPositions();
+    return initialPositions || getDefaultPositions();
   });
 
   const [history, setHistory] = useState<CardElements[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(0);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const cardRef = useRef<HTMLDivElement>(null);
-  
-  // Initialize history when positions change for the first time
+
+  // Initialize history only once
   useEffect(() => {
     if (history.length === 0) {
-      setHistory([positions]);
+      const initialPos = initialPositions || getDefaultPositions();
+      setHistory([initialPos]);
       setHistoryIndex(0);
+      setPositions(initialPos);
     }
-  }, [positions, history.length]);
+  }, []);
 
   // Update positions when component receives new initialPositions
   useEffect(() => {
@@ -114,12 +114,6 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     text: cardData.customization?.colors?.text || '#1f2937'
   };
 
-  // Get custom fonts or fall back to template defaults
-  const fonts = {
-    heading: cardData.customization?.fonts?.heading || template.fonts.heading,
-    body: cardData.customization?.fonts?.body || template.fonts.body
-  };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -149,7 +143,23 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     }
   };
 
+  const addToHistory = useCallback((newPositions: CardElements) => {
+    setHistory(prevHistory => {
+      const newHistory = prevHistory.slice(0, historyIndex + 1);
+      newHistory.push(newPositions);
+      if (newHistory.length > 50) { // Limit history size
+        newHistory.shift();
+        setHistoryIndex(newHistory.length - 1);
+      } else {
+        setHistoryIndex(newHistory.length - 1);
+      }
+      return newHistory;
+    });
+  }, [historyIndex]);
+
   const handleElementMove = useCallback((elementId: keyof CardElements | string, newPosition: ElementPosition) => {
+    console.log('Moving element:', elementId, 'to position:', newPosition);
+    
     if (elementId.startsWith('photo-')) {
       // Handle individual photo movement
       const photoId = elementId;
@@ -163,14 +173,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
           ) || []
         };
         
-        // Add to history
-        setHistory(prevHistory => {
-          const newHistory = prevHistory.slice(0, historyIndex + 1);
-          newHistory.push(newPositions);
-          setHistoryIndex(newHistory.length - 1);
-          return newHistory;
-        });
-        
+        addToHistory(newPositions);
         return newPositions;
       });
     } else {
@@ -183,20 +186,15 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
             : newPosition 
         };
         
-        // Add to history
-        setHistory(prevHistory => {
-          const newHistory = prevHistory.slice(0, historyIndex + 1);
-          newHistory.push(newPositions);
-          setHistoryIndex(newHistory.length - 1);
-          return newHistory;
-        });
-        
+        addToHistory(newPositions);
         return newPositions;
       });
     }
-  }, [historyIndex]);
+  }, [addToHistory]);
 
   const handlePhotoResize = useCallback((photoId: string, newSize: { width: number; height: number }) => {
+    console.log('Resizing photo:', photoId, 'to size:', newSize);
+    
     if (photoId.startsWith('photo-')) {
       // Handle individual photo resize
       setPositions(prevPositions => {
@@ -209,14 +207,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
           ) || []
         };
         
-        // Add to history
-        setHistory(prevHistory => {
-          const newHistory = prevHistory.slice(0, historyIndex + 1);
-          newHistory.push(newPositions);
-          setHistoryIndex(newHistory.length - 1);
-          return newHistory;
-        });
-        
+        addToHistory(newPositions);
         return newPositions;
       });
     } else {
@@ -230,30 +221,25 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
           }
         };
         
-        // Add to history
-        setHistory(prevHistory => {
-          const newHistory = prevHistory.slice(0, historyIndex + 1);
-          newHistory.push(newPositions);
-          setHistoryIndex(newHistory.length - 1);
-          return newHistory;
-        });
-        
+        addToHistory(newPositions);
         return newPositions;
       });
     }
-  }, [historyIndex]);
+  }, [addToHistory]);
 
   const undo = () => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1);
-      setPositions(history[historyIndex - 1]);
+      const previousIndex = historyIndex - 1;
+      setHistoryIndex(previousIndex);
+      setPositions(history[previousIndex]);
     }
   };
 
   const redo = () => {
     if (historyIndex < history.length - 1) {
-      setHistoryIndex(historyIndex + 1);
-      setPositions(history[historyIndex + 1]);
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setPositions(history[nextIndex]);
     }
   };
 
@@ -265,7 +251,6 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
   };
 
   const backgroundPattern = cardData.customization?.backgroundPattern || 'none';
-  const layout = cardData.customization?.layout || 'classic';
 
   // Background pattern styles
   const getBackgroundClass = () => {
@@ -297,22 +282,6 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     }
     
     return {};
-  };
-
-  // Get photo classes based on shape
-  const getPhotoClasses = () => {
-    const photoShape = cardData.customization?.photoShape || 'rounded';
-    const baseClasses = "w-full h-full object-cover border-4 border-white shadow-lg";
-    
-    switch (photoShape) {
-      case 'circle':
-        return `${baseClasses} rounded-full`;
-      case 'square':
-        return `${baseClasses} rounded-none`;
-      case 'rounded':
-      default:
-        return `${baseClasses} rounded-lg`;
-    }
   };
 
   return (
@@ -383,6 +352,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
             <>
               {cardData.uploadedImages.length === 1 ? (
                 <DraggableElement
+                  key="single-photo"
                   id="photo"
                   position={positions.photo.position}
                   onMove={(pos) => handleElementMove('photo', pos)}
@@ -395,10 +365,12 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                   maintainAspectRatio={true}
                 >
                   <div 
-                    className={getPhotoClasses()}
+                    className={`w-full h-full border-4 border-white shadow-lg ${
+                      cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
+                      cardData.customization?.photoShape === 'square' ? 'rounded-none' :
+                      'rounded-lg'
+                    }`}
                     style={{ 
-                      width: `${positions.photo.size.width}px`,
-                      height: `${positions.photo.size.height}px`,
                       backgroundImage: `url(${cardData.uploadedImages[0]})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
@@ -411,7 +383,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                 positions.photos?.map((photo, index) => (
                   cardData.uploadedImages && cardData.uploadedImages[index] && (
                     <DraggableElement
-                      key={photo.id}
+                      key={`multi-photo-${photo.id}`}
                       id={photo.id}
                       position={photo.position}
                       onMove={(pos) => handleElementMove(photo.id, pos)}
@@ -430,8 +402,6 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                           'rounded-lg'
                         }`}
                         style={{ 
-                          width: `${photo.size.width}px`,
-                          height: `${photo.size.height}px`,
                           backgroundImage: `url(${cardData.uploadedImages[index]})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
