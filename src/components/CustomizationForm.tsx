@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Image, Crown, Settings, Video } from 'lucide-react';
+import { Heart, Image, Crown, Settings, Video, Type } from 'lucide-react';
 import { WeddingCardData, VideoCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
@@ -66,8 +65,8 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
             <span className="text-xs">Logo</span>
           </TabsTrigger>
           <TabsTrigger value="design" className="flex flex-col items-center space-y-1 h-full">
-            <Settings className="h-4 w-4" />
-            <span className="text-xs">Design</span>
+            <Type className="h-4 w-4" />
+            <span className="text-xs">Fonts</span>
           </TabsTrigger>
           <TabsTrigger value="video" className="flex flex-col items-center space-y-1 h-full">
             <Video className="h-4 w-4" />

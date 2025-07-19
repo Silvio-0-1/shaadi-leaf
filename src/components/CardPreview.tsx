@@ -258,6 +258,25 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const hasContent = cardData.brideName || cardData.groomName || cardData.weddingDate || cardData.venue || cardData.message;
 
+  // Get font styles
+  const getFontFamily = (element: 'heading' | 'date' | 'venue' | 'message') => {
+    const fonts = cardData.customization?.fonts;
+    if (!fonts) return template?.fonts?.heading || 'Playfair Display';
+    
+    switch (element) {
+      case 'heading':
+        return fonts.heading || template?.fonts?.heading || 'Playfair Display';
+      case 'date':
+        return fonts.date || fonts.body || template?.fonts?.body || 'Inter';
+      case 'venue':
+        return fonts.venue || fonts.body || template?.fonts?.body || 'Inter';
+      case 'message':
+        return fonts.message || fonts.body || template?.fonts?.body || 'Inter';
+      default:
+        return template?.fonts?.heading || 'Playfair Display';
+    }
+  };
+
   if (!template) {
     return (
       <div className="sticky top-24 space-y-6">
@@ -361,6 +380,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                   className="text-3xl font-serif font-bold leading-tight"
                   style={{ 
                     color: template.colors.primary,
+                    fontFamily: getFontFamily('heading'),
                     ...getElementStyle('brideName')
                   }}
                 >
@@ -388,6 +408,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                   className="text-3xl font-serif font-bold leading-tight"
                   style={{ 
                     color: template.colors.primary,
+                    fontFamily: getFontFamily('heading'),
                     ...getElementStyle('groomName')
                   }}
                 >
@@ -402,7 +423,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                     style={getElementStyle('weddingDate')}
                   >
                     <Calendar className="h-4 w-4 mr-2" />
-                    <span className="font-medium text-sm">
+                    <span 
+                      className="font-medium text-sm"
+                      style={{ fontFamily: getFontFamily('date') }}
+                    >
                       {formatDate(cardData.weddingDate)}
                     </span>
                   </div>
@@ -414,7 +438,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                     style={getElementStyle('venue')}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
-                    <span className="text-sm">
+                    <span 
+                      className="text-sm"
+                      style={{ fontFamily: getFontFamily('venue') }}
+                    >
                       {cardData.venue}
                     </span>
                   </div>
@@ -426,7 +453,10 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                   className="max-w-64 text-sm leading-relaxed text-gray-700"
                   style={getElementStyle('message')}
                 >
-                  <span className="italic">
+                  <span 
+                    className="italic"
+                    style={{ fontFamily: getFontFamily('message') }}
+                  >
                     "{cardData.message}"
                   </span>
                 </div>

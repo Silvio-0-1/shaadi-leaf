@@ -98,6 +98,24 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     });
   };
 
+  const getFontFamily = (element: 'heading' | 'date' | 'venue' | 'message') => {
+    const fonts = cardData.customization?.fonts;
+    if (!fonts) return template?.fonts?.heading || 'Playfair Display';
+    
+    switch (element) {
+      case 'heading':
+        return fonts.heading || template?.fonts?.heading || 'Playfair Display';
+      case 'date':
+        return fonts.date || fonts.body || template?.fonts?.body || 'Inter';
+      case 'venue':
+        return fonts.venue || fonts.body || template?.fonts?.body || 'Inter';
+      case 'message':
+        return fonts.message || fonts.body || template?.fonts?.body || 'Inter';
+      default:
+        return template?.fonts?.heading || 'Playfair Display';
+    }
+  };
+
   const handleElementMove = useCallback((elementId: keyof CardElements, newPosition: ElementPosition) => {
     const newPositions = { 
       ...positions, 
@@ -315,7 +333,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
               className="text-3xl font-serif font-bold leading-tight text-center"
               style={{ 
                 color: colors.primary,
-                fontFamily: fonts.heading 
+                fontFamily: getFontFamily('heading')
               }}
             >
               {cardData.brideName || 'Bride\'s Name'}
@@ -357,7 +375,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
               className="text-3xl font-serif font-bold leading-tight text-center"
               style={{ 
                 color: colors.primary,
-                fontFamily: fonts.heading 
+                fontFamily: getFontFamily('heading')
               }}
             >
               {cardData.groomName || 'Groom\'s Name'}
@@ -376,7 +394,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                 <Calendar className="h-4 w-4 mr-2" />
                 <span 
                   className="font-medium text-sm"
-                  style={{ fontFamily: fonts.body }}
+                  style={{ fontFamily: getFontFamily('date') }}
                 >
                   {formatDate(cardData.weddingDate)}
                 </span>
@@ -396,7 +414,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                 <MapPin className="h-4 w-4 mr-2" />
                 <span 
                   className="text-sm"
-                  style={{ fontFamily: fonts.body }}
+                  style={{ fontFamily: getFontFamily('venue') }}
                 >
                   {cardData.venue}
                 </span>
@@ -415,7 +433,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
               <div className="max-w-64 text-sm leading-relaxed text-center" style={{ color: colors.text }}>
                 <span 
                   className="italic"
-                  style={{ fontFamily: fonts.body }}
+                  style={{ fontFamily: getFontFamily('message') }}
                 >
                   "{cardData.message}"
                 </span>
