@@ -36,7 +36,7 @@ const Header = () => {
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <Heart className="h-8 w-8 text-primary" fill="currentColor" />
               <span className="font-serif text-xl font-semibold text-foreground">
-                Digital Wedding Cards
+                Shaadi Leaf
               </span>
             </Link>
 

@@ -100,7 +100,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
             <Heart className="h-6 w-6 text-primary mr-2" fill="currentColor" />
-            <span className="font-serif text-xl font-semibold">Digital Wedding Cards</span>
+            <span className="font-serif text-xl font-semibold">Shaadi Leaf</span>
           </div>
           <p className="text-muted-foreground mb-4">
             Creating beautiful moments, one card at a time
