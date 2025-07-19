@@ -2,81 +2,197 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-export const downloadAsImage = async (elementId: string, fileName: string = 'wedding-card', quality: 'low' | 'high' = 'high') => {
-  console.log('Starting image download for element:', elementId);
+// Wait for fonts to load
+const waitForFonts = async (timeout: number = 5000): Promise<void> => {
+  if (!document.fonts) return;
+  
+  try {
+    await Promise.race([
+      document.fonts.ready,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Font loading timeout')), timeout)
+      )
+    ]);
+  } catch (error) {
+    console.warn('Font loading timeout, proceeding with capture');
+  }
+};
+
+// Wait for images to load
+const waitForImages = async (element: HTMLElement, timeout: number = 10000): Promise<void> => {
+  const images = element.querySelectorAll('img');
+  if (images.length === 0) return;
+
+  const imagePromises = Array.from(images).map(img => {
+    return new Promise((resolve, reject) => {
+      if (img.complete) {
+        resolve(img);
+      } else {
+        const timeoutId = setTimeout(() => {
+          reject(new Error('Image loading timeout'));
+        }, timeout);
+        
+        img.onload = () => {
+          clearTimeout(timeoutId);
+          resolve(img);
+        };
+        
+        img.onerror = () => {
+          clearTimeout(timeoutId);
+          reject(new Error('Image loading failed'));
+        };
+      }
+    });
+  });
+
+  try {
+    await Promise.all(imagePromises);
+  } catch (error) {
+    console.warn('Some images failed to load, proceeding with capture');
+  }
+};
+
+// Force reflow and ensure all styles are applied
+const forceReflow = (element: HTMLElement): void => {
+  // Force reflow by reading offsetHeight
+  element.offsetHeight;
+  
+  // Ensure all animations and transitions are complete
+  const allElements = element.querySelectorAll('*');
+  allElements.forEach(el => {
+    const htmlEl = el as HTMLElement;
+    htmlEl.offsetHeight; // Force reflow for each element
+  });
+};
+
+export const downloadAsImage = async (
+  elementId: string, 
+  fileName: string = 'wedding-card', 
+  quality: 'low' | 'high' = 'high'
+) => {
+  console.log('Starting enhanced image download for element:', elementId);
   const element = document.getElementById(elementId);
+  
   if (!element) {
     console.error('Element not found for download:', elementId);
     throw new Error('Card preview not found');
   }
 
   try {
-    // Wait for fonts and images to load
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Wait for fonts to load
+    console.log('Waiting for fonts to load...');
+    await waitForFonts();
     
-    const scale = quality === 'high' ? 3 : 2;
+    // Wait for images to load
+    console.log('Waiting for images to load...');
+    await waitForImages(element);
     
-    console.log('Capturing element with html2canvas...');
+    // Force reflow to ensure all styles are applied
+    console.log('Forcing reflow...');
+    forceReflow(element);
+    
+    // Additional delay to ensure everything is rendered
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const scale = quality === 'high' ? 4 : 2; // Increased scale for better quality
+    const pixelRatio = window.devicePixelRatio || 1;
+    const finalScale = scale * pixelRatio;
+    
+    console.log('Capturing element with html2canvas...', { scale: finalScale });
+    
     const canvas = await html2canvas(element, {
-      backgroundColor: '#ffffff',
-      scale,
-      logging: true,
+      backgroundColor: null, // Allow transparent backgrounds
+      scale: finalScale,
+      logging: false,
       useCORS: true,
       allowTaint: true,
       foreignObjectRendering: false,
-      imageTimeout: 15000,
+      imageTimeout: 30000,
       width: element.offsetWidth,
       height: element.offsetHeight,
       scrollX: 0,
       scrollY: 0,
-      onclone: (clonedDoc) => {
+      windowWidth: element.offsetWidth,
+      windowHeight: element.offsetHeight,
+      x: 0,
+      y: 0,
+      onclone: (clonedDoc, clonedElement) => {
         console.log('Cloning document for capture...');
-        const clonedElement = clonedDoc.getElementById(elementId);
-        if (clonedElement) {
-          // Force visibility and positioning
-          clonedElement.style.position = 'relative';
-          clonedElement.style.display = 'block';
-          clonedElement.style.visibility = 'visible';
-          clonedElement.style.opacity = '1';
+        
+        // Hide scrollbars
+        clonedDoc.body.style.overflow = 'hidden';
+        clonedDoc.documentElement.style.overflow = 'hidden';
+        
+        // Ensure the cloned element is properly positioned
+        clonedElement.style.position = 'relative';
+        clonedElement.style.display = 'block';
+        clonedElement.style.visibility = 'visible';
+        clonedElement.style.opacity = '1';
+        clonedElement.style.transform = 'none';
+        clonedElement.style.margin = '0';
+        clonedElement.style.padding = '0';
+        
+        // Copy computed styles more comprehensively
+        const copyStyles = (original: Element, cloned: Element) => {
+          const originalStyles = window.getComputedStyle(original);
+          const clonedEl = cloned as HTMLElement;
           
-          // Copy all computed styles
-          const originalStyles = window.getComputedStyle(element);
-          Array.from(originalStyles).forEach(key => {
+          // Important style properties to copy
+          const criticalStyles = [
+            'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight',
+            'color', 'backgroundColor', 'background', 'backgroundImage',
+            'backgroundSize', 'backgroundPosition', 'backgroundRepeat',
+            'padding', 'margin', 'border', 'borderRadius', 'textAlign',
+            'display', 'position', 'top', 'left', 'right', 'bottom',
+            'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
+            'zIndex', 'opacity', 'transform', 'boxShadow', 'textShadow',
+            'letterSpacing', 'wordSpacing', 'textDecoration', 'textTransform'
+          ];
+          
+          criticalStyles.forEach(prop => {
             try {
-              clonedElement.style.setProperty(key, originalStyles.getPropertyValue(key));
+              const value = originalStyles.getPropertyValue(prop);
+              if (value) {
+                clonedEl.style.setProperty(prop, value);
+              }
             } catch (e) {
               // Ignore errors for read-only properties
             }
           });
           
-          // Ensure all child elements are properly styled
-          const allElements = clonedElement.querySelectorAll('*');
-          const originalElements = element.querySelectorAll('*');
-          
-          allElements.forEach((el, index) => {
-            if (originalElements[index]) {
-              const originalStyle = window.getComputedStyle(originalElements[index]);
-              const htmlEl = el as HTMLElement;
-              
-              // Copy critical styles
-              htmlEl.style.fontFamily = originalStyle.fontFamily;
-              htmlEl.style.fontSize = originalStyle.fontSize;
-              htmlEl.style.fontWeight = originalStyle.fontWeight;
-              htmlEl.style.color = originalStyle.color;
-              htmlEl.style.backgroundColor = originalStyle.backgroundColor;
-              htmlEl.style.background = originalStyle.background;
-              htmlEl.style.backgroundImage = originalStyle.backgroundImage;
-              htmlEl.style.padding = originalStyle.padding;
-              htmlEl.style.margin = originalStyle.margin;
-              htmlEl.style.textAlign = originalStyle.textAlign;
-              htmlEl.style.lineHeight = originalStyle.lineHeight;
-              htmlEl.style.display = originalStyle.display;
-              htmlEl.style.position = originalStyle.position;
-              htmlEl.style.borderRadius = originalStyle.borderRadius;
-              htmlEl.style.border = originalStyle.border;
-            }
-          });
-        }
+          // Handle absolute positioning specifically
+          if (originalStyles.position === 'absolute') {
+            clonedEl.style.position = 'absolute';
+            clonedEl.style.top = originalStyles.top;
+            clonedEl.style.left = originalStyles.left;
+            clonedEl.style.right = originalStyles.right;
+            clonedEl.style.bottom = originalStyles.bottom;
+            clonedEl.style.zIndex = originalStyles.zIndex;
+            clonedEl.style.transform = originalStyles.transform;
+          }
+        };
+        
+        // Copy styles for the main element and all children
+        const originalElements = element.querySelectorAll('*');
+        const clonedElements = clonedElement.querySelectorAll('*');
+        
+        copyStyles(element, clonedElement);
+        
+        originalElements.forEach((original, index) => {
+          if (clonedElements[index]) {
+            copyStyles(original, clonedElements[index]);
+          }
+        });
+        
+        // Force all images to be visible
+        clonedElement.querySelectorAll('img').forEach(img => {
+          img.style.display = 'block';
+          img.style.visibility = 'visible';
+          img.style.opacity = '1';
+        });
+        
+        // Wait a bit more for the clone to settle
+        return new Promise(resolve => setTimeout(resolve, 100));
       }
     });
 
@@ -90,91 +206,148 @@ export const downloadAsImage = async (elementId: string, fileName: string = 'wed
     const link = document.createElement('a');
     const qualitySuffix = quality === 'high' ? '-hd' : '';
     link.download = `${fileName}${qualitySuffix}.png`;
-    link.href = canvas.toDataURL('image/png', quality === 'high' ? 1.0 : 0.8);
+    link.href = canvas.toDataURL('image/png', 1.0);
+    
+    // Ensure link is properly handled
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    console.log('Image download completed successfully');
+    console.log('Enhanced image download completed successfully');
   } catch (error) {
-    console.error('Error generating image:', error);
-    throw new Error('Failed to generate image');
+    console.error('Error generating enhanced image:', error);
+    throw new Error('Failed to generate high-quality image');
   }
 };
 
-export const downloadAsPDF = async (elementId: string, fileName: string = 'wedding-card') => {
-  console.log('Starting PDF download for element:', elementId);
+export const downloadAsPDF = async (
+  elementId: string, 
+  fileName: string = 'wedding-card'
+) => {
+  console.log('Starting enhanced PDF download for element:', elementId);
   const element = document.getElementById(elementId);
+  
   if (!element) {
     console.error('Element not found for download:', elementId);
     throw new Error('Card preview not found');
   }
 
   try {
-    // Wait for fonts and images to load
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Wait for fonts to load
+    console.log('Waiting for fonts to load...');
+    await waitForFonts();
     
-    console.log('Capturing element for PDF with html2canvas...');
+    // Wait for images to load
+    console.log('Waiting for images to load...');
+    await waitForImages(element);
+    
+    // Force reflow to ensure all styles are applied
+    console.log('Forcing reflow...');
+    forceReflow(element);
+    
+    // Additional delay to ensure everything is rendered
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Use high scale for PDF quality (300 DPI equivalent)
+    const scale = 4;
+    const pixelRatio = window.devicePixelRatio || 1;
+    const finalScale = scale * pixelRatio;
+    
+    console.log('Capturing element for PDF with html2canvas...', { scale: finalScale });
+    
     const canvas = await html2canvas(element, {
-      backgroundColor: '#ffffff',
-      scale: 3,
-      logging: true,
+      backgroundColor: '#ffffff', // White background for PDF
+      scale: finalScale,
+      logging: false,
       useCORS: true,
       allowTaint: true,
       foreignObjectRendering: false,
-      imageTimeout: 15000,
+      imageTimeout: 30000,
       width: element.offsetWidth,
       height: element.offsetHeight,
       scrollX: 0,
       scrollY: 0,
-      onclone: (clonedDoc) => {
+      windowWidth: element.offsetWidth,
+      windowHeight: element.offsetHeight,
+      x: 0,
+      y: 0,
+      onclone: (clonedDoc, clonedElement) => {
         console.log('Cloning document for PDF capture...');
-        const clonedElement = clonedDoc.getElementById(elementId);
-        if (clonedElement) {
-          // Force visibility and positioning
-          clonedElement.style.position = 'relative';
-          clonedElement.style.display = 'block';
-          clonedElement.style.visibility = 'visible';
-          clonedElement.style.opacity = '1';
+        
+        // Hide scrollbars
+        clonedDoc.body.style.overflow = 'hidden';
+        clonedDoc.documentElement.style.overflow = 'hidden';
+        
+        // Ensure the cloned element is properly positioned
+        clonedElement.style.position = 'relative';
+        clonedElement.style.display = 'block';
+        clonedElement.style.visibility = 'visible';
+        clonedElement.style.opacity = '1';
+        clonedElement.style.transform = 'none';
+        clonedElement.style.margin = '0';
+        clonedElement.style.padding = '0';
+        
+        // Copy computed styles more comprehensively
+        const copyStyles = (original: Element, cloned: Element) => {
+          const originalStyles = window.getComputedStyle(original);
+          const clonedEl = cloned as HTMLElement;
           
-          // Copy all computed styles
-          const originalStyles = window.getComputedStyle(element);
-          Array.from(originalStyles).forEach(key => {
+          // Important style properties to copy
+          const criticalStyles = [
+            'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight',
+            'color', 'backgroundColor', 'background', 'backgroundImage',
+            'backgroundSize', 'backgroundPosition', 'backgroundRepeat',
+            'padding', 'margin', 'border', 'borderRadius', 'textAlign',
+            'display', 'position', 'top', 'left', 'right', 'bottom',
+            'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
+            'zIndex', 'opacity', 'transform', 'boxShadow', 'textShadow',
+            'letterSpacing', 'wordSpacing', 'textDecoration', 'textTransform'
+          ];
+          
+          criticalStyles.forEach(prop => {
             try {
-              clonedElement.style.setProperty(key, originalStyles.getPropertyValue(key));
+              const value = originalStyles.getPropertyValue(prop);
+              if (value) {
+                clonedEl.style.setProperty(prop, value);
+              }
             } catch (e) {
               // Ignore errors for read-only properties
             }
           });
           
-          // Ensure all child elements are properly styled
-          const allElements = clonedElement.querySelectorAll('*');
-          const originalElements = element.querySelectorAll('*');
-          
-          allElements.forEach((el, index) => {
-            if (originalElements[index]) {
-              const originalStyle = window.getComputedStyle(originalElements[index]);
-              const htmlEl = el as HTMLElement;
-              
-              // Copy critical styles
-              htmlEl.style.fontFamily = originalStyle.fontFamily;
-              htmlEl.style.fontSize = originalStyle.fontSize;
-              htmlEl.style.fontWeight = originalStyle.fontWeight;
-              htmlEl.style.color = originalStyle.color;
-              htmlEl.style.backgroundColor = originalStyle.backgroundColor;
-              htmlEl.style.background = originalStyle.background;
-              htmlEl.style.backgroundImage = originalStyle.backgroundImage;
-              htmlEl.style.padding = originalStyle.padding;
-              htmlEl.style.margin = originalStyle.margin;
-              htmlEl.style.textAlign = originalStyle.textAlign;
-              htmlEl.style.lineHeight = originalStyle.lineHeight;
-              htmlEl.style.display = originalStyle.display;
-              htmlEl.style.position = originalStyle.position;
-              htmlEl.style.borderRadius = originalStyle.borderRadius;
-              htmlEl.style.border = originalStyle.border;
-            }
-          });
-        }
+          // Handle absolute positioning specifically
+          if (originalStyles.position === 'absolute') {
+            clonedEl.style.position = 'absolute';
+            clonedEl.style.top = originalStyles.top;
+            clonedEl.style.left = originalStyles.left;
+            clonedEl.style.right = originalStyles.right;
+            clonedEl.style.bottom = originalStyles.bottom;
+            clonedEl.style.zIndex = originalStyles.zIndex;
+            clonedEl.style.transform = originalStyles.transform;
+          }
+        };
+        
+        // Copy styles for the main element and all children
+        const originalElements = element.querySelectorAll('*');
+        const clonedElements = clonedElement.querySelectorAll('*');
+        
+        copyStyles(element, clonedElement);
+        
+        originalElements.forEach((original, index) => {
+          if (clonedElements[index]) {
+            copyStyles(original, clonedElements[index]);
+          }
+        });
+        
+        // Force all images to be visible
+        clonedElement.querySelectorAll('img').forEach(img => {
+          img.style.display = 'block';
+          img.style.visibility = 'visible';
+          img.style.opacity = '1';
+        });
+        
+        // Wait a bit more for the clone to settle
+        return new Promise(resolve => setTimeout(resolve, 100));
       }
     });
 
@@ -184,64 +357,71 @@ export const downloadAsPDF = async (elementId: string, fileName: string = 'weddi
       throw new Error('Generated canvas is empty');
     }
 
-    // Create PDF
+    // Create high-quality PDF
     const imgData = canvas.toDataURL('image/png', 1.0);
+    
+    // Calculate card dimensions (assuming card is 3:4 aspect ratio)
+    const cardAspectRatio = 3 / 4;
+    const canvasAspectRatio = canvas.width / canvas.height;
+    
+    // Create PDF with custom dimensions that match the card
+    const cardWidth = 210; // A4 width in mm
+    const cardHeight = cardWidth / cardAspectRatio;
+    
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation: cardHeight > cardWidth ? 'portrait' : 'landscape',
       unit: 'mm',
-      format: 'a4',
-      compress: true
+      format: [cardWidth, cardHeight],
+      compress: true,
+      putOnlyUsedFonts: true
     });
 
-    // Add title and metadata
+    // Set PDF metadata
     pdf.setProperties({
       title: `${fileName} - Wedding Invitation`,
       subject: 'Wedding Invitation Card',
       author: 'Digital Wedding Cards',
-      creator: 'Digital Wedding Cards Platform'
+      creator: 'Digital Wedding Cards Platform',
+      keywords: 'wedding, invitation, card, digital'
     });
 
-    // Calculate optimal dimensions while maintaining aspect ratio
+    // Calculate image dimensions to fill the page without borders
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 20;
-    const maxWidth = pageWidth - (margin * 2);
-    const maxHeight = pageHeight - (margin * 2) - 20;
-
-    const imgWidth = maxWidth;
-    const imgHeight = (canvas.height * maxWidth) / canvas.width;
-
-    // If image is too tall, scale it down
-    let finalWidth = imgWidth;
-    let finalHeight = imgHeight;
     
-    if (imgHeight > maxHeight) {
-      finalHeight = maxHeight;
-      finalWidth = (canvas.width * maxHeight) / canvas.height;
+    let imgWidth, imgHeight;
+    
+    if (canvasAspectRatio > pageWidth / pageHeight) {
+      // Canvas is wider than page ratio
+      imgWidth = pageWidth;
+      imgHeight = pageWidth / canvasAspectRatio;
+    } else {
+      // Canvas is taller than page ratio
+      imgHeight = pageHeight;
+      imgWidth = pageHeight * canvasAspectRatio;
     }
+    
+    // Center the image on the page
+    const x = (pageWidth - imgWidth) / 2;
+    const y = (pageHeight - imgHeight) / 2;
 
-    // Center the image
-    const x = (pageWidth - finalWidth) / 2;
-    const y = margin + 10;
+    // Add the image to fill the entire page
+    pdf.addImage(
+      imgData, 
+      'PNG', 
+      x, 
+      y, 
+      imgWidth, 
+      imgHeight, 
+      undefined, 
+      'FAST'
+    );
 
-    // Add a subtle header
-    pdf.setFontSize(8);
-    pdf.setTextColor(150, 150, 150);
-    pdf.text('Digital Wedding Cards', pageWidth / 2, margin / 2, { align: 'center' });
-
-    // Add the main image
-    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight, undefined, 'FAST');
-
-    // Add a subtle footer
-    pdf.setFontSize(6);
-    pdf.setTextColor(180, 180, 180);
-    const footerY = pageHeight - 10;
-    pdf.text('Created with love at digitalweddingcards.com', pageWidth / 2, footerY, { align: 'center' });
-
+    // Save the PDF
     pdf.save(`${fileName}.pdf`);
-    console.log('PDF download completed successfully');
+    console.log('Enhanced PDF download completed successfully');
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    throw new Error('Failed to generate PDF');
+    console.error('Error generating enhanced PDF:', error);
+    throw new Error('Failed to generate high-quality PDF');
   }
 };
