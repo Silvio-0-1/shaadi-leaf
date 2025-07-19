@@ -1,3 +1,4 @@
+
 import { useState, useRef, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,7 +58,10 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
     weddingDate: { x: 0, y: 60 },
     venue: { x: 0, y: 100 },
     message: { x: 0, y: 140 },
-    photo: { x: 0, y: -140 },
+    photo: { 
+      position: { x: 0, y: -140 },
+      size: { width: 150, height: 200 }
+    },
     logo: { x: 0, y: -200 },
   });
 
@@ -80,7 +84,9 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
   const handleElementMove = useCallback((elementId: keyof CardElements, newPosition: ElementPosition) => {
     setElementPositions(prev => ({
       ...prev,
-      [elementId]: newPosition
+      [elementId]: elementId === 'photo' 
+        ? { ...prev.photo, position: newPosition }
+        : newPosition 
     }));
   }, []);
 
@@ -402,11 +408,15 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
               const config = ELEMENT_CONFIGS.find(c => c.id === elementId);
               if (!config) return null;
 
+              const position = elementId === 'photo' 
+                ? elementPositions[elementId].position
+                : elementPositions[elementId] as ElementPosition;
+
               return (
                 <DraggableElement
                   key={elementId}
                   id={elementId}
-                  position={elementPositions[elementId]}
+                  position={position}
                   onMove={(position) => handleElementMove(elementId, position)}
                   containerRef={canvasRef}
                 >

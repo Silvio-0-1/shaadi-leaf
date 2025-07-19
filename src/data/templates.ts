@@ -1,4 +1,3 @@
-
 import { Template } from '@/types';
 
 export const templates: Template[] = [
@@ -181,7 +180,10 @@ export const templates: Template[] = [
       weddingDate: { x: 0, y: 120 },
       venue: { x: 0, y: 150 },
       message: { x: 0, y: 200 },
-      photo: { x: -100, y: -100 },
+      photo: { 
+        position: { x: -100, y: -100 },
+        size: { width: 120, height: 120 }
+      },
       logo: { x: 100, y: -150 },
     }
   },
@@ -211,7 +213,10 @@ export const templates: Template[] = [
       weddingDate: { x: 0, y: 80 },
       venue: { x: 0, y: 110 },
       message: { x: 0, y: 150 },
-      photo: { x: 0, y: -140 },
+      photo: { 
+        position: { x: 0, y: -140 },
+        size: { width: 120, height: 120 }
+      },
       logo: { x: 0, y: -180 },
     }
   }

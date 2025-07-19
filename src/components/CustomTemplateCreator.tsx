@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +36,10 @@ const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps
     weddingDate: { x: 0, y: 120 },
     venue: { x: 0, y: 150 },
     message: { x: 0, y: 200 },
-    photo: { x: 0, y: -120 },
+    photo: { 
+      position: { x: 0, y: -120 },
+      size: { width: 120, height: 120 }
+    },
     logo: { x: 0, y: -180 },
   });
 
@@ -59,14 +61,22 @@ const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps
   const handlePositionChange = (element: keyof CardElements, axis: 'x' | 'y', value: number) => {
     setDefaultPositions(prev => ({
       ...prev,
-      [element]: {
-        ...prev[element],
-        [axis]: value
-      }
+      [element]: element === 'photo' 
+        ? {
+            ...prev.photo,
+            position: {
+              ...prev.photo.position,
+              [axis]: value
+            }
+          }
+        : {
+            ...prev[element],
+            [axis]: value
+          }
     }));
   };
 
-const handleCreateTemplate = async () => {
+  const handleCreateTemplate = async () => {
     if (!templateData.name) {
       toast.error('Please enter a template name');
       return;
@@ -331,7 +341,7 @@ const handleCreateTemplate = async () => {
                     <Input
                       id={`${key}-x`}
                       type="number"
-                      value={position.x}
+                      value={key === 'photo' ? position.position.x : position.x}
                       onChange={(e) => handlePositionChange(key as keyof CardElements, 'x', parseInt(e.target.value) || 0)}
                       className="h-8"
                     />
@@ -341,7 +351,7 @@ const handleCreateTemplate = async () => {
                     <Input
                       id={`${key}-y`}
                       type="number"
-                      value={position.y}
+                      value={key === 'photo' ? position.position.y : position.y}
                       onChange={(e) => handlePositionChange(key as keyof CardElements, 'y', parseInt(e.target.value) || 0)}
                       className="h-8"
                     />
