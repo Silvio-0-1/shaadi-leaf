@@ -7,6 +7,7 @@ import { WeddingCardData } from '@/types';
 import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCredits } from '@/hooks/useCredits';
 import AuthDialog from './AuthDialog';
 import InteractiveCardPreview from './InteractiveCardPreview';
 import { toast } from 'sonner';
@@ -33,6 +34,7 @@ interface CardElements {
 
 const CardPreview = ({ cardData }: CardPreviewProps) => {
   const { user } = useAuth();
+  const { deductCredits, hasEnoughCredits, CREDIT_COSTS } = useCredits();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [pendingDownload, setPendingDownload] = useState<'image' | 'pdf' | 'video' | null>(null);
   const [isInteractive, setIsInteractive] = useState(false);
@@ -71,6 +73,43 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     setLoadingStates(prev => ({ ...prev, [type]: true }));
     
     try {
+      // Determine credit cost based on download type
+      let creditCost = 0;
+      let actionType = '';
+      let description = '';
+      
+      switch (type) {
+        case 'image':
+          creditCost = 10;
+          actionType = 'download_image';
+          description = 'Downloaded wedding card as image';
+          break;
+        case 'pdf':
+          creditCost = 30;
+          actionType = 'download_pdf';
+          description = 'Downloaded wedding card as PDF';
+          break;
+        case 'video':
+          creditCost = 50;
+          actionType = 'download_video';
+          description = 'Generated video wedding card';
+          break;
+      }
+
+      // Check if user has enough credits
+      if (!hasEnoughCredits(creditCost)) {
+        toast.error(`Insufficient credits! You need ${creditCost} credits for this download.`);
+        return;
+      }
+
+      // Deduct credits first
+      const success = await deductCredits(creditCost, actionType, description);
+      if (!success) {
+        toast.error('Failed to deduct credits. Please try again.');
+        return;
+      }
+
+      // Proceed with download
       switch (type) {
         case 'image':
           await downloadAsImage('card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
