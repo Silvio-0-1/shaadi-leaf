@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,6 @@ import { useCredits } from '@/hooks/useCredits';
 import AuthDialog from './AuthDialog';
 import InteractiveCardPreview from './InteractiveCardPreview';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 interface CardPreviewProps {
   cardData: WeddingCardData;
@@ -131,7 +131,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         return;
       }
 
-      // Save card data to database for sharing
+      // Save card data to database for sharing - using raw SQL query instead of type-safe query
       const shareableCardData = {
         bride_name: cardData.brideName,
         groom_name: cardData.groomName,
@@ -148,12 +148,34 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       };
 
       const { data, error } = await supabase
-        .from('shared_wedding_cards')
-        .insert([shareableCardData])
+        .rpc('create_shared_card', { card_data: shareableCardData })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Fallback to direct insert if RPC doesn't exist
+        const { data: insertData, error: insertError } = await supabase
+          .from('shared_wedding_cards' as any)
+          .insert([shareableCardData])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        
+        const shareUrl = `${window.location.origin}/shared/${insertData.id}`;
+        setShareUrl(shareUrl);
+        
+        // Copy to clipboard
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(shareUrl);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+          toast.success('Shareable link copied to clipboard!');
+        } else {
+          toast.success('Shareable link generated!');
+        }
+        return;
+      }
 
       const shareUrl = `${window.location.origin}/shared/${data.id}`;
       setShareUrl(shareUrl);

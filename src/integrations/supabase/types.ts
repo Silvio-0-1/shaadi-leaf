@@ -149,6 +149,60 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_wedding_cards: {
+        Row: {
+          bride_name: string
+          created_at: string
+          customization: Json | null
+          element_positions: Json | null
+          groom_name: string
+          id: string
+          is_public: boolean | null
+          logo_image: string | null
+          message: string | null
+          template_id: string
+          updated_at: string
+          uploaded_images: Json | null
+          user_id: string
+          venue: string
+          wedding_date: string
+        }
+        Insert: {
+          bride_name: string
+          created_at?: string
+          customization?: Json | null
+          element_positions?: Json | null
+          groom_name: string
+          id?: string
+          is_public?: boolean | null
+          logo_image?: string | null
+          message?: string | null
+          template_id: string
+          updated_at?: string
+          uploaded_images?: Json | null
+          user_id: string
+          venue: string
+          wedding_date: string
+        }
+        Update: {
+          bride_name?: string
+          created_at?: string
+          customization?: Json | null
+          element_positions?: Json | null
+          groom_name?: string
+          id?: string
+          is_public?: boolean | null
+          logo_image?: string | null
+          message?: string | null
+          template_id?: string
+          updated_at?: string
+          uploaded_images?: Json | null
+          user_id?: string
+          venue?: string
+          wedding_date?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           balance: number
@@ -198,12 +252,15 @@ export type Database = {
         Row: {
           bride_name: string
           created_at: string
+          customization: Json | null
           groom_name: string
           id: string
+          logo_image: string | null
           message: string | null
           template_id: string
           updated_at: string
           uploaded_image: string | null
+          uploaded_images: Json | null
           user_id: string | null
           venue: string
           wedding_date: string
@@ -211,12 +268,15 @@ export type Database = {
         Insert: {
           bride_name: string
           created_at?: string
+          customization?: Json | null
           groom_name: string
           id?: string
+          logo_image?: string | null
           message?: string | null
           template_id: string
           updated_at?: string
           uploaded_image?: string | null
+          uploaded_images?: Json | null
           user_id?: string | null
           venue: string
           wedding_date: string
@@ -224,12 +284,15 @@ export type Database = {
         Update: {
           bride_name?: string
           created_at?: string
+          customization?: Json | null
           groom_name?: string
           id?: string
+          logo_image?: string | null
           message?: string | null
           template_id?: string
           updated_at?: string
           uploaded_image?: string | null
+          uploaded_images?: Json | null
           user_id?: string | null
           venue?: string
           wedding_date?: string
