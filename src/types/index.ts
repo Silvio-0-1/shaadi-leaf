@@ -44,6 +44,12 @@ export interface PhotoElement {
   size: { width: number; height: number };
 }
 
+export interface IndividualPhotoElement {
+  position: ElementPosition;
+  size: { width: number; height: number };
+  id: string;
+}
+
 export interface CardElements {
   brideName: ElementPosition;
   groomName: ElementPosition;
@@ -52,6 +58,7 @@ export interface CardElements {
   venue: ElementPosition;
   message: ElementPosition;
   photo: PhotoElement;
+  photos?: IndividualPhotoElement[]; // New field for individual photo control
   logo: ElementPosition;
 }
 

@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Calendar, MapPin, Undo2, Redo2, RotateCcw } from 'lucide-react';
-import { WeddingCardData, CardElements, ElementPosition, PhotoElement } from '@/types';
+import { WeddingCardData, CardElements, ElementPosition, PhotoElement, IndividualPhotoElement } from '@/types';
 import { templates } from '@/data/templates';
 import DraggableElement from './DraggableElement';
 
@@ -23,6 +23,7 @@ const defaultPositions: CardElements = {
     position: { x: 0, y: -120 },
     size: { width: 120, height: 120 }
   },
+  photos: [],
   logo: { x: 0, y: -180 },
 };
 
@@ -34,14 +35,37 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     if (template?.defaultPositions) {
       return {
         ...template.defaultPositions,
-        photo: template.defaultPositions.photo || defaultPositions.photo
+        photo: template.defaultPositions.photo || defaultPositions.photo,
+        photos: []
       };
     }
     return defaultPositions;
   };
 
-  const [positions, setPositions] = useState<CardElements>(initialPositions || getDefaultPositions());
-  const [history, setHistory] = useState<CardElements[]>([initialPositions || getDefaultPositions()]);
+  const [positions, setPositions] = useState<CardElements>(() => {
+    const initial = initialPositions || getDefaultPositions();
+    
+    // Initialize individual photos if we have multiple images
+    if (cardData.uploadedImages && cardData.uploadedImages.length > 1 && !initial.photos?.length) {
+      const photosArray: IndividualPhotoElement[] = cardData.uploadedImages.map((_, index) => ({
+        id: `photo-${index}`,
+        position: { 
+          x: (index % 2 === 0 ? -60 : 60) + (index * 20), 
+          y: -120 + (Math.floor(index / 2) * 140) 
+        },
+        size: { width: 100, height: 100 }
+      }));
+      
+      return {
+        ...initial,
+        photos: photosArray
+      };
+    }
+    
+    return initial;
+  });
+
+  const [history, setHistory] = useState<CardElements[]>([positions]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   
@@ -116,37 +140,78 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
     }
   };
 
-  const handleElementMove = useCallback((elementId: keyof CardElements, newPosition: ElementPosition) => {
-    const newPositions = { 
-      ...positions, 
-      [elementId]: elementId === 'photo' 
-        ? { ...positions.photo, position: newPosition }
-        : newPosition 
-    };
-    setPositions(newPositions);
-    
-    // Add to history
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(newPositions);
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
+  const handleElementMove = useCallback((elementId: keyof CardElements | string, newPosition: ElementPosition) => {
+    if (elementId.startsWith('photo-')) {
+      // Handle individual photo movement
+      const photoId = elementId;
+      const newPositions = { 
+        ...positions, 
+        photos: positions.photos?.map(photo => 
+          photo.id === photoId 
+            ? { ...photo, position: newPosition }
+            : photo
+        ) || []
+      };
+      setPositions(newPositions);
+      
+      // Add to history
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newPositions);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    } else {
+      // Handle other elements
+      const newPositions = { 
+        ...positions, 
+        [elementId]: elementId === 'photo' 
+          ? { ...positions.photo, position: newPosition }
+          : newPosition 
+      };
+      setPositions(newPositions);
+      
+      // Add to history
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newPositions);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    }
   }, [positions, history, historyIndex]);
 
-  const handlePhotoResize = useCallback((newSize: { width: number; height: number }) => {
-    const newPositions = {
-      ...positions,
-      photo: {
-        ...positions.photo,
-        size: newSize
-      }
-    };
-    setPositions(newPositions);
-    
-    // Add to history
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(newPositions);
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
+  const handlePhotoResize = useCallback((photoId: string, newSize: { width: number; height: number }) => {
+    if (photoId.startsWith('photo-')) {
+      // Handle individual photo resize
+      const newPositions = {
+        ...positions,
+        photos: positions.photos?.map(photo =>
+          photo.id === photoId
+            ? { ...photo, size: newSize }
+            : photo
+        ) || []
+      };
+      setPositions(newPositions);
+      
+      // Add to history
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newPositions);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    } else {
+      // Handle single photo resize
+      const newPositions = {
+        ...positions,
+        photo: {
+          ...positions.photo,
+          size: newSize
+        }
+      };
+      setPositions(newPositions);
+      
+      // Add to history
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newPositions);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    }
   }, [positions, history, historyIndex]);
 
   const undo = () => {
@@ -284,42 +349,59 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
             </DraggableElement>
           )}
 
-          {/* Photo */}
+          {/* Photos */}
           {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
-            <DraggableElement
-              id="photo"
-              position={positions.photo.position}
-              onMove={(pos) => handleElementMove('photo', pos)}
-              containerRef={cardRef}
-              resizable={true}
-              size={positions.photo.size}
-              onResize={handlePhotoResize}
-              minSize={{ width: 60, height: 60 }}
-              maxSize={{ width: 200, height: 200 }}
-            >
+            <>
               {cardData.uploadedImages.length === 1 ? (
-                <img 
-                  src={cardData.uploadedImages[0]} 
-                  alt="Wedding" 
-                  className={getPhotoClasses()}
-                />
+                <DraggableElement
+                  id="photo"
+                  position={positions.photo.position}
+                  onMove={(pos) => handleElementMove('photo', pos)}
+                  containerRef={cardRef}
+                  resizable={true}
+                  size={positions.photo.size}
+                  onResize={(size) => handlePhotoResize('photo', size)}
+                  minSize={{ width: 60, height: 60 }}
+                  maxSize={{ width: 200, height: 200 }}
+                >
+                  <img 
+                    src={cardData.uploadedImages[0]} 
+                    alt="Wedding" 
+                    className={getPhotoClasses()}
+                    style={{ objectFit: 'cover' }}
+                  />
+                </DraggableElement>
               ) : (
-                <div className="w-full h-full grid grid-cols-2 gap-1">
-                  {cardData.uploadedImages.slice(0, 4).map((image, index) => (
-                    <img 
-                      key={index}
-                      src={image} 
-                      alt={`Wedding photo ${index + 1}`}
-                      className={`w-full h-full object-cover border-2 border-white shadow-sm ${
-                        cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
-                        cardData.customization?.photoShape === 'square' ? 'rounded-none' :
-                        'rounded'
-                      }`}
-                    />
-                  ))}
-                </div>
+                // Multiple photos - render individually
+                positions.photos?.map((photo, index) => (
+                  cardData.uploadedImages && cardData.uploadedImages[index] && (
+                    <DraggableElement
+                      key={photo.id}
+                      id={photo.id}
+                      position={photo.position}
+                      onMove={(pos) => handleElementMove(photo.id, pos)}
+                      containerRef={cardRef}
+                      resizable={true}
+                      size={photo.size}
+                      onResize={(size) => handlePhotoResize(photo.id, size)}
+                      minSize={{ width: 50, height: 50 }}
+                      maxSize={{ width: 150, height: 150 }}
+                    >
+                      <img 
+                        src={cardData.uploadedImages[index]} 
+                        alt={`Wedding photo ${index + 1}`}
+                        className={`w-full h-full object-cover border-4 border-white shadow-lg ${
+                          cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
+                          cardData.customization?.photoShape === 'square' ? 'rounded-none' :
+                          'rounded-lg'
+                        }`}
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </DraggableElement>
+                  )
+                ))
               )}
-            </DraggableElement>
+            </>
           )}
 
           {/* Bride's Name */}

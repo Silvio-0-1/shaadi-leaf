@@ -17,36 +17,74 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
   const [activeTab, setActiveTab] = useState('fonts');
 
   const fontOptions = [
+    // Classic Wedding Fonts
     'Playfair Display',
-    'Dancing Script',
     'Cormorant Garamond',
+    'Crimson Text',
+    'Libre Baskerville',
     'Merriweather',
+    'Lora',
+    'Cinzel',
+    
+    // Romantic Script Fonts
+    'Dancing Script',
+    'Great Vibes',
+    'Pacifico',
+    'Alex Brush',
+    'Allura',
+    'Sacramento',
+    'Satisfy',
+    'Cookie',
+    'Kaushan Script',
+    'Caveat',
+    'Amatic SC',
+    'Pinyon Script',
+    'Tangerine',
+    'Euphoria Script',
+    'Bilbo Swash Caps',
+    'Rouge Script',
+    'Marck Script',
+    'Yellowtail',
+    'Homemade Apple',
+    'La Belle Aurore',
+    
+    // Elegant Serif Fonts
+    'Trajan Pro',
+    'Optima',
+    'Times New Roman',
+    'Georgia',
+    'Garamond',
+    'Minion Pro',
+    'Caslon',
+    'Baskerville',
+    'Didot',
+    'Bodoni',
+    
+    // Modern Sans-Serif
     'Montserrat',
     'Poppins',
     'Inter',
     'Work Sans',
-    'Crimson Text',
-    'Lora',
-    'Libre Baskerville',
-    'Cinzel',
-    'Great Vibes',
-    'Pacifico',
     'Raleway',
     'Source Sans Pro',
     'Roboto',
     'Open Sans',
     'Nunito',
     'Quicksand',
-    'Caveat',
-    'Kaushan Script',
-    'Alex Brush',
-    'Allura',
-    'Sacramento',
-    'Satisfy',
-    'Cookie',
-    'Amatic SC',
     'Comfortaa',
-    'Lobster'
+    'Lobster',
+    
+    // Decorative Wedding Fonts
+    'Berkshire Swash',
+    'Mr Dafoe',
+    'Niconne',
+    'Petit Formal Script',
+    'Rochester',
+    'Italianno',
+    'Engagement',
+    'Clicker Script',
+    'Courgette',
+    'Grand Hotel'
   ];
 
   const updateFonts = (fontKey: string, value: string) => {
