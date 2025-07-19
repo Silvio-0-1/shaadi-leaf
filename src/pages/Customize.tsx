@@ -4,8 +4,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
-import CustomizationForm from '@/components/CustomizationForm';
-import CardPreview from '@/components/CardPreview';
+import PremiumCustomizationForm from '@/components/PremiumCustomizationForm';
+import PremiumCardEditor from '@/components/PremiumCardEditor';
+import DownloadSection from '@/components/DownloadSection';
 import { WeddingCardData } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeddingCards } from '@/hooks/useWeddingCards';
@@ -91,20 +92,22 @@ const Customize = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Left Panel - Customization Form */}
           <div className="space-y-6">
-            <CustomizationForm
+            <PremiumCustomizationForm
               cardData={cardData}
               onDataChange={handleDataChange}
             />
             
-            {/* Save Card Button - Only show if user is logged in */}
-            {user && hasRequiredData && (
-              <div className="text-center">
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              {/* Save Card Button - Only show if user is logged in */}
+              {user && hasRequiredData && (
                 <Button
                   onClick={handleSaveCard}
                   disabled={saving}
-                  className="wedding-gradient text-white w-full"
+                  className="wedding-gradient text-white w-full h-12"
                   size="lg"
                 >
                   {saving ? (
@@ -116,12 +119,18 @@ const Customize = () => {
                     editId ? 'Update Card' : 'Save Card'
                   )}
                 </Button>
-              </div>
-            )}
+              )}
+              
+              {/* Download Section */}
+              {hasRequiredData && (
+                <DownloadSection cardId="card-preview" />
+              )}
+            </div>
           </div>
           
+          {/* Right Panel - Premium Live Editor */}
           <div className="space-y-6">
-            <CardPreview cardData={cardData} />
+            <PremiumCardEditor cardData={cardData} />
           </div>
         </div>
       </div>
