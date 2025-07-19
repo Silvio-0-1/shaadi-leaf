@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Download, FileImage, Share2, Play, Settings, Calendar, MapPin } from 'lucide-react';
+import { Heart, Download, FileImage, Share2, Play, Settings, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
@@ -37,6 +37,12 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   const [pendingDownload, setPendingDownload] = useState<'image' | 'pdf' | 'video' | null>(null);
   const [isInteractive, setIsInteractive] = useState(false);
   const [savedPositions, setSavedPositions] = useState<CardElements | null>(null);
+  const [loadingStates, setLoadingStates] = useState({
+    image: false,
+    pdf: false,
+    video: false,
+    share: false
+  });
   
   const template = templates.find(t => t.id === cardData.templateId);
 
@@ -62,6 +68,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   };
 
   const executeDownload = async (type: 'image' | 'pdf' | 'video') => {
+    setLoadingStates(prev => ({ ...prev, [type]: true }));
+    
     try {
       switch (type) {
         case 'image':
@@ -74,14 +82,15 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           break;
         case 'video':
           toast.info('Generating video card...');
-          setTimeout(() => {
-            toast.success('Video card generated and downloaded!');
-          }, 3000);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          toast.success('Video card generated and downloaded!');
           break;
       }
     } catch (error) {
       console.error('Download error:', error);
       toast.error(`Failed to download ${type}`);
+    } finally {
+      setLoadingStates(prev => ({ ...prev, [type]: false }));
     }
   };
 
@@ -93,19 +102,23 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
+    setLoadingStates(prev => ({ ...prev, share: true }));
+    
+    try {
+      if (navigator.share) {
         await navigator.share({
           title: `${cardData.brideName} & ${cardData.groomName} Wedding`,
           text: `You're invited to our wedding!`,
           url: window.location.href
         });
-      } catch (error) {
-        // User cancelled or error occurred
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard!');
       }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard!');
+    } catch (error) {
+      // User cancelled or error occurred
+    } finally {
+      setLoadingStates(prev => ({ ...prev, share: false }));
     }
   };
 
@@ -363,9 +376,14 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               onClick={() => handleDownloadAttempt('image')}
               className="w-full wedding-gradient text-white hover:shadow-lg transition-all"
               size="lg"
+              disabled={loadingStates.image}
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download as Image (10 Credits)
+              {loadingStates.image ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
+              {loadingStates.image ? 'Downloading...' : 'Download as Image (10 Credits)'}
             </Button>
             
             <div className="grid grid-cols-2 gap-2">
@@ -373,17 +391,27 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 onClick={() => handleDownloadAttempt('pdf')}
                 variant="outline"
                 className="flex-1"
+                disabled={loadingStates.pdf}
               >
-                <FileImage className="h-4 w-4 mr-1" />
-                PDF (30 Credits)
+                {loadingStates.pdf ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <FileImage className="h-4 w-4 mr-1" />
+                )}
+                {loadingStates.pdf ? 'Generating...' : 'PDF (30 Credits)'}
               </Button>
               <Button 
                 onClick={() => handleDownloadAttempt('video')}
                 variant="outline"
                 className="flex-1"
+                disabled={loadingStates.video}
               >
-                <Play className="h-4 w-4 mr-1" />
-                Video (50 Credits)
+                {loadingStates.video ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4 mr-1" />
+                )}
+                {loadingStates.video ? 'Creating...' : 'Video (50 Credits)'}
               </Button>
             </div>
             
@@ -391,9 +419,14 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               onClick={handleShare}
               variant="outline"
               className="w-full"
+              disabled={loadingStates.share}
             >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
+              {loadingStates.share ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Share2 className="h-4 w-4 mr-2" />
+              )}
+              {loadingStates.share ? 'Sharing...' : 'Share'}
             </Button>
           </div>
         )}

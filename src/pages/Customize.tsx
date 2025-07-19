@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
 import CustomizationForm from '@/components/CustomizationForm';
 import CardPreview from '@/components/CardPreview';
@@ -109,7 +109,14 @@ const Customize = () => {
                   className="wedding-gradient text-white w-full"
                   size="lg"
                 >
-                  {saving ? 'Saving...' : (editId ? 'Update Card' : 'Save Card')}
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    editId ? 'Update Card' : 'Save Card'
+                  )}
                 </Button>
               </div>
             )}
