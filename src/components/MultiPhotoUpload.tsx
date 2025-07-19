@@ -102,7 +102,6 @@ const MultiPhotoUpload = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-medium">Wedding Photos</Label>
         <span className="text-sm text-muted-foreground">
           {images.length}/{maxImages} photos
         </span>

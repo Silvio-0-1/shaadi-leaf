@@ -48,11 +48,6 @@ const LogoUpload = ({ logo, onLogoChange }: LogoUploadProps) => {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center space-x-2">
-        <Crown className="h-4 w-4 text-primary" />
-        <label className="text-base font-medium">Custom Logo/Monogram</label>
-      </div>
-      
       {logo ? (
         <Card className="relative p-4">
           <div className="flex items-center justify-center">

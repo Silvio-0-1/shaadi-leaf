@@ -84,59 +84,35 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
         </TabsContent>
 
         <TabsContent value="photos" className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Image className="h-5 w-5 text-primary" />
-              <h3 className="font-medium text-foreground">Photo Gallery</h3>
-            </div>
-            <MultiPhotoUpload
-              images={cardData.uploadedImages || []}
-              onImagesChange={handleImagesChange}
-              maxImages={4}
-              photoShape={cardData.customization?.photoShape || 'rounded'}
-              onPhotoShapeChange={handlePhotoShapeChange}
-            />
-          </div>
+          <MultiPhotoUpload
+            images={cardData.uploadedImages || []}
+            onImagesChange={handleImagesChange}
+            maxImages={4}
+            photoShape={cardData.customization?.photoShape || 'rounded'}
+            onPhotoShapeChange={handlePhotoShapeChange}
+          />
         </TabsContent>
 
         <TabsContent value="logo" className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Crown className="h-5 w-5 text-primary" />
-              <h3 className="font-medium text-foreground">Logo & Monogram</h3>
-            </div>
-            <LogoUpload
-              logo={cardData.logoImage}
-              onLogoChange={handleLogoChange}
-            />
-          </div>
+          <LogoUpload
+            logo={cardData.logoImage}
+            onLogoChange={handleLogoChange}
+          />
         </TabsContent>
 
         <TabsContent value="design" className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Settings className="h-5 w-5 text-primary" />
-              <h3 className="font-medium text-foreground">Design Options</h3>
-            </div>
-            <TemplateEditor
-              customization={cardData.customization || {}}
-              onCustomizationChange={handleCustomizationChange}
-              templateId={cardData.templateId}
-            />
-          </div>
+          <TemplateEditor
+            customization={cardData.customization || {}}
+            onCustomizationChange={handleCustomizationChange}
+            templateId={cardData.templateId}
+          />
         </TabsContent>
 
         <TabsContent value="video" className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Video className="h-5 w-5 text-primary" />
-              <h3 className="font-medium text-foreground">Video Card</h3>
-            </div>
-            <VideoCardCreator
-              cardData={cardData as VideoCardData}
-              onDataChange={onDataChange}
-            />
-          </div>
+          <VideoCardCreator
+            cardData={cardData as VideoCardData}
+            onDataChange={onDataChange}
+          />
         </TabsContent>
       </Tabs>
 
