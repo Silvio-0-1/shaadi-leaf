@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Heart, Calendar, MapPin, ArrowLeft, Loader2 } from 'lucide-react';
 import { templates } from '@/data/templates';
 import { WeddingCardData, CardElements } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const SharedCard = () => {
@@ -21,35 +21,38 @@ const SharedCard = () => {
       if (!id) return;
 
       try {
-        // Create a simple fetch to get the shared card data
-        const response = await fetch(`/api/shared-cards/${id}`);
-        
-        if (!response.ok) {
-          // For now, simulate the card data since we don't have the API endpoint
-          // In a real app, this would fetch from the shared_wedding_cards table
-          const mockCardData: WeddingCardData = {
-            id: id,
-            brideName: 'Alice',
-            groomName: 'Bob',
-            weddingDate: '2024-06-15',
-            venue: 'Beautiful Gardens',
-            message: 'Join us for our special day filled with love and joy!',
-            templateId: 'floral-elegant',
-            uploadedImages: [],
-            logoImage: '',
-            customization: {},
-          };
-          
-          setCardData(mockCardData);
-          setElementPositions(null);
-          
-          // Trigger animation after a short delay
-          setTimeout(() => setAnimate(true), 500);
-          
-          return;
+        const { data, error } = await supabase
+          .from('shared_wedding_cards')
+          .select('*')
+          .eq('id', id)
+          .eq('is_public', true)
+          .single();
+
+        if (error) throw error;
+
+        // Parse JSON fields safely
+        let uploadedImages: string[] = [];
+        let customization = {};
+
+        try {
+          uploadedImages = data.uploaded_images ? JSON.parse(data.uploaded_images as string) : [];
+        } catch (e) {
+          uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images as string[] : [];
         }
 
-        const data = await response.json();
+        try {
+          customization = data.customization ? JSON.parse(data.customization as string) : {};
+        } catch (e) {
+          customization = typeof data.customization === 'object' ? data.customization : {};
+        }
+
+        let elementPositions = null;
+        try {
+          elementPositions = data.element_positions ? JSON.parse(data.element_positions as string) : null;
+        } catch (e) {
+          elementPositions = typeof data.element_positions === 'object' ? data.element_positions : null;
+        }
+
         const mappedCardData: WeddingCardData = {
           id: data.id,
           brideName: data.bride_name,
@@ -58,13 +61,13 @@ const SharedCard = () => {
           venue: data.venue,
           message: data.message,
           templateId: data.template_id,
-          uploadedImages: data.uploaded_images || [],
+          uploadedImages: uploadedImages,
           logoImage: data.logo_image,
-          customization: data.customization || {},
+          customization: customization,
         };
 
         setCardData(mappedCardData);
-        setElementPositions(data.element_positions);
+        setElementPositions(elementPositions);
         
         // Trigger animation after a short delay
         setTimeout(() => setAnimate(true), 500);

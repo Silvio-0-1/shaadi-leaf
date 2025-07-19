@@ -22,9 +22,9 @@ export const useWeddingCards = () => {
         venue: cardData.venue,
         message: cardData.message || '',
         template_id: cardData.templateId,
-        uploaded_images: cardData.uploadedImages || [],
+        uploaded_images: JSON.stringify(cardData.uploadedImages || []),
         logo_image: cardData.logoImage || null,
-        customization: cardData.customization || {},
+        customization: JSON.stringify(cardData.customization || {}),
         user_id: user.id,
       };
 
@@ -41,7 +41,7 @@ export const useWeddingCards = () => {
         // Create new card
         const { error } = await supabase
           .from('wedding_cards')
-          .insert([cardToSave]);
+          .insert(cardToSave);
 
         if (error) throw error;
         toast.success('Wedding card saved successfully!');
@@ -67,6 +67,24 @@ export const useWeddingCards = () => {
 
       if (error) throw error;
 
+      // Parse JSON fields safely
+      let uploadedImages: string[] = [];
+      let customization = {};
+
+      try {
+        uploadedImages = data.uploaded_images ? JSON.parse(data.uploaded_images as string) : [];
+      } catch (e) {
+        console.warn('Failed to parse uploaded_images:', e);
+        uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images as string[] : [];
+      }
+
+      try {
+        customization = data.customization ? JSON.parse(data.customization as string) : {};
+      } catch (e) {
+        console.warn('Failed to parse customization:', e);
+        customization = typeof data.customization === 'object' ? data.customization : {};
+      }
+
       return {
         id: data.id,
         brideName: data.bride_name,
@@ -75,9 +93,9 @@ export const useWeddingCards = () => {
         venue: data.venue,
         message: data.message || '',
         templateId: data.template_id,
-        uploadedImages: data.uploaded_images || [],
+        uploadedImages: uploadedImages,
         logoImage: data.logo_image || '',
-        customization: data.customization || {},
+        customization: customization,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
       };

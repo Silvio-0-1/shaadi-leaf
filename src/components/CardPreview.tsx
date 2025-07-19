@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
+import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
 import InteractiveCardPreview from './InteractiveCardPreview';
 import { toast } from 'sonner';
@@ -131,7 +131,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         return;
       }
 
-      // Save card data to database for sharing - using raw SQL query instead of type-safe query
+      // Save card data to database for sharing
       const shareableCardData = {
         bride_name: cardData.brideName,
         groom_name: cardData.groomName,
@@ -148,35 +148,13 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       };
 
       const { data, error } = await supabase
-        .rpc('create_shared_card', { card_data: shareableCardData })
+        .from('shared_wedding_cards')
+        .insert(shareableCardData)
         .select()
         .single();
 
-      if (error) {
-        // Fallback to direct insert if RPC doesn't exist
-        const { data: insertData, error: insertError } = await supabase
-          .from('shared_wedding_cards' as any)
-          .insert([shareableCardData])
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        
-        const shareUrl = `${window.location.origin}/shared/${insertData.id}`;
-        setShareUrl(shareUrl);
-        
-        // Copy to clipboard
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(shareUrl);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-          toast.success('Shareable link copied to clipboard!');
-        } else {
-          toast.success('Shareable link generated!');
-        }
-        return;
-      }
-
+      if (error) throw error;
+      
       const shareUrl = `${window.location.origin}/shared/${data.id}`;
       setShareUrl(shareUrl);
       
