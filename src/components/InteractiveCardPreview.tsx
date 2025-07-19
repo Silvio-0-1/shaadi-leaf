@@ -1,9 +1,8 @@
-
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Calendar, MapPin, Undo2, Redo2, RotateCcw } from 'lucide-react';
-import { WeddingCardData } from '@/types';
+import { WeddingCardData, CardElements, ElementPosition, PhotoElement } from '@/types';
 import { templates } from '@/data/templates';
 import DraggableElement from './DraggableElement';
 
@@ -11,27 +10,6 @@ interface InteractiveCardPreviewProps {
   cardData: WeddingCardData;
   initialPositions?: CardElements | null;
   onPositionsUpdate?: (positions: CardElements) => void;
-}
-
-interface ElementPosition {
-  x: number;
-  y: number;
-}
-
-interface PhotoElement {
-  position: ElementPosition;
-  size: { width: number; height: number };
-}
-
-interface CardElements {
-  brideName: ElementPosition;
-  groomName: ElementPosition;
-  heartIcon: ElementPosition;
-  weddingDate: ElementPosition;
-  venue: ElementPosition;
-  message: ElementPosition;
-  photo: PhotoElement;
-  logo: ElementPosition;
 }
 
 const defaultPositions: CardElements = {

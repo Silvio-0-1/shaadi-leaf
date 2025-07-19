@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Download, FileImage, Share2, Play, Settings, Calendar, MapPin, Loader2 } from 'lucide-react';
-import { WeddingCardData } from '@/types';
+import { WeddingCardData, CardElements } from '@/types';
 import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,22 +13,6 @@ import { toast } from 'sonner';
 
 interface CardPreviewProps {
   cardData: WeddingCardData;
-}
-
-interface ElementPosition {
-  x: number;
-  y: number;
-}
-
-interface CardElements {
-  brideName: ElementPosition;
-  groomName: ElementPosition;
-  heartIcon: ElementPosition;
-  weddingDate: ElementPosition;
-  venue: ElementPosition;
-  message: ElementPosition;
-  photo: ElementPosition;
-  logo: ElementPosition;
 }
 
 const CardPreview = ({ cardData }: CardPreviewProps) => {
@@ -175,15 +158,33 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       return defaultStyle;
     }
     
-    const position = savedPositions[elementKey];
-    return {
-      ...defaultStyle,
-      position: 'absolute' as const,
-      left: '50%',
-      top: '50%',
-      transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-      zIndex: 10,
-    };
+    const element = savedPositions[elementKey];
+    
+    // Handle photo element which has position and size
+    if (elementKey === 'photo' && 'position' in element) {
+      return {
+        ...defaultStyle,
+        position: 'absolute' as const,
+        left: '50%',
+        top: '50%',
+        transform: `translate(-50%, -50%) translate(${element.position.x}px, ${element.position.y}px)`,
+        zIndex: 10,
+      };
+    }
+    
+    // Handle regular elements with x, y coordinates
+    if ('x' in element && 'y' in element) {
+      return {
+        ...defaultStyle,
+        position: 'absolute' as const,
+        left: '50%',
+        top: '50%',
+        transform: `translate(-50%, -50%) translate(${element.x}px, ${element.y}px)`,
+        zIndex: 10,
+      };
+    }
+    
+    return defaultStyle;
   };
 
   // Get background style for custom templates

@@ -36,6 +36,11 @@ export interface ElementPosition {
   y: number;
 }
 
+export interface PhotoElement {
+  position: ElementPosition;
+  size: { width: number; height: number };
+}
+
 export interface CardElements {
   brideName: ElementPosition;
   groomName: ElementPosition;
@@ -43,7 +48,7 @@ export interface CardElements {
   weddingDate: ElementPosition;
   venue: ElementPosition;
   message: ElementPosition;
-  photo: ElementPosition;
+  photo: PhotoElement;
   logo: ElementPosition;
 }
 
