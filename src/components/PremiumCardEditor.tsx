@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -77,6 +79,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
   const [history, setHistory] = useState<CardElements[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Initialize history
   useEffect(() => {
@@ -286,53 +289,70 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
 
   return (
     <div className="space-y-6">
-      {/* Premium Control Panel */}
-      <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs font-medium">
-              <Move className="h-3 w-3 mr-1" />
-              Premium Editor
-            </Badge>
-            {selectedElement && (
-              <Badge variant="outline" className="text-xs">
-                Selected: {selectedElement}
+      {/* Edit Mode Toggle */}
+      <div className="flex items-center justify-center space-x-3 p-3 bg-muted/30 rounded-lg">
+        <Label htmlFor="premium-edit-mode" className="text-sm font-medium">
+          View Mode
+        </Label>
+        <Switch
+          id="premium-edit-mode"
+          checked={isEditMode}
+          onCheckedChange={setIsEditMode}
+        />
+        <Label htmlFor="premium-edit-mode" className="text-sm font-medium">
+          Edit Mode
+        </Label>
+      </div>
+
+      {/* Premium Control Panel - Only show in edit mode */}
+      {isEditMode && (
+        <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs font-medium">
+                <Move className="h-3 w-3 mr-1" />
+                Edit Mode Active
               </Badge>
-            )}
+              {selectedElement && (
+                <Badge variant="outline" className="text-xs">
+                  Selected: {selectedElement}
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={undo}
+                disabled={historyIndex <= 0}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+              >
+                <Undo2 className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={redo}
+                disabled={historyIndex >= history.length - 1}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+              >
+                <Redo2 className="h-4 w-4" />
+              </Button>
+              <Separator orientation="vertical" className="h-6" />
+              <Button
+                onClick={reset}
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 text-xs"
+              >
+                <RotateCcw className="h-3 w-3 mr-1" />
+                Reset
+              </Button>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={undo}
-              disabled={historyIndex <= 0}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              <Undo2 className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={redo}
-              disabled={historyIndex >= history.length - 1}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              <Redo2 className="h-4 w-4" />
-            </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <Button
-              onClick={reset}
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-xs"
-            >
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Reset
-            </Button>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Premium Card Preview */}
       <Card 
@@ -358,88 +378,151 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
         <div className="relative h-full flex items-center justify-center p-8">
           {/* Logo */}
           {cardData.logoImage && (
-            <PremiumDraggableElement
-              id="logo"
-              position={positions.logo}
-              onMove={handleElementMove}
-              containerRef={cardRef}
-              isSelected={selectedElement === 'logo'}
-              onSelect={setSelectedElement}
-            >
-              <div className="relative">
+            isEditMode ? (
+              <PremiumDraggableElement
+                id="logo"
+                position={positions.logo}
+                onMove={handleElementMove}
+                containerRef={cardRef}
+                isSelected={selectedElement === 'logo'}
+                onSelect={setSelectedElement}
+              >
+                <div className="relative">
+                  <img 
+                    src={cardData.logoImage} 
+                    alt="Wedding Logo" 
+                    className="w-20 h-20 object-contain opacity-90 filter drop-shadow-sm"
+                  />
+                </div>
+              </PremiumDraggableElement>
+            ) : (
+              <div 
+                className="absolute"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) translate(${positions.logo.x}px, ${positions.logo.y}px)`,
+                  zIndex: 10
+                }}
+              >
                 <img 
                   src={cardData.logoImage} 
                   alt="Wedding Logo" 
                   className="w-20 h-20 object-contain opacity-90 filter drop-shadow-sm"
                 />
               </div>
-            </PremiumDraggableElement>
+            )
           )}
 
           {/* Photos */}
           {cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0 && (
             <>
               {cardData.uploadedImages.length === 1 ? (
-                <PremiumDraggableElement
-                  id="photo"
-                  position={positions.photo.position}
-                  onMove={handleElementMove}
-                  containerRef={cardRef}
-                  resizable={true}
-                  size={positions.photo.size}
-                  onResize={handleElementResize}
-                  isSelected={selectedElement === 'photo'}
-                  onSelect={setSelectedElement}
-                  minSize={{ width: 80, height: 80 }}
-                  maxSize={{ width: 240, height: 240 }}
-                  maintainAspectRatio={true}
-                >
+                isEditMode ? (
+                  <PremiumDraggableElement
+                    id="photo"
+                    position={positions.photo.position}
+                    onMove={handleElementMove}
+                    containerRef={cardRef}
+                    resizable={true}
+                    size={positions.photo.size}
+                    onResize={handleElementResize}
+                    isSelected={selectedElement === 'photo'}
+                    onSelect={setSelectedElement}
+                    minSize={{ width: 80, height: 80 }}
+                    maxSize={{ width: 240, height: 240 }}
+                    maintainAspectRatio={true}
+                  >
+                    <div 
+                      className={`w-full h-full border-4 border-white/90 shadow-xl transition-all duration-200 ${
+                        cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
+                        cardData.customization?.photoShape === 'square' ? 'rounded-none' :
+                        'rounded-xl'
+                      } ${selectedElement === 'photo' ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                      style={{ 
+                        backgroundImage: `url(${cardData.uploadedImages[0]})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                      }}
+                    />
+                  </PremiumDraggableElement>
+                ) : (
                   <div 
-                    className={`w-full h-full border-4 border-white/90 shadow-xl transition-all duration-200 ${
+                    className={`absolute border-4 border-white/90 shadow-xl transition-all duration-200 ${
                       cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                       cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                       'rounded-xl'
-                    } ${selectedElement === 'photo' ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                    }`}
                     style={{ 
+                      left: '50%',
+                      top: '50%',
+                      transform: `translate(-50%, -50%) translate(${positions.photo.position.x}px, ${positions.photo.position.y}px)`,
+                      width: `${positions.photo.size.width}px`,
+                      height: `${positions.photo.size.height}px`,
                       backgroundImage: `url(${cardData.uploadedImages[0]})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat'
+                      backgroundRepeat: 'no-repeat',
+                      zIndex: 10
                     }}
                   />
-                </PremiumDraggableElement>
+                )
               ) : (
                 positions.photos?.map((photo, index) => (
                   cardData.uploadedImages && cardData.uploadedImages[index] && (
-                    <PremiumDraggableElement
-                      key={photo.id}
-                      id={photo.id}
-                      position={photo.position}
-                      onMove={handleElementMove}
-                      containerRef={cardRef}
-                      resizable={true}
-                      size={photo.size}
-                      onResize={handleElementResize}
-                      isSelected={selectedElement === photo.id}
-                      onSelect={setSelectedElement}
-                      minSize={{ width: 60, height: 60 }}
-                      maxSize={{ width: 180, height: 180 }}
-                      maintainAspectRatio={true}
-                    >
+                    isEditMode ? (
+                      <PremiumDraggableElement
+                        key={photo.id}
+                        id={photo.id}
+                        position={photo.position}
+                        onMove={handleElementMove}
+                        containerRef={cardRef}
+                        resizable={true}
+                        size={photo.size}
+                        onResize={handleElementResize}
+                        isSelected={selectedElement === photo.id}
+                        onSelect={setSelectedElement}
+                        minSize={{ width: 60, height: 60 }}
+                        maxSize={{ width: 180, height: 180 }}
+                        maintainAspectRatio={true}
+                      >
+                        <div 
+                          className={`w-full h-full border-3 border-white/90 shadow-lg transition-all duration-200 ${
+                            cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
+                            cardData.customization?.photoShape === 'square' ? 'rounded-none' :
+                            'rounded-lg'
+                          } ${selectedElement === photo.id ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+                          style={{ 
+                            backgroundImage: `url(${cardData.uploadedImages[index]})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                          }}
+                        />
+                      </PremiumDraggableElement>
+                    ) : (
                       <div 
-                        className={`w-full h-full border-3 border-white/90 shadow-lg transition-all duration-200 ${
+                        key={photo.id}
+                        className={`absolute border-3 border-white/90 shadow-lg transition-all duration-200 ${
                           cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                           cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                           'rounded-lg'
-                        } ${selectedElement === photo.id ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+                        }`}
                         style={{ 
+                          left: '50%',
+                          top: '50%',
+                          transform: `translate(-50%, -50%) translate(${photo.position.x}px, ${photo.position.y}px)`,
+                          width: `${photo.size.width}px`,
+                          height: `${photo.size.height}px`,
                           backgroundImage: `url(${cardData.uploadedImages[index]})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
-                          backgroundRepeat: 'no-repeat'
+                          backgroundRepeat: 'no-repeat',
+                          zIndex: 10
                         }}
                       />
-                    </PremiumDraggableElement>
+                    )
                   )
                 ))
               )}
@@ -447,37 +530,79 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
           )}
 
           {/* Bride's Name */}
-          <PremiumDraggableElement
-            id="brideName"
-            position={positions.brideName}
-            onMove={handleElementMove}
-            containerRef={cardRef}
-            isSelected={selectedElement === 'brideName'}
-            onSelect={setSelectedElement}
-          >
+          {isEditMode ? (
+            <PremiumDraggableElement
+              id="brideName"
+              position={positions.brideName}
+              onMove={handleElementMove}
+              containerRef={cardRef}
+              isSelected={selectedElement === 'brideName'}
+              onSelect={setSelectedElement}
+            >
+              <h1 
+                className={`text-4xl font-bold leading-tight text-center transition-all duration-200 ${
+                  selectedElement === 'brideName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
+                }`}
+                style={{ 
+                  color: colors.primary,
+                  fontFamily: getFontFamily('heading')
+                }}
+              >
+                {cardData.brideName || 'Bride\'s Name'}
+              </h1>
+            </PremiumDraggableElement>
+          ) : (
             <h1 
-              className={`text-4xl font-bold leading-tight text-center transition-all duration-200 ${
-                selectedElement === 'brideName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
-              }`}
+              className="absolute text-4xl font-bold leading-tight text-center drop-shadow-sm"
               style={{ 
+                left: '50%',
+                top: '50%',
+                transform: `translate(-50%, -50%) translate(${positions.brideName.x}px, ${positions.brideName.y}px)`,
                 color: colors.primary,
-                fontFamily: getFontFamily('heading')
+                fontFamily: getFontFamily('heading'),
+                zIndex: 10
               }}
             >
               {cardData.brideName || 'Bride\'s Name'}
             </h1>
-          </PremiumDraggableElement>
+          )}
 
           {/* Heart Icon */}
-          <PremiumDraggableElement
-            id="heartIcon"
-            position={positions.heartIcon}
-            onMove={handleElementMove}
-            containerRef={cardRef}
-            isSelected={selectedElement === 'heartIcon'}
-            onSelect={setSelectedElement}
-          >
-            <div className="flex items-center justify-center">
+          {isEditMode ? (
+            <PremiumDraggableElement
+              id="heartIcon"
+              position={positions.heartIcon}
+              onMove={handleElementMove}
+              containerRef={cardRef}
+              isSelected={selectedElement === 'heartIcon'}
+              onSelect={setSelectedElement}
+            >
+              <div className="flex items-center justify-center">
+                <div 
+                  className="h-px w-12 transition-all duration-200"
+                  style={{ backgroundColor: `${colors.primary}60` }}
+                />
+                <Heart 
+                  className="h-5 w-5 mx-4 transition-all duration-200" 
+                  fill={`${colors.primary}90`}
+                  style={{ color: `${colors.primary}90` }}
+                />
+                <div 
+                  className="h-px w-12 transition-all duration-200"
+                  style={{ backgroundColor: `${colors.primary}60` }}
+                />
+              </div>
+            </PremiumDraggableElement>
+          ) : (
+            <div 
+              className="absolute flex items-center justify-center"
+              style={{
+                left: '50%',
+                top: '50%',
+                transform: `translate(-50%, -50%) translate(${positions.heartIcon.x}px, ${positions.heartIcon.y}px)`,
+                zIndex: 10
+              }}
+            >
               <div 
                 className="h-px w-12 transition-all duration-200"
                 style={{ backgroundColor: `${colors.primary}60` }}
@@ -492,43 +617,79 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
                 style={{ backgroundColor: `${colors.primary}60` }}
               />
             </div>
-          </PremiumDraggableElement>
+          )}
 
           {/* Groom's Name */}
-          <PremiumDraggableElement
-            id="groomName"
-            position={positions.groomName}
-            onMove={handleElementMove}
-            containerRef={cardRef}
-            isSelected={selectedElement === 'groomName'}
-            onSelect={setSelectedElement}
-          >
+          {isEditMode ? (
+            <PremiumDraggableElement
+              id="groomName"
+              position={positions.groomName}
+              onMove={handleElementMove}
+              containerRef={cardRef}
+              isSelected={selectedElement === 'groomName'}
+              onSelect={setSelectedElement}
+            >
+              <h1 
+                className={`text-4xl font-bold leading-tight text-center transition-all duration-200 ${
+                  selectedElement === 'groomName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
+                }`}
+                style={{ 
+                  color: colors.primary,
+                  fontFamily: getFontFamily('heading')
+                }}
+              >
+                {cardData.groomName || 'Groom\'s Name'}
+              </h1>
+            </PremiumDraggableElement>
+          ) : (
             <h1 
-              className={`text-4xl font-bold leading-tight text-center transition-all duration-200 ${
-                selectedElement === 'groomName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
-              }`}
+              className="absolute text-4xl font-bold leading-tight text-center drop-shadow-sm"
               style={{ 
+                left: '50%',
+                top: '50%',
+                transform: `translate(-50%, -50%) translate(${positions.groomName.x}px, ${positions.groomName.y}px)`,
                 color: colors.primary,
-                fontFamily: getFontFamily('heading')
+                fontFamily: getFontFamily('heading'),
+                zIndex: 10
               }}
             >
               {cardData.groomName || 'Groom\'s Name'}
             </h1>
-          </PremiumDraggableElement>
-
+          )}
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <PremiumDraggableElement
-              id="weddingDate"
-              position={positions.weddingDate}
-              onMove={handleElementMove}
-              containerRef={cardRef}
-              isSelected={selectedElement === 'weddingDate'}
-              onSelect={setSelectedElement}
-            >
+            isEditMode ? (
+              <PremiumDraggableElement
+                id="weddingDate"
+                position={positions.weddingDate}
+                onMove={handleElementMove}
+                containerRef={cardRef}
+                isSelected={selectedElement === 'weddingDate'}
+                onSelect={setSelectedElement}
+              >
+                <div 
+                  className="flex items-center justify-center transition-all duration-200" 
+                  style={{ color: colors.text }}
+                >
+                  <Calendar className="h-4 w-4 mr-2 opacity-70" />
+                  <span 
+                    className="font-medium text-sm"
+                    style={{ fontFamily: getFontFamily('date') }}
+                  >
+                    {formatDate(cardData.weddingDate)}
+                  </span>
+                </div>
+              </PremiumDraggableElement>
+            ) : (
               <div 
-                className="flex items-center justify-center transition-all duration-200" 
-                style={{ color: colors.text }}
+                className="absolute flex items-center justify-center transition-all duration-200"
+                style={{ 
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) translate(${positions.weddingDate.x}px, ${positions.weddingDate.y}px)`,
+                  color: colors.text,
+                  zIndex: 10
+                }}
               >
                 <Calendar className="h-4 w-4 mr-2 opacity-70" />
                 <span 
@@ -538,22 +699,43 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </PremiumDraggableElement>
+            )
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <PremiumDraggableElement
-              id="venue"
-              position={positions.venue}
-              onMove={handleElementMove}
-              containerRef={cardRef}
-              isSelected={selectedElement === 'venue'}
-              onSelect={setSelectedElement}
-            >
+            isEditMode ? (
+              <PremiumDraggableElement
+                id="venue"
+                position={positions.venue}
+                onMove={handleElementMove}
+                containerRef={cardRef}
+                isSelected={selectedElement === 'venue'}
+                onSelect={setSelectedElement}
+              >
+                <div 
+                  className="flex items-center justify-center transition-all duration-200" 
+                  style={{ color: colors.text }}
+                >
+                  <MapPin className="h-4 w-4 mr-2 opacity-70" />
+                  <span 
+                    className="font-medium text-sm"
+                    style={{ fontFamily: getFontFamily('venue') }}
+                  >
+                    {cardData.venue}
+                  </span>
+                </div>
+              </PremiumDraggableElement>
+            ) : (
               <div 
-                className="flex items-center justify-center transition-all duration-200" 
-                style={{ color: colors.text }}
+                className="absolute flex items-center justify-center transition-all duration-200"
+                style={{ 
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) translate(${positions.venue.x}px, ${positions.venue.y}px)`,
+                  color: colors.text,
+                  zIndex: 10
+                }}
               >
                 <MapPin className="h-4 w-4 mr-2 opacity-70" />
                 <span 
@@ -563,29 +745,44 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
                   {cardData.venue}
                 </span>
               </div>
-            </PremiumDraggableElement>
+            )
           )}
-
           {/* Message */}
           {cardData.message && (
-            <PremiumDraggableElement
-              id="message"
-              position={positions.message}
-              onMove={handleElementMove}
-              containerRef={cardRef}
-              isSelected={selectedElement === 'message'}
-              onSelect={setSelectedElement}
-            >
+            isEditMode ? (
+              <PremiumDraggableElement
+                id="message"
+                position={positions.message}
+                onMove={handleElementMove}
+                containerRef={cardRef}
+                isSelected={selectedElement === 'message'}
+                onSelect={setSelectedElement}
+              >
+                <p 
+                  className="text-center text-sm italic leading-relaxed max-w-xs transition-all duration-200"
+                  style={{ 
+                    color: colors.text,
+                    fontFamily: getFontFamily('message')
+                  }}
+                >
+                  {cardData.message}
+                </p>
+              </PremiumDraggableElement>
+            ) : (
               <p 
-                className="text-center text-sm italic leading-relaxed max-w-xs transition-all duration-200"
+                className="absolute text-center text-sm italic leading-relaxed max-w-xs transition-all duration-200"
                 style={{ 
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%) translate(${positions.message.x}px, ${positions.message.y}px)`,
                   color: colors.text,
-                  fontFamily: getFontFamily('message')
+                  fontFamily: getFontFamily('message'),
+                  zIndex: 10
                 }}
               >
                 {cardData.message}
               </p>
-            </PremiumDraggableElement>
+            )
           )}
         </div>
       </Card>
