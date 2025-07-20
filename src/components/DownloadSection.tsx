@@ -96,72 +96,106 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg">
           <Download className="h-5 w-5" />
-          Download & Features
+          Export & Share
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <CreditActionButton
-            creditCost={CREDIT_COSTS.DOWNLOAD_HIGH_RES}
-            actionType="download_image"
-            actionName="Download Image"
-            onAction={handleDownloadImage}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <Image className="mr-2 h-4 w-4" />
-            Download Image
-            <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.DOWNLOAD_HIGH_RES}
+      <CardContent className="space-y-3">
+        {/* Download Image */}
+        <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Image className="h-4 w-4 text-blue-600" />
+            </div>
+            <div>
+              <h4 className="font-medium text-sm">High Resolution Image</h4>
+              <p className="text-xs text-muted-foreground">PNG format, perfect for printing</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {CREDIT_COSTS.DOWNLOAD_HIGH_RES} credits
             </Badge>
-          </CreditActionButton>
+            <CreditActionButton
+              creditCost={CREDIT_COSTS.DOWNLOAD_HIGH_RES}
+              actionType="download_image"
+              actionName="Download Image"
+              onAction={handleDownloadImage}
+              variant="outline"
+              size="sm"
+            >
+              Download
+            </CreditActionButton>
+          </div>
+        </div>
 
-          <CreditActionButton
-            creditCost={CREDIT_COSTS.DOWNLOAD_PDF}
-            actionType="download_pdf"
-            actionName="Download PDF"
-            onAction={handleDownloadPDF}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Download PDF
-            <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.DOWNLOAD_PDF}
+        {/* Download PDF */}
+        <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-50 rounded-lg">
+              <FileText className="h-4 w-4 text-red-600" />
+            </div>
+            <div>
+              <h4 className="font-medium text-sm">PDF Document</h4>
+              <p className="text-xs text-muted-foreground">Printable PDF format</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {CREDIT_COSTS.DOWNLOAD_PDF} credits
             </Badge>
-          </CreditActionButton>
+            <CreditActionButton
+              creditCost={CREDIT_COSTS.DOWNLOAD_PDF}
+              actionType="download_pdf"
+              actionName="Download PDF"
+              onAction={handleDownloadPDF}
+              variant="outline"
+              size="sm"
+            >
+              Download
+            </CreditActionButton>
+          </div>
+        </div>
 
-          <CreditActionButton
-            creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
-            actionType="share_magic_link"
-            actionName="Create Magic Link"
-            onAction={handleShareableLink}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-            disabled={shareLoading}
-          >
-            <Share2 className="mr-2 h-4 w-4" />
-            {shareLoading ? 'Creating...' : 'Create Magic Link'}
-            <Badge variant="secondary" className="ml-auto">
-              {CREDIT_COSTS.SHARE_MAGIC_LINK}
+        {/* Create Magic Link */}
+        <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-50 rounded-lg">
+              <Share2 className="h-4 w-4 text-purple-600" />
+            </div>
+            <div>
+              <h4 className="font-medium text-sm">Magic Link</h4>
+              <p className="text-xs text-muted-foreground">Share your card with anyone</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {CREDIT_COSTS.SHARE_MAGIC_LINK} credits
             </Badge>
-          </CreditActionButton>
+            <CreditActionButton
+              creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
+              actionType="share_magic_link"
+              actionName="Create Magic Link"
+              onAction={handleShareableLink}
+              variant="outline"
+              size="sm"
+              disabled={shareLoading}
+            >
+              {shareLoading ? 'Creating...' : 'Create'}
+            </CreditActionButton>
+          </div>
         </div>
         
         {/* Share Message */}
         {showShareMessage && shareUrl && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Check className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-800">Link copied to clipboard!</span>
             </div>
-            <p className="text-sm text-green-700 mb-2">
+            <p className="text-sm text-green-700 mb-3">
               See how your card looks to others
             </p>
             <Button
