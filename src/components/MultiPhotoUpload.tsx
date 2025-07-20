@@ -117,7 +117,7 @@ const MultiPhotoUpload = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          {images.length}/{maxImages} photos
+          {images.length} photo{images.length !== 1 ? 's' : ''}
         </span>
       </div>
 

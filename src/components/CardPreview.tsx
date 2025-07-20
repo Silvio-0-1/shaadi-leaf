@@ -389,7 +389,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
                 </div>
               )}
 
-              {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
+              {(cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0) && (
                 <div style={savedPositions?.photos ? { position: 'relative' } : getElementStyle('photo', { marginBottom: '24px' })}>
                   {cardData.uploadedImages.length === 1 ? (
                     <div 

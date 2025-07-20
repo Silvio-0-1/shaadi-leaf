@@ -54,7 +54,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
     } : defaultPositions;
 
     // Initialize photos array for multiple images
-    if (cardData.uploadedImages && cardData.uploadedImages.length > 0) {
+    if (cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0) {
       if (cardData.uploadedImages.length === 1) {
         return { ...basePositions, photos: [] };
       } else {
@@ -92,7 +92,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
     console.log('Debug - positions.photos:', positions.photos);
     
     // Reinitialize photos when uploadedImages changes
-    if (cardData.uploadedImages && cardData.uploadedImages.length > 1) {
+    if (cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 1) {
       const photosArray = cardData.uploadedImages.map((_, index) => ({
         id: `photo-${index}`,
         position: { 
@@ -201,7 +201,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
     const defaultPos = template?.defaultPositions ? {
       ...template.defaultPositions,
       photo: template.defaultPositions.photo || defaultPositions.photo,
-      photos: cardData.uploadedImages && cardData.uploadedImages.length > 1 
+      photos: cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 1 
         ? cardData.uploadedImages.map((_, index) => ({
             id: `photo-${index}`,
             position: { 
@@ -377,7 +377,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
           )}
 
           {/* Photos */}
-          {cardData.uploadedImages && cardData.uploadedImages.length > 0 && (
+          {cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0 && (
             <>
               {cardData.uploadedImages.length === 1 ? (
                 <PremiumDraggableElement
