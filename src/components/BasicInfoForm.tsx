@@ -3,9 +3,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Heart, Calendar, MapPin, MessageCircle, Sparkles, Loader2 } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import { useState } from 'react';
+import CreditActionButton from './CreditActionButton';
+import { useCredits } from '@/hooks/useCredits';
 
 interface BasicInfoFormProps {
   cardData: WeddingCardData;
@@ -24,6 +27,7 @@ const messagePrompts = [
 const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicInfoFormProps) => {
   const [generatingMessage, setGeneratingMessage] = useState(false);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const { CREDIT_COSTS } = useCredits();
 
   const handleChange = (field: keyof WeddingCardData, value: string) => {
     onDataChange({ [field]: value });
@@ -169,9 +173,11 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
           />
           
           <div className="flex items-center justify-between">
-            <Button
-              type="button"
-              onClick={generateAIMessage}
+            <CreditActionButton
+              creditCost={CREDIT_COSTS.AI_GENERATE_MESSAGE}
+              actionType="ai_generate_message"
+              actionName="Generate with AI"
+              onAction={generateAIMessage}
               disabled={generatingMessage || !cardData.brideName || !cardData.groomName}
               variant="outline"
               size="sm"
@@ -186,9 +192,12 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
                 <>
                   <Sparkles className="h-3 w-3 mr-1" />
                   Generate with AI
+                  <Badge variant="secondary" className="ml-2">
+                    {CREDIT_COSTS.AI_GENERATE_MESSAGE}
+                  </Badge>
                 </>
               )}
-            </Button>
+            </CreditActionButton>
             
             <span className="text-xs text-muted-foreground">
               {cardData.message.length}/250

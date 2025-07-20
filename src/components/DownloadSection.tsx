@@ -136,19 +136,22 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
             </Badge>
           </CreditActionButton>
 
-          <Button
-            onClick={handleShareableLink}
-            disabled={shareLoading}
+          <CreditActionButton
+            creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
+            actionType="share_magic_link"
+            actionName="Create Magic Link"
+            onAction={handleShareableLink}
             variant="outline"
             size="sm"
             className="w-full justify-start"
+            disabled={shareLoading}
           >
             <Share2 className="mr-2 h-4 w-4" />
-            {shareLoading ? 'Creating...' : 'Share Card'}
+            {shareLoading ? 'Creating...' : 'Create Magic Link'}
             <Badge variant="secondary" className="ml-auto">
-              Free
+              {CREDIT_COSTS.SHARE_MAGIC_LINK}
             </Badge>
-          </Button>
+          </CreditActionButton>
         </div>
         
         {/* Share Message */}

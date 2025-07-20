@@ -117,7 +117,7 @@ const MultiPhotoUpload = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          {images.length} photo{images.length !== 1 ? 's' : ''}
+          You can add upto 4 photos
         </span>
       </div>
 
@@ -163,7 +163,7 @@ const MultiPhotoUpload = ({
         {/* Add More Button */}
         {canAddMore && (
           <Card
-            className={`border-dashed border-2 p-4 text-center cursor-pointer transition-colors h-32 flex flex-col items-center justify-center ${
+            className={`border-dashed border-2 p-4 text-center cursor-pointer transition-colors aspect-square flex flex-col items-center justify-center ${
               isDragging 
                 ? 'border-primary bg-primary/5' 
                 : 'border-muted-foreground/25 hover:border-primary/50'
@@ -182,31 +182,6 @@ const MultiPhotoUpload = ({
         )}
       </div>
 
-      {/* Upload Area (when no images) */}
-      {images.length === 0 && (
-        <Card
-          className={`border-dashed border-2 p-8 text-center cursor-pointer transition-colors ${
-            isDragging 
-              ? 'border-primary bg-primary/5' 
-              : 'border-muted-foreground/25 hover:border-primary/50'
-          }`}
-          onDrop={handleDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground mb-2">
-            Drag & drop images or click to browse
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Add up to {maxImages} photos • JPG, PNG up to 5MB each
-          </p>
-        </Card>
-      )}
 
       <input
         ref={fileInputRef}
