@@ -51,15 +51,20 @@ const Customize = () => {
       return;
     }
 
-    if (!cardData.brideName || !cardData.groomName || !cardData.templateId) {
-      toast.error('Please fill in the bride and groom names');
+    if (!cardData.templateId) {
+      toast.error('Please select a template first');
       return;
     }
 
-    await saveCard(cardData);
-  };
+    // Set default names if empty
+    const cardToSave = {
+      ...cardData,
+      brideName: cardData.brideName || 'Bride',
+      groomName: cardData.groomName || 'Groom'
+    };
 
-  const hasRequiredData = cardData.brideName && cardData.groomName && cardData.templateId;
+    await saveCard(cardToSave);
+  };
 
   if (!cardData.templateId) {
     return (
@@ -105,10 +110,9 @@ const Customize = () => {
           <div className="lg:col-span-2 space-y-6">
             <PremiumCardEditor cardData={cardData} />
             
-            {/* Action Buttons */}
+            {/* Action Buttons - Always show if user is logged in and template is selected */}
             <div className="space-y-4">
-              {/* Save Card Button - Only show if user is logged in */}
-              {user && hasRequiredData && (
+              {user && cardData.templateId && (
                 <Button
                   onClick={handleSaveCard}
                   disabled={saving}
@@ -126,8 +130,8 @@ const Customize = () => {
                 </Button>
               )}
               
-              {/* Download Section */}
-              {hasRequiredData && (
+              {/* Download Section - Always show if template is selected */}
+              {cardData.templateId && (
                 <DownloadSection cardId="card-preview" />
               )}
             </div>

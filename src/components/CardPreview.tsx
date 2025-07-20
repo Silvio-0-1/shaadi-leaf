@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Download, FileImage, Share2, Play, Settings, Calendar, MapPin, Loader2, Link, Check } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Heart, Download, FileImage, Share2, Play, Calendar, MapPin, Loader2, Link, Check } from 'lucide-react';
 import { WeddingCardData, CardElements } from '@/types';
 import { templates } from '@/data/templates';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
@@ -31,6 +33,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   });
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showShareMessage, setShowShareMessage] = useState(false);
   
   const template = templates.find(t => t.id === cardData.templateId);
 
@@ -86,30 +89,48 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         return;
       }
 
-      const success = await deductCredits(creditCost, actionType, description);
-      if (!success) {
-        toast.error('Failed to deduct credits. Please try again.');
-        return;
-      }
-
+      // Attempt download first, only deduct credits if successful
+      let downloadSuccess = false;
+      
       switch (type) {
         case 'image':
-          await downloadAsImage('card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
-          toast.success('Card downloaded as image!');
+          await downloadAsImage('card-preview', `${cardData.brideName || 'wedding'}-${cardData.groomName || 'card'}-wedding-card`);
+          downloadSuccess = true;
           break;
         case 'pdf':
-          await downloadAsPDF('card-preview', `${cardData.brideName}-${cardData.groomName}-wedding-card`);
-          toast.success('Card downloaded as PDF!');
+          await downloadAsPDF('card-preview', `${cardData.brideName || 'wedding'}-${cardData.groomName || 'card'}-wedding-card`);
+          downloadSuccess = true;
           break;
         case 'video':
           toast.info('Generating video card...');
           await new Promise(resolve => setTimeout(resolve, 3000));
-          toast.success('Video card generated and downloaded!');
+          downloadSuccess = true;
           break;
+      }
+
+      // Only deduct credits if download was successful
+      if (downloadSuccess) {
+        const success = await deductCredits(creditCost, actionType, description);
+        if (!success) {
+          toast.error('Download completed but failed to deduct credits. Please contact support.');
+          return;
+        }
+
+        switch (type) {
+          case 'image':
+            toast.success('Card downloaded as image!');
+            break;
+          case 'pdf':
+            toast.success('Card downloaded as PDF!');
+            break;
+          case 'video':
+            toast.success('Video card generated and downloaded!');
+            break;
+        }
       }
     } catch (error) {
       console.error('Download error:', error);
-      toast.error(`Failed to download ${type}`);
+      toast.error(`Failed to download ${type}. No credits were deducted.`);
     } finally {
       setLoadingStates(prev => ({ ...prev, [type]: false }));
     }
@@ -133,8 +154,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
       // Save card data to database for sharing
       const shareableCardData = {
-        bride_name: cardData.brideName,
-        groom_name: cardData.groomName,
+        bride_name: cardData.brideName || 'Bride',
+        groom_name: cardData.groomName || 'Groom',
         wedding_date: cardData.weddingDate,
         venue: cardData.venue,
         message: cardData.message || '',
@@ -162,7 +183,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(shareUrl);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setShowShareMessage(true);
+        setTimeout(() => {
+          setCopied(false);
+          setShowShareMessage(false);
+        }, 5000);
         toast.success('Shareable link copied to clipboard!');
       } else {
         toast.success('Shareable link generated!');
@@ -180,13 +205,19 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
     if (shareUrl && navigator.clipboard) {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setShowShareMessage(true);
+      setTimeout(() => {
+        setCopied(false);
+        setShowShareMessage(false);
+      }, 3000);
       toast.success('Link copied to clipboard!');
     }
   };
 
-  const handleToggleInteractive = () => {
-    setIsInteractive(!isInteractive);
+  const visitSharedLink = () => {
+    if (shareUrl) {
+      window.open(shareUrl, '_blank');
+    }
   };
 
   const handlePositionsUpdate = (positions: CardElements) => {
@@ -311,15 +342,20 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           <p className="text-muted-foreground">
             See how your card looks in real-time
           </p>
-          <div className="flex justify-center mt-4">
-            <Button
-              onClick={handleToggleInteractive}
-              variant={isInteractive ? "default" : "outline"}
-              size="sm"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              {isInteractive ? 'Exit Edit Mode' : 'Customize Layout'}
-            </Button>
+          
+          {/* Edit Mode Slider */}
+          <div className="flex items-center justify-center space-x-3 mt-4 p-3 bg-muted/30 rounded-lg">
+            <Label htmlFor="edit-mode" className="text-sm font-medium">
+              View Mode
+            </Label>
+            <Switch
+              id="edit-mode"
+              checked={isInteractive}
+              onCheckedChange={setIsInteractive}
+            />
+            <Label htmlFor="edit-mode" className="text-sm font-medium">
+              Edit Mode
+            </Label>
           </div>
         </div>
         
@@ -525,101 +561,116 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
           </Card>
         )}
 
-        {/* Action Buttons */}
-        {hasContent && (
-          <div className="space-y-3">
-            <Button 
-              onClick={() => handleDownloadAttempt('image')}
-              className="w-full wedding-gradient text-white hover:shadow-lg transition-all"
-              size="lg"
-              disabled={loadingStates.image}
-            >
-              {loadingStates.image ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Downloading...
-                </>
-              ) : (
-                <>
-                  <Download className="h-4 w-4 mr-2" />
-                  Download as Image (10 Credits)
-                </>
-              )}
-            </Button>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <Button 
-                onClick={() => handleDownloadAttempt('pdf')}
-                variant="outline"
-                className="flex-1"
-                disabled={loadingStates.pdf}
-              >
-                {loadingStates.pdf ? (
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                ) : (
-                  <FileImage className="h-4 w-4 mr-1" />
-                )}
-                {loadingStates.pdf ? 'Generating...' : 'PDF (30 Credits)'}
-              </Button>
-              <Button 
-                onClick={() => handleDownloadAttempt('video')}
-                variant="outline"
-                className="flex-1"
-                disabled={loadingStates.video}
-              >
-                {loadingStates.video ? (
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                ) : (
-                  <Play className="h-4 w-4 mr-1" />
-                )}
-                {loadingStates.video ? 'Creating...' : 'Video (50 Credits)'}
-              </Button>
-            </div>
-            
-            <Button 
-              onClick={generateShareableLink}
-              variant="outline"
-              className="w-full"
-              disabled={loadingStates.share}
-            >
-              {loadingStates.share ? (
+        {/* Action Buttons - Always visible */}
+        <div className="space-y-3">
+          <Button 
+            onClick={() => handleDownloadAttempt('image')}
+            className="w-full wedding-gradient text-white hover:shadow-lg transition-all"
+            size="lg"
+            disabled={loadingStates.image}
+          >
+            {loadingStates.image ? (
+              <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Download as Image (10 Credits)
+              </>
+            )}
+          </Button>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              onClick={() => handleDownloadAttempt('pdf')}
+              variant="outline"
+              className="flex-1"
+              disabled={loadingStates.pdf}
+            >
+              {loadingStates.pdf ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
               ) : (
-                <Share2 className="h-4 w-4 mr-2" />
+                <FileImage className="h-4 w-4 mr-1" />
               )}
-              {loadingStates.share ? 'Generating Link...' : 'Share Card'}
+              {loadingStates.pdf ? 'Generating...' : 'PDF (30 Credits)'}
             </Button>
+            <Button 
+              onClick={() => handleDownloadAttempt('video')}
+              variant="outline"
+              className="flex-1"
+              disabled={loadingStates.video}
+            >
+              {loadingStates.video ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4 mr-1" />
+              )}
+              {loadingStates.video ? 'Creating...' : 'Video (50 Credits)'}
+            </Button>
+          </div>
+          
+          <Button 
+            onClick={generateShareableLink}
+            variant="outline"
+            className="w-full"
+            disabled={loadingStates.share}
+          >
+            {loadingStates.share ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Share2 className="h-4 w-4 mr-2" />
+            )}
+            {loadingStates.share ? 'Generating Link...' : 'Share Card'}
+          </Button>
 
-            {shareUrl && (
-              <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                <p className="text-sm font-medium text-foreground">Shareable Link:</p>
-                <div className="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    value={shareUrl} 
-                    readOnly 
-                    className="flex-1 text-xs bg-background border rounded px-2 py-1 text-muted-foreground"
-                  />
+          {shareUrl && (
+            <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+              <p className="text-sm font-medium text-foreground">Shareable Link:</p>
+              <div className="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  value={shareUrl} 
+                  readOnly 
+                  className="flex-1 text-xs bg-background border rounded px-2 py-1 text-muted-foreground"
+                />
+                <Button
+                  onClick={copyShareLink}
+                  size="sm"
+                  variant="outline"
+                  className="px-2"
+                >
+                  {copied ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <Link className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
+              
+              {showShareMessage && (
+                <div className="flex items-center justify-between p-2 bg-primary/10 rounded border border-primary/20">
+                  <p className="text-xs text-primary font-medium">
+                    See how your card looks to others
+                  </p>
                   <Button
-                    onClick={copyShareLink}
+                    onClick={visitSharedLink}
                     size="sm"
                     variant="outline"
-                    className="px-2"
+                    className="text-xs px-2 py-1 h-6"
                   >
-                    {copied ? (
-                      <Check className="h-3 w-3" />
-                    ) : (
-                      <Link className="h-3 w-3" />
-                    )}
+                    Visit Link
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Anyone with this link can view your wedding card
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+              
+              <p className="text-xs text-muted-foreground">
+                Anyone with this link can view your wedding card
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Template Info */}
         {template && (
