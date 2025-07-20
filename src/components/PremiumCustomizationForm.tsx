@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -112,17 +113,15 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
                   key={tab.id}
                   value={tab.id} 
                   disabled={isVideoTab}
-                  className={`justify-center ${
+                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 ${
                     isVideoTab ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
-                    {isCompleted && !isVideoTab && (
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full ml-1" />
-                    )}
-                  </div>
+                  <Icon className="h-4 w-4" />
+                  <span className="text-xs font-medium">{tab.label}</span>
+                  {isCompleted && !isVideoTab && (
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                  )}
                 </TabsTrigger>
               );
             })}
