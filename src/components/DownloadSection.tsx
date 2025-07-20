@@ -80,8 +80,7 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
         setShowShareMessage(true);
         setTimeout(() => {
           setCopied(false);
-          setShowShareMessage(false);
-        }, 5000);
+        }, 3000);
         toast.success('Shareable link copied to clipboard!');
       } else {
         toast.success('Shareable link generated!');

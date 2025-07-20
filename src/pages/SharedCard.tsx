@@ -254,53 +254,101 @@ const SharedCard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Magical background with floating hearts and stars */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 animate-pulse">
-          <Heart className="h-6 w-6 text-pink-300 opacity-60" fill="currentColor" />
-        </div>
-        <div className="absolute top-20 right-20 animate-pulse delay-1000">
-          <Sparkles className="h-5 w-5 text-rose-300 opacity-50" />
-        </div>
-        <div className="absolute bottom-32 left-16 animate-pulse delay-500">
-          <Heart className="h-4 w-4 text-pink-200 opacity-40" fill="currentColor" />
-        </div>
-        <div className="absolute bottom-40 right-24 animate-pulse delay-700">
-          <Sparkles className="h-6 w-6 text-rose-200 opacity-60" />
-        </div>
+        {/* Floating hearts */}
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={`heart-${i}`}
+            className="absolute animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
+            }}
+          >
+            <Heart 
+              className={`h-${3 + Math.floor(Math.random() * 3)} w-${3 + Math.floor(Math.random() * 3)} text-pink-300 opacity-${20 + Math.floor(Math.random() * 40)}`} 
+              fill="currentColor" 
+            />
+          </div>
+        ))}
+        
+        {/* Sparkling stars */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute animate-sparkle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${2 + Math.random() * 2}s`
+            }}
+          >
+            <Sparkles 
+              className={`h-${2 + Math.floor(Math.random() * 3)} w-${2 + Math.floor(Math.random() * 3)} text-yellow-300 opacity-${30 + Math.floor(Math.random() * 40)}`}
+            />
+          </div>
+        ))}
+        
+        {/* Glowing orbs */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={`orb-${i}`}
+            className="absolute rounded-full bg-gradient-to-r from-pink-400 to-purple-400 opacity-10 blur-xl animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${50 + Math.random() * 100}px`,
+              height: `${50 + Math.random() * 100}px`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
+            }}
+          />
+        ))}
       </div>
 
       <div className="w-full max-w-md space-y-6 z-10">
-        {/* Enhanced Header Section */}
+        {/* Premium Header Section */}
         <div className="text-center">
-          <div className={`transition-all duration-1500 ${animate ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
-            <div className="relative mb-6">
-              <div className="absolute -inset-4 bg-gradient-to-r from-pink-200 via-rose-200 to-pink-200 rounded-full blur-xl opacity-30 animate-pulse"></div>
-              <h1 className="relative text-4xl font-serif font-bold text-foreground mb-3 bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent">
+          <div className={`transition-all duration-2000 ${animate ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
+            <div className="relative mb-8">
+              <div className="absolute -inset-8 bg-gradient-to-r from-pink-500/20 via-purple-500/30 to-pink-500/20 rounded-full blur-2xl opacity-60 animate-pulse"></div>
+              <div className="absolute -inset-4 bg-gradient-to-r from-yellow-400/10 via-pink-400/20 to-yellow-400/10 rounded-full blur-xl opacity-80 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+              
+              <h1 className="relative text-5xl font-serif font-bold mb-4 bg-gradient-to-r from-yellow-300 via-pink-300 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
                 You're Invited!
               </h1>
-              <div className="flex items-center justify-center space-x-3 mb-2">
-                <div className="h-px w-12 bg-gradient-to-r from-transparent to-pink-300"></div>
-                <Heart className="h-5 w-5 text-pink-500 animate-pulse" fill="currentColor" />
-                <div className="h-px w-12 bg-gradient-to-l from-transparent to-pink-300"></div>
+              
+              <div className="flex items-center justify-center space-x-4 mb-3">
+                <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-yellow-300 to-pink-300 rounded-full"></div>
+                <Heart className="h-6 w-6 text-pink-400 animate-pulse drop-shadow-lg" fill="currentColor" />
+                <div className="h-0.5 w-16 bg-gradient-to-l from-transparent via-yellow-300 to-pink-300 rounded-full"></div>
               </div>
-              <p className="text-lg text-muted-foreground font-medium">
-                <span className="text-pink-600 font-semibold">{cardData.brideName}</span>
-                <span className="mx-2 text-pink-400">&</span>
-                <span className="text-pink-600 font-semibold">{cardData.groomName}</span>
-                <br />
-                <span className="text-base text-muted-foreground italic">are getting married</span>
-              </p>
+              
+              <div className="backdrop-blur-sm bg-white/10 rounded-2xl border border-white/20 p-4 mx-4">
+                <p className="text-xl font-medium text-white drop-shadow-md">
+                  <span className="text-yellow-300 font-bold drop-shadow-lg">{cardData.brideName}</span>
+                  <span className="mx-3 text-pink-300 text-2xl">&</span>
+                  <span className="text-yellow-300 font-bold drop-shadow-lg">{cardData.groomName}</span>
+                  <br />
+                  <span className="text-lg text-pink-100 italic drop-shadow-sm">are getting married</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className={`transition-all duration-1500 delay-500 ${animate ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          <Card 
-            className="aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-500 hover:shadow-2xl border-2 border-pink-100"
-            style={getBackgroundStyle()}
-          >
+        <div className={`transition-all duration-2000 delay-500 ${animate ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className="relative">
+            <div className="absolute -inset-4 bg-gradient-to-r from-pink-500/30 via-purple-500/40 to-pink-500/30 rounded-2xl blur-xl opacity-80 animate-pulse"></div>
+            <Card 
+              className="relative aspect-[3/4] overflow-hidden backdrop-blur-sm bg-white/95 border-2 border-white/50 shadow-2xl transition-all duration-500 hover:shadow-pink-500/25 hover:scale-105"
+              style={getBackgroundStyle()}
+            >
             <div className="relative h-full p-8 flex flex-col justify-center items-center text-center">
               {!template?.backgroundImage && (
                 <div 
@@ -438,16 +486,22 @@ const SharedCard = () => {
                 </div>
               )}
             </div>
-          </Card>
+            </Card>
+          </div>
         </div>
 
-        <div className={`text-center transition-all duration-1500 delay-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          <Button 
-            onClick={handleCreateCardClick}
-            className="wedding-gradient text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105 px-8 py-3 text-lg font-semibold"
-          >
-            Create Your Own Wedding Card
-          </Button>
+        <div className={`text-center transition-all duration-2000 delay-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <div className="relative">
+            <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400/50 via-pink-500/50 to-yellow-400/50 rounded-full blur-lg opacity-60 animate-pulse"></div>
+            <Button 
+              onClick={handleCreateCardClick}
+              className="relative bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-10 py-4 text-xl rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 hover:shadow-pink-500/50 border-2 border-white/20"
+            >
+              <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+              Create Your Own Wedding Card
+              <Heart className="ml-2 h-5 w-5 animate-pulse" fill="currentColor" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
