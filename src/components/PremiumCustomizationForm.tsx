@@ -112,15 +112,17 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
                   key={tab.id}
                   value={tab.id} 
                   disabled={isVideoTab}
-                  className={`flex items-center gap-2 h-10 px-3 text-sm font-medium ${
+                  className={`justify-center ${
                     isVideoTab ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  {isCompleted && !isVideoTab && (
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full ml-1" />
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    {isCompleted && !isVideoTab && (
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full ml-1" />
+                    )}
+                  </div>
                 </TabsTrigger>
               );
             })}
