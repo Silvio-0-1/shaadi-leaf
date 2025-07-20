@@ -292,7 +292,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs font-medium">
               <Move className="h-3 w-3 mr-1" />
-              Edit Mode
+              Premium Editor
             </Badge>
             {selectedElement && (
               <Badge variant="outline" className="text-xs">

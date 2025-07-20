@@ -132,7 +132,7 @@ const Customize = () => {
               
               {/* Download Section - Always show if template is selected */}
               {cardData.templateId && (
-                <DownloadSection cardId="card-preview" />
+                <DownloadSection cardId="card-preview" cardData={cardData} />
               )}
             </div>
           </div>
