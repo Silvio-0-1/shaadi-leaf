@@ -45,26 +45,24 @@ const PremiumTemplateCard = ({
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {template.isPremium && (
+        {/* Premium Badge */}
+        {template.isPremium && (
+          <div className="absolute top-3 left-3">
             <Badge className="bg-gradient-elegant text-white border-0 shadow-glow">
               <Crown className="h-3 w-3 mr-1" />
               Premium
             </Badge>
-          )}
-          <Badge variant="secondary" className="bg-background/90 text-foreground">
-            {template.category}
-          </Badge>
-        </div>
+          </div>
+        )}
 
-        {/* Favorite Button */}
+        {/* Save to My Cards Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onFavorite?.(template.id);
           }}
           className="absolute top-3 right-3 p-2 rounded-full bg-background/20 backdrop-blur-sm transition-all duration-300 hover:bg-background/40"
+          title="Save to My Cards"
         >
           <Heart 
             className={`h-4 w-4 transition-colors ${
@@ -73,33 +71,10 @@ const PremiumTemplateCard = ({
           />
         </button>
 
-        {/* Admin Controls */}
-        {isAdmin && (
-          <div className="absolute top-3 right-14 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit?.(template);
-              }}
-              className="p-2 rounded-full bg-background/20 backdrop-blur-sm transition-all duration-300 hover:bg-primary/20"
-            >
-              <Edit className="h-3 w-3 text-white" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete?.(template.id);
-              }}
-              className="p-2 rounded-full bg-background/20 backdrop-blur-sm transition-all duration-300 hover:bg-destructive/20"
-            >
-              <Trash2 className="h-3 w-3 text-white" />
-            </button>
-          </div>
-        )}
 
         {/* Hover Action Buttons */}
         <div className={`absolute inset-x-4 bottom-4 flex gap-2 transition-all duration-300 ${
-          isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+          isHovered ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}>
           <Button
             variant="secondary"
@@ -133,18 +108,6 @@ const PremiumTemplateCard = ({
             {template.name}
           </h3>
           
-          {/* Features */}
-          <div className="flex flex-wrap gap-1">
-            {template.supportsMultiPhoto && (
-              <Badge variant="outline" className="text-xs">Multi-Photo</Badge>
-            )}
-            {template.supportsVideo && (
-              <Badge variant="outline" className="text-xs">Video</Badge>
-            )}
-            {template.layouts && template.layouts.length > 1 && (
-              <Badge variant="outline" className="text-xs">Multiple Layouts</Badge>
-            )}
-          </div>
 
           {/* Color Palette Preview */}
           <div className="flex items-center gap-2">

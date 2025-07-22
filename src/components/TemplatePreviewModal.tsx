@@ -42,9 +42,6 @@ const TemplatePreviewModal = ({
                 </Badge>
               )}
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </DialogHeader>
 
