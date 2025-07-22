@@ -322,10 +322,7 @@ const Templates = () => {
                     onPreview={handlePreview}
                     onCustomize={handleCustomize}
                     onFavorite={handleFavorite}
-                    onEdit={isAdmin ? handleEdit : undefined}
-                    onDelete={isAdmin ? handleDelete : undefined}
                     isFavorite={favorites.includes(template.id)}
-                    isAdmin={isAdmin}
                   />
                 ))}
               </div>
