@@ -14,6 +14,13 @@ import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AdminDashboardHome } from "./pages/admin/AdminDashboardHome";
+import { AdminTemplates } from "./pages/admin/AdminTemplates";
+import { AdminTags } from "./pages/admin/AdminTags";
+import { AdminPages } from "./pages/admin/AdminPages";
+import { AdminCredits } from "./pages/admin/AdminCredits";
+import { AdminUsers } from "./pages/admin/AdminUsers";
+import { AdminOrders } from "./pages/admin/AdminOrders";
+import { AdminSettings } from "./pages/admin/AdminSettings";
 import SharedCard from "./pages/SharedCard";
 import NotFound from "./pages/NotFound";
 
@@ -36,13 +43,13 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/admin-old" element={<AdminDashboard />} />
               <Route path="/admin" element={<AdminDashboardHome />} />
-              <Route path="/admin/templates" element={<AdminDashboardHome />} />
-              <Route path="/admin/tags" element={<AdminDashboardHome />} />
-              <Route path="/admin/pages" element={<AdminDashboardHome />} />
-              <Route path="/admin/credits" element={<AdminDashboardHome />} />
-              <Route path="/admin/users" element={<AdminDashboardHome />} />
-              <Route path="/admin/orders" element={<AdminDashboardHome />} />
-              <Route path="/admin/settings" element={<AdminDashboardHome />} />
+              <Route path="/admin/templates" element={<AdminTemplates />} />
+              <Route path="/admin/tags" element={<AdminTags />} />
+              <Route path="/admin/pages" element={<AdminPages />} />
+              <Route path="/admin/credits" element={<AdminCredits />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/shared/:id" element={<SharedCard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
