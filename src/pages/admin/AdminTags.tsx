@@ -54,7 +54,7 @@ export const AdminTags = () => {
     name: '',
     description: '',
     color: '#8b5cf6',
-    group_id: ''
+    group_id: 'no-group'
   });
 
   useEffect(() => {
@@ -140,7 +140,7 @@ export const AdminTags = () => {
           name: tagForm.name.trim(),
           description: tagForm.description.trim(),
           color: tagForm.color,
-          group_id: tagForm.group_id || null
+          group_id: tagForm.group_id === 'no-group' ? null : tagForm.group_id
         })
         .select()
         .single();
@@ -148,7 +148,7 @@ export const AdminTags = () => {
       if (error) throw error;
 
       setTags(prev => [...prev, data]);
-      setTagForm({ name: '', description: '', color: '#8b5cf6', group_id: '' });
+      setTagForm({ name: '', description: '', color: '#8b5cf6', group_id: 'no-group' });
       setIsCreateTagOpen(false);
       toast.success('Tag created successfully');
     } catch (error) {
@@ -197,7 +197,7 @@ export const AdminTags = () => {
           name: tagForm.name.trim(),
           description: tagForm.description.trim(),
           color: tagForm.color,
-          group_id: tagForm.group_id || null,
+          group_id: tagForm.group_id === 'no-group' ? null : tagForm.group_id,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingTag.id);
@@ -210,7 +210,7 @@ export const AdminTags = () => {
           : tag
       ));
       setEditingTag(null);
-      setTagForm({ name: '', description: '', color: '#8b5cf6', group_id: '' });
+      setTagForm({ name: '', description: '', color: '#8b5cf6', group_id: 'no-group' });
       toast.success('Tag updated successfully');
     } catch (error) {
       console.error('Error updating tag:', error);
@@ -274,7 +274,7 @@ export const AdminTags = () => {
       name: tag.name,
       description: tag.description || '',
       color: tag.color,
-      group_id: tag.group_id || ''
+      group_id: tag.group_id || 'no-group'
     });
   };
 
@@ -396,7 +396,7 @@ export const AdminTags = () => {
                         <SelectValue placeholder="Select a group (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No Group</SelectItem>
+                        <SelectItem value="no-group">No Group</SelectItem>
                         {tagGroups.map((group) => (
                           <SelectItem key={group.id} value={group.id}>
                             <div className="flex items-center space-x-2">
@@ -646,7 +646,7 @@ export const AdminTags = () => {
                     <SelectValue placeholder="Select a group (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Group</SelectItem>
+                    <SelectItem value="no-group">No Group</SelectItem>
                     {tagGroups.map((group) => (
                       <SelectItem key={group.id} value={group.id}>
                         <div className="flex items-center space-x-2">
