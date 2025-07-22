@@ -206,7 +206,7 @@ export type Database = {
         }
         Relationships: []
       }
-      template_tags: {
+      tag_groups: {
         Row: {
           color: string | null
           created_at: string
@@ -232,6 +232,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      template_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          group_id: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          group_id?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          group_id?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_tags_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "tag_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_credits: {
         Row: {
