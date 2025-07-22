@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Crown, Heart, Eye, Palette, Edit, Trash2 } from 'lucide-react';
+import { Crown, Heart, Eye, Palette } from 'lucide-react';
 import { Template } from '@/types';
 
 interface PremiumTemplateCardProps {
@@ -11,10 +11,7 @@ interface PremiumTemplateCardProps {
   onPreview: (template: Template) => void;
   onCustomize: (template: Template) => void;
   onFavorite?: (templateId: string) => void;
-  onEdit?: (template: Template) => void;
-  onDelete?: (templateId: string) => void;
   isFavorite?: boolean;
-  isAdmin?: boolean;
 }
 
 const PremiumTemplateCard = ({
@@ -22,10 +19,7 @@ const PremiumTemplateCard = ({
   onPreview,
   onCustomize,
   onFavorite,
-  onEdit,
-  onDelete,
-  isFavorite = false,
-  isAdmin = false
+  isFavorite = false
 }: PremiumTemplateCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -46,16 +40,6 @@ const PremiumTemplateCard = ({
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Premium Badge */}
-        {template.isPremium && (
-          <div className="absolute top-3 left-3">
-            <Badge className="bg-gradient-elegant text-white border-0 shadow-glow">
-              <Crown className="h-3 w-3 mr-1" />
-              Premium
-            </Badge>
-          </div>
-        )}
-
         {/* Save to My Cards Button */}
         <button
           onClick={(e) => {
@@ -72,9 +56,8 @@ const PremiumTemplateCard = ({
           />
         </button>
 
-
-        {/* Hover Action Buttons */}
-        <div className={`absolute inset-x-4 bottom-4 flex gap-2 transition-all duration-300 ${
+        {/* Hover Action Buttons - Fixed positioning */}
+        <div className={`absolute bottom-3 left-3 right-3 flex gap-2 transition-all duration-300 ${
           isHovered ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
         }`}>
           <Button
@@ -84,9 +67,9 @@ const PremiumTemplateCard = ({
               e.stopPropagation();
               onPreview(template);
             }}
-            className="flex-1 bg-background/90 backdrop-blur-sm hover:bg-background"
+            className="flex-1 bg-background/90 backdrop-blur-sm hover:bg-background text-xs"
           >
-            <Eye className="h-4 w-4 mr-2" />
+            <Eye className="h-3 w-3 mr-1" />
             Preview
           </Button>
           <Button
@@ -95,9 +78,9 @@ const PremiumTemplateCard = ({
               e.stopPropagation();
               onCustomize(template);
             }}
-            className="flex-1 bg-gradient-elegant hover:opacity-90"
+            className="flex-1 bg-gradient-elegant hover:opacity-90 text-xs"
           >
-            <Palette className="h-4 w-4 mr-2" />
+            <Palette className="h-3 w-3 mr-1" />
             Customize
           </Button>
         </div>
@@ -105,11 +88,10 @@ const PremiumTemplateCard = ({
 
       <CardContent className="p-4">
         <div className="space-y-2">
-          <h3 className="font-serif text-lg font-semibold text-foreground line-clamp-1">
+          <h3 className="font-serif text-lg font-semibold text-foreground line-clamp-2">
             {template.name}
           </h3>
           
-
           {/* Color Palette Preview */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Colors:</span>
