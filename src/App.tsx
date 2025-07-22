@@ -15,6 +15,7 @@ import Pricing from "./pages/Pricing";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AdminDashboardHome } from "./pages/admin/AdminDashboardHome";
 import { AdminTemplates } from "./pages/admin/AdminTemplates";
+import { AdminTemplateCreator } from "./pages/admin/AdminTemplateCreator";
 import { AdminTags } from "./pages/admin/AdminTags";
 import { AdminPages } from "./pages/admin/AdminPages";
 import { AdminCredits } from "./pages/admin/AdminCredits";
@@ -42,14 +43,15 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/admin-old" element={<AdminDashboard />} />
-              <Route path="/admin" element={<AdminDashboardHome />} />
-              <Route path="/admin/templates" element={<AdminTemplates />} />
-              <Route path="/admin/tags" element={<AdminTags />} />
-              <Route path="/admin/pages" element={<AdminPages />} />
-              <Route path="/admin/credits" element={<AdminCredits />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin" element={<AdminDashboardHome />} />
+          <Route path="/admin/templates" element={<AdminTemplates />} />
+          <Route path="/admin/templates/create" element={<AdminTemplateCreator />} />
+          <Route path="/admin/tags" element={<AdminTags />} />
+          <Route path="/admin/pages" element={<AdminPages />} />
+          <Route path="/admin/credits" element={<AdminCredits />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/shared/:id" element={<SharedCard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

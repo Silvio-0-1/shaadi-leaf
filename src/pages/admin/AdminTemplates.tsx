@@ -1,21 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Filter, Brush, Code } from 'lucide-react';
+import { Plus, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import VisualTemplateBuilder from '@/components/VisualTemplateBuilder';
-import CustomTemplateCreator from '@/components/CustomTemplateCreator';
-import { Template } from '@/types';
 
 export const AdminTemplates = () => {
   const { isAdmin, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -38,11 +32,6 @@ export const AdminTemplates = () => {
 
   if (!isAdmin) return null;
 
-  const handleTemplateCreated = (template: Template) => {
-    setIsCreateDialogOpen(false);
-    // You can add logic here to refresh the templates list
-  };
-
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -51,37 +40,10 @@ export const AdminTemplates = () => {
             <h1 className="text-3xl font-bold text-foreground">Templates</h1>
             <p className="text-muted-foreground">Manage all wedding card templates</p>
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Template
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden">
-              <DialogHeader>
-                <DialogTitle>Create New Template</DialogTitle>
-              </DialogHeader>
-              <Tabs defaultValue="visual" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="visual" className="flex items-center space-x-2">
-                    <Brush className="h-4 w-4" />
-                    <span>Visual Builder</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="custom" className="flex items-center space-x-2">
-                    <Code className="h-4 w-4" />
-                    <span>Custom Creator</span>
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="visual" className="mt-4">
-                  <VisualTemplateBuilder onTemplateCreated={handleTemplateCreated} />
-                </TabsContent>
-                <TabsContent value="custom" className="mt-4">
-                  <CustomTemplateCreator onTemplateCreated={handleTemplateCreated} />
-                </TabsContent>
-              </Tabs>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => navigate('/admin/templates/create')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Template
+          </Button>
         </div>
 
         <div className="flex items-center gap-4">
