@@ -1,12 +1,13 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Upload, Save, Eye, Type, Palette, Move, RotateCw, Maximize2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Upload, Save, Eye, Type, Palette, Move, RotateCw, Maximize2, Tags, X } from 'lucide-react';
 import { Template, CardElements, ElementPosition } from '@/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -67,6 +68,26 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
 
   const [selectedElement, setSelectedElement] = useState<keyof CardElements | null>(null);
   const [placedElements, setPlacedElements] = useState<Set<keyof CardElements>>(new Set());
+  const [availableTags, setAvailableTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // Fetch available tags
+  useEffect(() => {
+    const fetchTags = async () => {
+      const { data, error } = await supabase
+        .from('template_tags')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching tags:', error);
+      } else {
+        setAvailableTags(data || []);
+      }
+    };
+    
+    fetchTags();
+  }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -104,6 +125,16 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
     if (selectedElement === elementId) {
       setSelectedElement(null);
     }
+  };
+
+  const handleAddTag = (tagName: string) => {
+    if (!selectedTags.includes(tagName)) {
+      setSelectedTags(prev => [...prev, tagName]);
+    }
+  };
+
+  const handleRemoveTag = (tagName: string) => {
+    setSelectedTags(prev => prev.filter(tag => tag !== tagName));
   };
 
   const renderElementContent = (config: ElementConfig) => {
@@ -179,6 +210,7 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
             body: templateData.bodyFont
           } as any,
           default_positions: elementPositions as any,
+          tags: selectedTags,
           is_premium: false
         })
         .select()
@@ -220,6 +252,7 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
       });
       setPlacedElements(new Set());
       setSelectedElement(null);
+      setSelectedTags([]);
     } catch (error) {
       console.error('Error creating template:', error);
       toast.error('Failed to create template. Please try again.');
@@ -358,6 +391,62 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <Separator />
+
+        {/* Tags Selection */}
+        <div className="space-y-3">
+          <Label className="flex items-center">
+            <Tags className="h-4 w-4 mr-2" />
+            Template Tags
+          </Label>
+          <div className="space-y-2">
+            <Select onValueChange={handleAddTag}>
+              <SelectTrigger>
+                <SelectValue placeholder="Add tags..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTags
+                  .filter(tag => !selectedTags.includes(tag.name))
+                  .map((tag) => (
+                    <SelectItem key={tag.id} value={tag.name}>
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: tag.color }}
+                        />
+                        <span>{tag.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <div className="flex flex-wrap gap-2">
+              {selectedTags.map((tagName) => {
+                const tag = availableTags.find(t => t.name === tagName);
+                return (
+                  <Badge 
+                    key={tagName} 
+                    variant="secondary"
+                    className="flex items-center space-x-1"
+                  >
+                    {tag && (
+                      <div 
+                        className="w-2 h-2 rounded-full" 
+                        style={{ backgroundColor: tag.color }}
+                      />
+                    )}
+                    <span>{tagName}</span>
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => handleRemoveTag(tagName)}
+                    />
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <Separator />

@@ -3,10 +3,8 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brush, Code } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft } from 'lucide-react';
 import VisualTemplateBuilder from '@/components/VisualTemplateBuilder';
-import CustomTemplateCreator from '@/components/CustomTemplateCreator';
 import { Template } from '@/types';
 
 export const AdminTemplateCreator = () => {
@@ -54,31 +52,12 @@ export const AdminTemplateCreator = () => {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Create New Template</h1>
-              <p className="text-muted-foreground">Design a custom wedding card template</p>
+              <p className="text-muted-foreground">Design a custom wedding card template with drag & drop</p>
             </div>
           </div>
         </div>
 
-        <Tabs defaultValue="visual" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="visual" className="flex items-center space-x-2">
-              <Brush className="h-4 w-4" />
-              <span>Visual Builder</span>
-            </TabsTrigger>
-            <TabsTrigger value="custom" className="flex items-center space-x-2">
-              <Code className="h-4 w-4" />
-              <span>Custom Creator</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="visual" className="mt-6">
-            <VisualTemplateBuilder onTemplateCreated={handleTemplateCreated} />
-          </TabsContent>
-          
-          <TabsContent value="custom" className="mt-6">
-            <CustomTemplateCreator onTemplateCreated={handleTemplateCreated} />
-          </TabsContent>
-        </Tabs>
+        <VisualTemplateBuilder onTemplateCreated={handleTemplateCreated} />
       </div>
     </AdminLayout>
   );

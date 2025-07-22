@@ -92,6 +92,7 @@ export type Database = {
           id: string
           is_premium: boolean | null
           name: string
+          tags: string[] | null
           thumbnail: string | null
           updated_at: string | null
         }
@@ -106,6 +107,7 @@ export type Database = {
           id?: string
           is_premium?: boolean | null
           name: string
+          tags?: string[] | null
           thumbnail?: string | null
           updated_at?: string | null
         }
@@ -120,6 +122,7 @@ export type Database = {
           id?: string
           is_premium?: boolean | null
           name?: string
+          tags?: string[] | null
           thumbnail?: string | null
           updated_at?: string | null
         }
@@ -200,6 +203,33 @@ export type Database = {
           user_id?: string
           venue?: string
           wedding_date?: string
+        }
+        Relationships: []
+      }
+      template_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
