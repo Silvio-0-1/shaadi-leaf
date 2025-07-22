@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,7 +75,7 @@ const PremiumTemplateCard = ({
 
         {/* Hover Action Buttons */}
         <div className={`absolute inset-x-4 bottom-4 flex gap-2 transition-all duration-300 ${
-          isHovered ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+          isHovered ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
         }`}>
           <Button
             variant="secondary"
