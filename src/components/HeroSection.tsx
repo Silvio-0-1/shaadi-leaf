@@ -1,8 +1,19 @@
 
 import { Heart, Sparkles, Users, Download, ArrowRight, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/templates');
+  };
+
+  const handleViewTemplates = () => {
+    navigate('/templates');
+  };
+
   return (
     <section className="relative py-24 px-4 overflow-hidden">
       {/* Simplified background with better contrast */}
@@ -13,7 +24,7 @@ const HeroSection = () => {
       </div>
       
       <div className="container mx-auto max-w-7xl relative">
-        {/* Main Hero Content - Remove animation delays for immediate visibility */}
+        {/* Main Hero Content */}
         <div className="text-center mb-20">
           <div className="flex items-center justify-center mb-8 opacity-100">
             <div className="relative">
@@ -36,7 +47,7 @@ const HeroSection = () => {
             beautiful wedding invitations that capture the essence of your love story.
           </p>
           
-          {/* Feature badges - Visible immediately */}
+          {/* Feature badges */}
           <div className="flex flex-wrap items-center justify-center gap-6 mb-12 opacity-100">
             <div className="flex items-center bg-card/80 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 hover:shadow-md transition-shadow">
               <CheckCircle className="h-4 w-4 text-primary mr-2" />
@@ -52,9 +63,10 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* CTA Button - Visible immediately */}
+          {/* Main CTA Button */}
           <div className="opacity-100">
             <Button 
+              onClick={handleGetStarted}
               size="lg" 
               className="wedding-gradient text-white px-12 py-6 text-lg font-semibold rounded-full hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group"
             >
@@ -124,6 +136,7 @@ const HeroSection = () => {
             ].map((template, i) => (
               <div 
                 key={i}
+                onClick={() => navigate('/templates')}
                 className={`group aspect-[3/4] bg-gradient-to-br ${template.gradient} rounded-xl border border-border/30 flex flex-col items-center justify-center hover:scale-105 transition-all duration-500 hover:shadow-lg cursor-pointer`}
               >
                 <template.icon className="h-12 w-12 text-primary/60 mb-3 group-hover:scale-110 transition-transform" fill={template.icon === Heart ? "currentColor" : "none"} />
@@ -135,7 +148,7 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Enhanced CTA Section */}
+        {/* Enhanced CTA Section - Removed "View Templates" button */}
         <div className="relative bg-gradient-to-r from-muted/20 via-muted/30 to-muted/20 rounded-3xl p-12 md:p-16 text-center opacity-100">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-rose-500/5 to-primary/5 rounded-3xl"></div>
           <div className="relative">
@@ -154,20 +167,14 @@ const HeroSection = () => {
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               Create your dream wedding invitation in minutes. No design skills needed, just your love story.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button 
+                onClick={handleGetStarted}
                 size="lg" 
                 className="wedding-gradient text-white px-8 py-4 text-lg font-semibold rounded-full hover:shadow-xl transition-all duration-300 group"
               >
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="px-8 py-4 text-lg font-semibold rounded-full border-2 hover:bg-primary/5 transition-all duration-300"
-              >
-                View Templates
               </Button>
             </div>
           </div>
