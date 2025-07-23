@@ -133,8 +133,9 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle mobile menu"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -184,13 +185,13 @@ const Header = () => {
                         </p>
                         <CreditBalance />
                       </div>
-                      <Button 
+                       <Button 
                         variant="outline" 
                         onClick={() => {
                           setShowCreditStore(true);
                           setIsMenuOpen(false);
                         }}
-                        className="w-full justify-start"
+                        className="w-full justify-start touch-manipulation min-h-[44px]"
                       >
                         <ShoppingCart className="mr-2 h-4 w-4" />
                         Buy Credits
@@ -198,25 +199,25 @@ const Header = () => {
                       <Button 
                         variant="outline" 
                         onClick={handleSignOut}
-                        className="w-full justify-start"
+                        className="w-full justify-start touch-manipulation min-h-[44px]"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Sign Out
                       </Button>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                        <Button variant="outline" className="w-full justify-start">
-                          Sign In
-                        </Button>
-                      </Link>
-                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                        <Button className="wedding-gradient text-white w-full">
-                          Get Started
-                        </Button>
-                      </Link>
-                    </div>
+                     <div className="space-y-3">
+                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                         <Button variant="outline" className="w-full justify-start touch-manipulation min-h-[44px]">
+                           Sign In
+                         </Button>
+                       </Link>
+                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                         <Button className="wedding-gradient text-white w-full touch-manipulation min-h-[44px]">
+                           Get Started
+                         </Button>
+                       </Link>
+                     </div>
                   )}
                 </div>
               </nav>

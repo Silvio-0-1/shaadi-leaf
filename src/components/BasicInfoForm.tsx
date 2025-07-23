@@ -78,7 +78,7 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
           <h3 className="font-medium text-foreground">Couple Details</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="brideName" className="text-sm font-medium text-foreground">
               Bride's Name *

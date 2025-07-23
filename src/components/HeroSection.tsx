@@ -33,7 +33,7 @@ const HeroSection = () => {
             </div>
           </div>
           
-          <h1 className="font-serif text-6xl md:text-8xl font-bold text-foreground mb-8 leading-tight opacity-100">
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl font-bold text-foreground mb-8 leading-tight opacity-100">
             Create Your Perfect
             <br />
             <span className="wedding-gradient bg-clip-text text-transparent relative">
@@ -42,7 +42,7 @@ const HeroSection = () => {
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed opacity-100">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed opacity-100">
             Transform your special day into a stunning digital experience. Design, customize, and share 
             beautiful wedding invitations that capture the essence of your love story.
           </p>
@@ -68,7 +68,7 @@ const HeroSection = () => {
             <Button 
               onClick={handleGetStarted}
               size="lg" 
-              className="wedding-gradient text-white px-12 py-6 text-lg font-semibold rounded-full hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group"
+              className="wedding-gradient text-white px-8 sm:px-12 py-4 sm:py-6 text-base sm:text-lg font-semibold rounded-full hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group touch-manipulation min-h-[48px]"
             >
               Start Creating Now
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -127,7 +127,7 @@ const HeroSection = () => {
             From elegant classics to modern minimalist designs, find the perfect template for your celebration.
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
             {[
               { gradient: "from-rose-50 to-pink-50", icon: Heart, label: "Romantic" },
               { gradient: "from-amber-50 to-yellow-50", icon: Star, label: "Elegant" },
@@ -171,7 +171,7 @@ const HeroSection = () => {
               <Button 
                 onClick={handleGetStarted}
                 size="lg" 
-                className="wedding-gradient text-white px-8 py-4 text-lg font-semibold rounded-full hover:shadow-xl transition-all duration-300 group"
+                className="wedding-gradient text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full hover:shadow-xl transition-all duration-300 group touch-manipulation min-h-[48px]"
               >
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

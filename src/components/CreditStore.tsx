@@ -71,7 +71,7 @@ const CreditStore = ({ isOpen, onClose, suggestedAmount }: CreditStoreProps) => 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
           <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full">
             <Coins className="w-8 h-8 text-white" />
@@ -94,7 +94,7 @@ const CreditStore = ({ isOpen, onClose, suggestedAmount }: CreditStoreProps) => 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {creditPackages.map((pkg) => (
               <Card 
                 key={pkg.id}
@@ -143,7 +143,7 @@ const CreditStore = ({ isOpen, onClose, suggestedAmount }: CreditStoreProps) => 
                   </div>
                   
                   <Button 
-                    className="w-full" 
+                    className="w-full touch-manipulation min-h-[44px]" 
                     disabled={purchasing}
                     variant={pkg.popular ? "default" : "outline"}
                   >

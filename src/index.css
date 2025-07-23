@@ -75,6 +75,11 @@
 }
 
 @layer components {
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .wedding-gradient {
     @apply bg-gradient-to-r from-pink-500 via-rose-500 to-red-500;
   }
@@ -302,6 +307,39 @@
   
   .animate-slide-up {
     animation-duration: 0.6s;
+  }
+
+  /* Improved mobile touch targets */
+  button, [role="button"], .touch-target {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  /* Better mobile scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  html, body {
+    overflow-x: hidden !important;
+  }
+
+  /* Improved mobile form inputs */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  /* Better mobile spacing */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Mobile dropdown improvements */
+  [role="menu"], [role="menuitem"] {
+    padding: 0.75rem !important;
+    min-height: 44px !important;
   }
 }
 

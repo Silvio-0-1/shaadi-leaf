@@ -25,14 +25,11 @@ const Dashboard = () => {
 
   const fetchCards = async () => {
     try {
-      console.log('Fetching cards for user:', user?.id);
       const { data, error } = await supabase
         .from('wedding_cards')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
-
-      console.log('Cards query result:', { data, error });
 
       if (error) {
         toast.error('Failed to load your wedding cards');
@@ -51,14 +48,12 @@ const Dashboard = () => {
           createdAt: card.created_at,
           updatedAt: card.updated_at,
         }));
-        console.log('Transformed cards:', transformedCards);
         setCards(transformedCards);
       }
     } catch (error) {
       toast.error('An error occurred while loading your cards');
       console.error('Error:', error);
     } finally {
-      console.log('Setting loading to false');
       setLoading(false);
     }
   };

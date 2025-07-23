@@ -85,7 +85,7 @@ const TemplateSelector = ({ selectedTemplate, onTemplateSelect }: TemplateSelect
           <button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation min-h-[40px] ${
               selectedCategory === category.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary text-secondary-foreground hover:bg-accent'
@@ -97,7 +97,7 @@ const TemplateSelector = ({ selectedTemplate, onTemplateSelect }: TemplateSelect
       </div>
 
       {/* Template Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredTemplates.map((template) => (
           <Card 
             key={template.id}
