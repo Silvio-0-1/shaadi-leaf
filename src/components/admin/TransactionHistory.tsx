@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,49 +39,53 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
   const fetchTransactions = async () => {
     try {
       setLoading(true);
+      
+      // First get transactions
       let query = supabase
         .from('credit_transactions')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (selectedUserId) {
         query = query.eq('user_id', selectedUserId);
       }
 
-      const { data, error } = await query;
+      const { data: transactionsData, error: transactionsError } = await query;
 
-      if (error) {
-        console.error('Error fetching transactions:', error);
+      if (transactionsError) {
+        console.error('Error fetching transactions:', transactionsError);
         toast.error('Failed to load transaction history');
         return;
       }
 
-      // Handle the case where profiles might be null or an error
-      const validTransactions = (data || []).map(transaction => {
-        const profiles = transaction.profiles;
-        let validProfiles = null;
-        
-        if (profiles && 
-            typeof profiles === 'object' && 
-            !('error' in profiles) &&
-            'email' in profiles &&
-            profiles.email) {
-          validProfiles = profiles as { full_name: string | null; email: string };
-        }
-        
+      // Then get profiles for all users
+      const userIds = transactionsData?.map(transaction => transaction.user_id) || [];
+      const uniqueUserIds = [...new Set(userIds)];
+      
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', uniqueUserIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        toast.error('Failed to load user profiles');
+        return;
+      }
+
+      // Combine the data
+      const combinedData = transactionsData?.map(transaction => {
+        const profile = profilesData?.find(p => p.id === transaction.user_id);
         return {
           ...transaction,
-          profiles: validProfiles
+          profiles: profile ? {
+            full_name: profile.full_name,
+            email: profile.email
+          } : null
         };
-      });
+      }) || [];
 
-      setTransactions(validTransactions);
+      setTransactions(combinedData);
     } catch (error) {
       console.error('Error fetching transactions:', error);
       toast.error('Failed to load transaction history');

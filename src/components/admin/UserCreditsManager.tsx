@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,43 +38,45 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
   const fetchUserCredits = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First get user credits
+      const { data: creditsData, error: creditsError } = await supabase
         .from('user_credits')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .order('balance', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching user credits:', error);
+      if (creditsError) {
+        console.error('Error fetching user credits:', creditsError);
         toast.error('Failed to load user credits');
         return;
       }
 
-      // Handle the case where profiles might be null or an error
-      const validUserCredits = (data || []).map(credit => {
-        const profiles = credit.profiles;
-        let validProfiles = null;
-        
-        if (profiles && 
-            typeof profiles === 'object' && 
-            !('error' in profiles) &&
-            'email' in profiles &&
-            profiles.email) {
-          validProfiles = profiles as { full_name: string | null; email: string };
-        }
-        
+      // Then get profiles for all users
+      const userIds = creditsData?.map(credit => credit.user_id) || [];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        toast.error('Failed to load user profiles');
+        return;
+      }
+
+      // Combine the data
+      const combinedData = creditsData?.map(credit => {
+        const profile = profilesData?.find(p => p.id === credit.user_id);
         return {
           ...credit,
-          profiles: validProfiles
+          profiles: profile ? {
+            full_name: profile.full_name,
+            email: profile.email
+          } : null
         };
-      });
+      }) || [];
 
-      setUserCredits(validUserCredits);
+      setUserCredits(combinedData);
     } catch (error) {
       console.error('Error fetching user credits:', error);
       toast.error('Failed to load user credits');
