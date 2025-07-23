@@ -63,12 +63,13 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
         return;
       }
 
-      // Filter out transactions where profiles is null or has an error
-      const validTransactions = (data || []).filter(transaction => 
-        transaction.profiles && 
-        typeof transaction.profiles === 'object' && 
-        'email' in transaction.profiles
-      ) as Transaction[];
+      // Handle the case where profiles might be null or an error
+      const validTransactions = (data || []).map(transaction => ({
+        ...transaction,
+        profiles: transaction.profiles && typeof transaction.profiles === 'object' && !('error' in transaction.profiles)
+          ? transaction.profiles as { full_name: string | null; email: string }
+          : null
+      }));
 
       setTransactions(validTransactions);
     } catch (error) {
@@ -118,7 +119,7 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
   const getFilteredTransactions = () => {
     return transactions.filter(t => {
       const matchesSearch = searchTerm === '' || 
-        t.profiles?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.description.toLowerCase().includes(searchTerm.toLowerCase());
       

@@ -56,12 +56,13 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
         return;
       }
 
-      // Filter out credits where profiles is null or has an error
-      const validUserCredits = (data || []).filter(credit => 
-        credit.profiles && 
-        typeof credit.profiles === 'object' && 
-        'email' in credit.profiles
-      ) as UserCredit[];
+      // Handle the case where profiles might be null or an error
+      const validUserCredits = (data || []).map(credit => ({
+        ...credit,
+        profiles: credit.profiles && typeof credit.profiles === 'object' && !('error' in credit.profiles)
+          ? credit.profiles as { full_name: string | null; email: string }
+          : null
+      }));
 
       setUserCredits(validUserCredits);
     } catch (error) {
@@ -110,7 +111,7 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
   };
 
   const filteredUsers = userCredits.filter(uc => 
-    uc.profiles?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    uc.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     uc.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
