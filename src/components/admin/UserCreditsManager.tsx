@@ -17,9 +17,9 @@ interface UserCredit {
   user_id: string;
   balance: number;
   profiles: {
-    full_name: string;
+    full_name: string | null;
     email: string;
-  };
+  } | null;
 }
 
 interface CreditManagementProps {
@@ -50,8 +50,20 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
         `)
         .order('balance', { ascending: false });
 
-      if (error) throw error;
-      setUserCredits(data || []);
+      if (error) {
+        console.error('Error fetching user credits:', error);
+        toast.error('Failed to load user credits');
+        return;
+      }
+
+      // Filter out credits where profiles is null or has an error
+      const validUserCredits = (data || []).filter(credit => 
+        credit.profiles && 
+        typeof credit.profiles === 'object' && 
+        'email' in credit.profiles
+      ) as UserCredit[];
+
+      setUserCredits(validUserCredits);
     } catch (error) {
       console.error('Error fetching user credits:', error);
       toast.error('Failed to load user credits');
@@ -98,8 +110,8 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
   };
 
   const filteredUsers = userCredits.filter(uc => 
-    uc.profiles.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    uc.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+    uc.profiles?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    uc.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getBadgeVariant = (balance: number) => {
@@ -156,10 +168,10 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        {userCredit.profiles.full_name || 'N/A'}
+                        {userCredit.profiles?.full_name || 'N/A'}
                       </div>
                     </TableCell>
-                    <TableCell>{userCredit.profiles.email}</TableCell>
+                    <TableCell>{userCredit.profiles?.email || 'N/A'}</TableCell>
                     <TableCell>
                       <Badge variant={getBadgeVariant(userCredit.balance)}>
                         {userCredit.balance} credits
@@ -201,8 +213,8 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
             {selectedUser && (
               <div className="space-y-4">
                 <div>
-                  <Label>User: {selectedUser.profiles.full_name}</Label>
-                  <p className="text-sm text-muted-foreground">{selectedUser.profiles.email}</p>
+                  <Label>User: {selectedUser.profiles?.full_name || 'N/A'}</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.profiles?.email || 'N/A'}</p>
                   <p className="text-sm">Current Balance: {selectedUser.balance} credits</p>
                 </div>
                 

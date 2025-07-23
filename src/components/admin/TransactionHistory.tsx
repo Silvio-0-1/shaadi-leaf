@@ -17,13 +17,13 @@ interface Transaction {
   amount: number;
   transaction_type: string;
   description: string;
-  action_type: string;
-  reference_id: string;
+  action_type: string | null;
+  reference_id: string | null;
   created_at: string;
   profiles: {
-    full_name: string;
+    full_name: string | null;
     email: string;
-  };
+  } | null;
 }
 
 interface TransactionHistoryProps {
@@ -57,8 +57,20 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
 
       const { data, error } = await query;
 
-      if (error) throw error;
-      setTransactions(data || []);
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        toast.error('Failed to load transaction history');
+        return;
+      }
+
+      // Filter out transactions where profiles is null or has an error
+      const validTransactions = (data || []).filter(transaction => 
+        transaction.profiles && 
+        typeof transaction.profiles === 'object' && 
+        'email' in transaction.profiles
+      ) as Transaction[];
+
+      setTransactions(validTransactions);
     } catch (error) {
       console.error('Error fetching transactions:', error);
       toast.error('Failed to load transaction history');
@@ -78,8 +90,8 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
         ['Date', 'User', 'Email', 'Amount', 'Type', 'Description', 'Action Type', 'Reference ID'],
         ...filteredTransactions.map(t => [
           format(new Date(t.created_at), 'yyyy-MM-dd HH:mm:ss'),
-          t.profiles.full_name || 'N/A',
-          t.profiles.email,
+          t.profiles?.full_name || 'N/A',
+          t.profiles?.email || 'N/A',
           t.amount.toString(),
           t.transaction_type,
           t.description,
@@ -106,8 +118,8 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
   const getFilteredTransactions = () => {
     return transactions.filter(t => {
       const matchesSearch = searchTerm === '' || 
-        t.profiles.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.profiles?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.description.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesType = typeFilter === 'all' || t.transaction_type === typeFilter;
@@ -162,7 +174,7 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
             Transaction History
             {selectedUserId && (
               <Badge variant="outline">
-                {transactions[0]?.profiles.full_name || 'User'} Transactions
+                {transactions[0]?.profiles?.full_name || 'User'} Transactions
               </Badge>
             )}
           </CardTitle>
@@ -229,8 +241,8 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
                     {!selectedUserId && (
                       <TableCell>
                         <div>
-                          <div className="font-medium">{transaction.profiles.full_name || 'N/A'}</div>
-                          <div className="text-sm text-muted-foreground">{transaction.profiles.email}</div>
+                          <div className="font-medium">{transaction.profiles?.full_name || 'N/A'}</div>
+                          <div className="text-sm text-muted-foreground">{transaction.profiles?.email || 'N/A'}</div>
                         </div>
                       </TableCell>
                     )}
