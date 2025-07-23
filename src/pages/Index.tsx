@@ -167,7 +167,11 @@ const Index = () => {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center mb-4">
-                <Heart className="h-8 w-8 text-primary mr-3" fill="currentColor" />
+                <img 
+                  src="/lovable-uploads/5d39d537-b4a5-4aa1-9dc2-8715f6e06948.png" 
+                  alt="Shaadi Leaf Logo" 
+                  className="h-8 w-8 object-contain mr-3"
+                />
                 <span className="font-serif text-2xl font-semibold text-foreground">Shaadi Leaf</span>
               </div>
               <p className="text-muted-foreground mb-6 max-w-md">

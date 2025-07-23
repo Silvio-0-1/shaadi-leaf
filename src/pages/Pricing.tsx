@@ -378,7 +378,11 @@ const Pricing = () => {
       <footer className="bg-muted/30 py-12">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
-            <Heart className="h-6 w-6 text-primary mr-2" fill="currentColor" />
+            <img 
+              src="/lovable-uploads/5d39d537-b4a5-4aa1-9dc2-8715f6e06948.png" 
+              alt="Shaadi Leaf Logo" 
+              className="h-6 w-6 object-contain mr-2"
+            />
             <span className="font-serif text-xl font-semibold">Digital Wedding Cards</span>
           </div>
           <p className="text-muted-foreground mb-4">
