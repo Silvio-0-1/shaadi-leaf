@@ -28,6 +28,7 @@ const Dashboard = () => {
       const { data, error } = await supabase
         .from('wedding_cards')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) {
