@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -129,8 +130,8 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
   const getFilteredTransactions = () => {
     return transactions.filter(t => {
       const matchesSearch = searchTerm === '' || 
-        (t.profiles && t.profiles.email && t.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (t.profiles && t.profiles.full_name && t.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (t.profiles?.email && t.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (t.profiles?.full_name && t.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         t.description.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesType = typeFilter === 'all' || t.transaction_type === typeFilter;
