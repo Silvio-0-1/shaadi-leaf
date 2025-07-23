@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -113,8 +114,8 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
   };
 
   const filteredUsers = userCredits.filter(uc => 
-    uc.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    uc.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    (uc.profiles?.email && uc.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (uc.profiles?.full_name && uc.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getBadgeVariant = (balance: number) => {
