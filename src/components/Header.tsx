@@ -34,7 +34,11 @@ const Header = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <Heart className="h-8 w-8 text-primary" fill="currentColor" />
+              <img 
+                src="/lovable-uploads/5d39d537-b4a5-4aa1-9dc2-8715f6e06948.png" 
+                alt="Shaadi Leaf Logo" 
+                className="h-8 w-8 object-contain"
+              />
               <span className="font-serif text-xl font-semibold text-foreground">
                 Shaadi Leaf
               </span>
