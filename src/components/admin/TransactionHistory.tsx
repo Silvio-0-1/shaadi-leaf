@@ -69,7 +69,8 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
         profiles: transaction.profiles && 
                   typeof transaction.profiles === 'object' && 
                   !('error' in transaction.profiles) &&
-                  'email' in transaction.profiles
+                  'email' in transaction.profiles &&
+                  transaction.profiles.email
           ? transaction.profiles as { full_name: string | null; email: string }
           : null
       }));
@@ -122,8 +123,8 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
   const getFilteredTransactions = () => {
     return transactions.filter(t => {
       const matchesSearch = searchTerm === '' || 
-        (t.profiles?.email && t.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (t.profiles?.full_name && t.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (t.profiles && t.profiles.email && t.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (t.profiles && t.profiles.full_name && t.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         t.description.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesType = typeFilter === 'all' || t.transaction_type === typeFilter;

@@ -62,7 +62,8 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
         profiles: credit.profiles && 
                   typeof credit.profiles === 'object' && 
                   !('error' in credit.profiles) &&
-                  'email' in credit.profiles
+                  'email' in credit.profiles &&
+                  credit.profiles.email
           ? credit.profiles as { full_name: string | null; email: string }
           : null
       }));
@@ -114,8 +115,8 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
   };
 
   const filteredUsers = userCredits.filter(uc => 
-    (uc.profiles?.email && uc.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (uc.profiles?.full_name && uc.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    (uc.profiles && uc.profiles.email && uc.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (uc.profiles && uc.profiles.full_name && uc.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getBadgeVariant = (balance: number) => {
