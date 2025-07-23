@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,7 +65,10 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
       // Handle the case where profiles might be null or an error
       const validTransactions = (data || []).map(transaction => ({
         ...transaction,
-        profiles: transaction.profiles && typeof transaction.profiles === 'object' && !('error' in transaction.profiles)
+        profiles: transaction.profiles && 
+                  typeof transaction.profiles === 'object' && 
+                  !('error' in transaction.profiles) &&
+                  'email' in transaction.profiles
           ? transaction.profiles as { full_name: string | null; email: string }
           : null
       }));

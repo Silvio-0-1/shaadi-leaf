@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,7 +58,10 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
       // Handle the case where profiles might be null or an error
       const validUserCredits = (data || []).map(credit => ({
         ...credit,
-        profiles: credit.profiles && typeof credit.profiles === 'object' && !('error' in credit.profiles)
+        profiles: credit.profiles && 
+                  typeof credit.profiles === 'object' && 
+                  !('error' in credit.profiles) &&
+                  'email' in credit.profiles
           ? credit.profiles as { full_name: string | null; email: string }
           : null
       }));
