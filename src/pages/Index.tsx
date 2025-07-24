@@ -168,7 +168,7 @@ const Index = () => {
             <div className="md:col-span-2">
               <div className="flex items-center mb-4">
                 <img 
-                  src="/lovable-uploads/5d39d537-b4a5-4aa1-9dc2-8715f6e06948.png" 
+                  src="/lovable-uploads/f8c2c939-c72d-4f7b-ac30-2af4b750ac5b.png" 
                   alt="Shaadi Leaf Logo" 
                   className="h-8 w-8 object-contain mr-3"
                 />

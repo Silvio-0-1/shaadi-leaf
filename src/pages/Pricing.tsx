@@ -379,7 +379,7 @@ const Pricing = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/lovable-uploads/5d39d537-b4a5-4aa1-9dc2-8715f6e06948.png" 
+              src="/lovable-uploads/f8c2c939-c72d-4f7b-ac30-2af4b750ac5b.png" 
               alt="Shaadi Leaf Logo" 
               className="h-6 w-6 object-contain mr-2"
             />

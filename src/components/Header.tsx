@@ -35,7 +35,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <img 
-                src="/lovable-uploads/5d39d537-b4a5-4aa1-9dc2-8715f6e06948.png" 
+                src="/lovable-uploads/f8c2c939-c72d-4f7b-ac30-2af4b750ac5b.png" 
                 alt="Shaadi Leaf Logo" 
                 className="h-10 w-10 object-contain"
               />
