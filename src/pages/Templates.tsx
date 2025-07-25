@@ -31,7 +31,8 @@ const Templates = () => {
     styles: [],
     occasions: [],
     formats: [],
-    regions: []
+    regions: [],
+    tags: []
   });
 
   useEffect(() => {
@@ -61,7 +62,8 @@ const Templates = () => {
           supportsMultiPhoto: true,
           supportsVideo: false,
           backgroundImage: template.background_image,
-          defaultPositions: template.default_positions as any
+          defaultPositions: template.default_positions as any,
+          tags: template.tags || [] // Include tags for custom templates
         }));
         setCustomTemplates(formattedTemplates);
       }
@@ -155,6 +157,12 @@ const Templates = () => {
       if (filters.formats.includes('Multi-page') && template.supportsMultiPhoto) hasMatchingFormat = true;
       if (filters.formats.includes('Single-page') && !template.supportsMultiPhoto) hasMatchingFormat = true;
       if (!hasMatchingFormat && filters.formats.length > 0) return false;
+    }
+    
+    // Tags filter
+    if (filters.tags.length > 0 && template.tags) {
+      const hasMatchingTag = filters.tags.some(tag => template.tags!.includes(tag));
+      if (!hasMatchingTag) return false;
     }
     
     return true;
@@ -337,7 +345,7 @@ const Templates = () => {
                   variant="outline"
                   onClick={() => {
                     setSearchQuery('');
-                    setFilters({ styles: [], occasions: [], formats: [], regions: [] });
+                    setFilters({ styles: [], occasions: [], formats: [], regions: [], tags: [] });
                   }}
                   className="mt-4"
                 >

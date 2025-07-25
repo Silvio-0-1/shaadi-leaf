@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Crown, Heart, Eye, Palette } from 'lucide-react';
 import { Template } from '@/types';
+import { TemplateTagsDisplay } from '@/components/TemplateTagsDisplay';
 
 interface PremiumTemplateCardProps {
   template: Template;
@@ -92,6 +93,14 @@ const PremiumTemplateCard = ({
             {template.name}
           </h3>
           
+          {/* Tags */}
+          {template.category === 'custom' && (
+            <TemplateTagsDisplay 
+              tags={(template as any).tags || []} 
+              className="mb-2" 
+            />
+          )}
+
           {/* Color Palette Preview */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Colors:</span>

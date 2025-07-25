@@ -82,6 +82,7 @@ export interface Template {
   supportsVideo?: boolean;
   backgroundImage?: string; // Custom background image for template
   defaultPositions?: CardElements; // Predefined positions for elements
+  tags?: string[]; // Template tags (for custom templates)
 }
 
 export interface VideoCardData extends WeddingCardData {

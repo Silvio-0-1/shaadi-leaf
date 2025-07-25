@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface FilterOptions {
   styles: string[];
   occasions: string[];
   formats: string[];
   regions: string[];
+  tags: string[];
 }
 
 interface TemplateFiltersProps {
@@ -37,6 +39,26 @@ const filterCategories = {
 };
 
 const TemplateFilters = ({ onFiltersChange, selectedFilters }: TemplateFiltersProps) => {
+  const [availableTags, setAvailableTags] = useState<{name: string, color: string}[]>([]);
+
+  // Fetch admin-managed tags
+  useEffect(() => {
+    const fetchTags = async () => {
+      const { data, error } = await supabase
+        .from('template_tags')
+        .select('name, color')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching tags:', error);
+      } else {
+        setAvailableTags(data || []);
+      }
+    };
+    
+    fetchTags();
+  }, []);
+
   const toggleFilter = (category: keyof FilterOptions, value: string) => {
     const currentFilters = selectedFilters[category];
     const newFilters = currentFilters.includes(value)
@@ -54,7 +76,8 @@ const TemplateFilters = ({ onFiltersChange, selectedFilters }: TemplateFiltersPr
       styles: [],
       occasions: [],
       formats: [],
-      regions: []
+      regions: [],
+      tags: []
     });
   };
 
@@ -65,25 +88,34 @@ const TemplateFilters = ({ onFiltersChange, selectedFilters }: TemplateFiltersPr
   const renderFilterSection = (
     title: string, 
     category: keyof FilterOptions, 
-    options: string[]
+    options: string[],
+    tagColors?: {name: string, color: string}[]
   ) => (
     <div className="space-y-3">
       <h4 className="font-medium text-foreground">{title}</h4>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const isSelected = selectedFilters[category].includes(option);
+          const tagColor = tagColors?.find(t => t.name === option)?.color;
           return (
             <Badge
               key={option}
               variant={isSelected ? "default" : "outline"}
-              className={`cursor-pointer transition-all hover:scale-105 ${
+              className={`cursor-pointer transition-all hover:scale-105 flex items-center space-x-1 ${
                 isSelected 
                   ? 'bg-gradient-elegant text-white shadow-glow' 
                   : 'hover:bg-accent hover:text-accent-foreground'
               }`}
               onClick={() => toggleFilter(category, option)}
+              style={tagColor && !isSelected ? { borderColor: tagColor, color: tagColor } : undefined}
             >
-              {option}
+              {tagColor && (
+                <div 
+                  className="w-2 h-2 rounded-full" 
+                  style={{ backgroundColor: tagColor }}
+                />
+              )}
+              <span>{option}</span>
             </Badge>
           );
         })}
@@ -118,6 +150,12 @@ const TemplateFilters = ({ onFiltersChange, selectedFilters }: TemplateFiltersPr
         {renderFilterSection('Format', 'formats', filterCategories.formats)}
         <Separator />
         {renderFilterSection('Region/Culture', 'regions', filterCategories.regions)}
+        {availableTags.length > 0 && (
+          <>
+            <Separator />
+            {renderFilterSection('Tags', 'tags', availableTags.map(t => t.name), availableTags)}
+          </>
+        )}
       </CardContent>
     </Card>
   );

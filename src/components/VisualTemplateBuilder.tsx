@@ -127,9 +127,10 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
     }
   };
 
-  const handleAddTag = (tagName: string) => {
-    if (!selectedTags.includes(tagName)) {
-      setSelectedTags(prev => [...prev, tagName]);
+  const handleAddTag = (tagId: string) => {
+    const tag = availableTags.find(t => t.id === tagId);
+    if (tag && !selectedTags.includes(tag.name)) {
+      setSelectedTags(prev => [...prev, tag.name]);
     }
   };
 
@@ -410,7 +411,7 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
                 {availableTags
                   .filter(tag => !selectedTags.includes(tag.name))
                   .map((tag) => (
-                    <SelectItem key={tag.id} value={tag.name}>
+                    <SelectItem key={tag.id} value={tag.id}>
                       <div className="flex items-center space-x-2">
                         <div 
                           className="w-3 h-3 rounded-full" 
