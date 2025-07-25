@@ -58,6 +58,18 @@ const DraggableElement = ({
     e.preventDefault();
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!containerRef.current || isResizing) return;
+    
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({ x: touch.clientX, y: touch.clientY });
+    setStartPosition(position);
+    
+    // Prevent text selection during drag
+    e.preventDefault();
+  };
+
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
     if (!containerRef.current) return;
     
@@ -70,13 +82,26 @@ const DraggableElement = ({
     e.stopPropagation();
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleResizeTouchStart = (e: React.TouchEvent, direction: string) => {
+    if (!containerRef.current) return;
+    
+    const touch = e.touches[0];
+    setIsResizing(true);
+    setResizeDirection(direction);
+    setResizeStart({ x: touch.clientX, y: touch.clientY });
+    setStartSize(size);
+    
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleMove = (clientX: number, clientY: number) => {
     if (!containerRef.current) return;
 
     if (isDragging) {
       const containerRect = containerRef.current.getBoundingClientRect();
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
+      const deltaX = clientX - dragStart.x;
+      const deltaY = clientY - dragStart.y;
       
       // Calculate new position relative to container center
       const newX = startPosition.x + deltaX;
@@ -93,8 +118,8 @@ const DraggableElement = ({
       
       onMove({ x: constrainedX, y: constrainedY });
     } else if (isResizing && onResize) {
-      const deltaX = e.clientX - resizeStart.x;
-      const deltaY = e.clientY - resizeStart.y;
+      const deltaX = clientX - resizeStart.x;
+      const deltaY = clientY - resizeStart.y;
       
       let newWidth = startSize.width;
       let newHeight = startSize.height;
@@ -180,6 +205,17 @@ const DraggableElement = ({
     }
   };
 
+  const handleMouseMove = (e: MouseEvent) => {
+    handleMove(e.clientX, e.clientY);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY);
+    }
+  };
+
   const handleMouseUp = () => {
     setIsDragging(false);
     setIsResizing(false);
@@ -190,9 +226,13 @@ const DraggableElement = ({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleMouseUp);
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleMouseUp);
       };
     }
   }, [isDragging, isResizing, dragStart, startPosition, resizeStart, startSize, resizeDirection, aspectRatio]);
@@ -220,6 +260,7 @@ const DraggableElement = ({
         height: resizable ? `${size.height}px` : 'auto',
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
     >
       <div 
         className={`${isDragging || isResizing ? 'shadow-lg' : ''} transition-shadow relative w-full h-full`}
@@ -235,6 +276,7 @@ const DraggableElement = ({
                 className={`absolute w-3 h-3 bg-white border-2 border-primary opacity-0 group-hover:opacity-100 transition-opacity ${handle.position}`}
                 style={{ cursor: handle.cursor }}
                 onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
+                onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
               />
             ))}
           </>

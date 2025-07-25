@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ArrowLeft, Loader2, Settings } from 'lucide-react';
 import Header from '@/components/Header';
 import PremiumCustomizationForm from '@/components/PremiumCustomizationForm';
 import PremiumCardEditor from '@/components/PremiumCardEditor';
@@ -10,6 +11,7 @@ import DownloadSection from '@/components/DownloadSection';
 import { WeddingCardData } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeddingCards } from '@/hooks/useWeddingCards';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 
 const Customize = () => {
@@ -19,6 +21,7 @@ const Customize = () => {
   const templateParam = searchParams.get('template');
   const { user } = useAuth();
   const { saveCard, loadCard, saving } = useWeddingCards();
+  const isMobile = useIsMobile();
   
   const [cardData, setCardData] = useState<WeddingCardData>({
     brideName: '',
@@ -85,39 +88,50 @@ const Customize = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-8">
+      <div className="container mx-auto px-4 py-6 md:py-12">
+        <div className="mb-6 md:mb-8">
           <Button
             variant="outline"
             onClick={() => navigate('/templates')}
             className="mb-4"
+            size={isMobile ? "sm" : "default"}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Templates
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Panel - Customization Form */}
-          <div className="lg:col-span-1 space-y-6">
-            <PremiumCustomizationForm
-              cardData={cardData}
-              onDataChange={handleDataChange}
-            />
-          </div>
-          
-          {/* Right Panel - Premium Live Editor */}
-          <div className="lg:col-span-2 space-y-6">
-            <PremiumCardEditor cardData={cardData} />
-            
-            {/* Action Buttons - Always show if user is logged in and template is selected */}
-            <div className="space-y-4">
+        {isMobile ? (
+          /* Mobile Layout with Sheet for Controls */
+          <div className="space-y-6">
+            {/* Mobile Controls */}
+            <div className="flex justify-between items-center">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Edit Details
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[80vh]">
+                  <SheetHeader>
+                    <SheetTitle>Customize Your Wedding Card</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 overflow-y-auto">
+                    <PremiumCustomizationForm
+                      cardData={cardData}
+                      onDataChange={handleDataChange}
+                    />
+                  </div>
+                </SheetContent>
+              </Sheet>
+              
               {user && cardData.templateId && (
                 <Button
                   onClick={handleSaveCard}
                   disabled={saving}
-                  className="wedding-gradient text-white w-full h-12"
-                  size="lg"
+                  className="wedding-gradient text-white"
+                  size="sm"
                 >
                   {saving ? (
                     <>
@@ -125,18 +139,65 @@ const Customize = () => {
                       Saving...
                     </>
                   ) : (
-                    editId ? 'Update Card' : 'Save Card'
+                    editId ? 'Update' : 'Save'
                   )}
                 </Button>
               )}
+            </div>
+            
+            {/* Mobile Card Editor */}
+            <div className="space-y-4">
+              <PremiumCardEditor cardData={cardData} />
               
-              {/* Download Section - Always show if template is selected */}
+              {/* Download Section */}
               {cardData.templateId && (
                 <DownloadSection cardId="card-preview" cardData={cardData} />
               )}
             </div>
           </div>
-        </div>
+        ) : (
+          /* Desktop Layout */
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Panel - Customization Form */}
+            <div className="lg:col-span-1 space-y-6">
+              <PremiumCustomizationForm
+                cardData={cardData}
+                onDataChange={handleDataChange}
+              />
+            </div>
+            
+            {/* Right Panel - Premium Live Editor */}
+            <div className="lg:col-span-2 space-y-6">
+              <PremiumCardEditor cardData={cardData} />
+              
+              {/* Action Buttons - Always show if user is logged in and template is selected */}
+              <div className="space-y-4">
+                {user && cardData.templateId && (
+                  <Button
+                    onClick={handleSaveCard}
+                    disabled={saving}
+                    className="wedding-gradient text-white w-full h-12"
+                    size="lg"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      editId ? 'Update Card' : 'Save Card'
+                    )}
+                  </Button>
+                )}
+                
+                {/* Download Section - Always show if template is selected */}
+                {cardData.templateId && (
+                  <DownloadSection cardId="card-preview" cardData={cardData} />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

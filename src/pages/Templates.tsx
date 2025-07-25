@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ArrowLeft, Plus, Search, Filter, SlidersHorizontal } from 'lucide-react';
 import Header from '@/components/Header';
 import VisualTemplateBuilder from '@/components/VisualTemplateBuilder';
@@ -11,6 +12,7 @@ import TemplateFilters, { FilterOptions } from '@/components/TemplateFilters';
 import TemplatePreviewModal from '@/components/TemplatePreviewModal';
 import FeaturedTemplatesCarousel from '@/components/FeaturedTemplatesCarousel';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Template } from '@/types';
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 const Templates = () => {
   const navigate = useNavigate();
   const { isAdmin, loading: roleLoading } = useUserRole();
+  const isMobile = useIsMobile();
   const [showCreator, setShowCreator] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -209,12 +212,12 @@ const Templates = () => {
       
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-background/90 to-transparent">
-        <div className="container mx-auto px-4 py-12">
-          <div className="text-center space-y-4 mb-8">
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground">
+        <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="text-center space-y-4 mb-6 md:mb-8">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground">
               Beautiful Wedding Templates
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Choose from our curated collection of premium wedding invitation templates. 
               Each design is crafted with love and attention to detail.
             </p>
@@ -230,11 +233,12 @@ const Templates = () => {
 
       <div className="container mx-auto px-4 py-8">
         {/* Controls */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="mb-6 md:mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 items-start sm:items-center justify-between">
             <Button
               variant="outline"
               onClick={() => navigate('/')}
+              size={isMobile ? "sm" : "default"}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
@@ -244,15 +248,16 @@ const Templates = () => {
               <Button
                 onClick={() => setShowCreator(true)}
                 className="bg-gradient-elegant hover:opacity-90"
+                size={isMobile ? "sm" : "default"}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Create Custom Template
+                {isMobile ? "Create" : "Create Custom Template"}
               </Button>
             )}
           </div>
 
           {/* Search and Controls */}
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -265,7 +270,7 @@ const Templates = () => {
             
             <div className="flex gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className={isMobile ? "w-32" : "w-48"}>
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -276,53 +281,79 @@ const Templates = () => {
                 </SelectContent>
               </Select>
               
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
+              {isMobile ? (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[80vh]">
+                    <SheetHeader>
+                      <SheetTitle>Filter Templates</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <TemplateFilters
+                        selectedFilters={filters}
+                        onFiltersChange={setFilters}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+              )}
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar Filters */}
-          <div className={`lg:block ${showFilters ? 'block' : 'hidden'}`}>
-            <TemplateFilters
-              selectedFilters={filters}
-              onFiltersChange={setFilters}
-            />
-          </div>
+        <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
+          {/* Sidebar Filters - Desktop only, mobile uses Sheet */}
+          {!isMobile && (
+            <div className={`lg:block ${showFilters ? 'block' : 'hidden'}`}>
+              <TemplateFilters
+                selectedFilters={filters}
+                onFiltersChange={setFilters}
+              />
+            </div>
+          )}
 
           {/* Templates Grid */}
-          <div className="lg:col-span-3">
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-muted-foreground">
+          <div className={isMobile ? "col-span-1" : "lg:col-span-3"}>
+            <div className="mb-4 md:mb-6 flex items-center justify-between">
+              <p className="text-sm md:text-base text-muted-foreground">
                 Showing {sortedTemplates.length} of {allTemplates.length} templates
               </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden"
-              >
-                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                Toggle Filters
-              </Button>
+              {!isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden"
+                >
+                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  Toggle Filters
+                </Button>
+              )}
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="aspect-[3/4] bg-muted rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {sortedTemplates.map((template) => (
                   <PremiumTemplateCard
                     key={template.id}
@@ -337,8 +368,8 @@ const Templates = () => {
             )}
 
             {sortedTemplates.length === 0 && !loading && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">
+              <div className="text-center py-8 md:py-12">
+                <p className="text-base md:text-lg text-muted-foreground">
                   No templates found matching your criteria.
                 </p>
                 <Button
@@ -348,6 +379,7 @@ const Templates = () => {
                     setFilters({ styles: [], occasions: [], formats: [], regions: [], tags: [] });
                   }}
                   className="mt-4"
+                  size={isMobile ? "sm" : "default"}
                 >
                   Clear All Filters
                 </Button>
