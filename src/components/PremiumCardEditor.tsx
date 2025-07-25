@@ -289,23 +289,29 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
 
   return (
     <div className="space-y-6">
-      {/* Edit Mode Toggle */}
-      <div className="flex items-center justify-center gap-4 p-4 bg-gradient-to-r from-muted/20 to-muted/30 rounded-xl border">
-        <div className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-          !isEditMode ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-        }`}>
-          View Mode
-        </div>
-        <Switch
-          id="premium-edit-mode"
-          checked={isEditMode}
-          onCheckedChange={setIsEditMode}
-          className="data-[state=checked]:bg-orange-500"
-        />
-        <div className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-          isEditMode ? 'bg-orange-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
-        }`}>
-          Edit Mode
+      {/* Mode Toggle */}
+      <div className="flex items-center justify-center">
+        <div className="inline-flex items-center bg-muted/50 p-1 rounded-xl border shadow-sm">
+          <button
+            onClick={() => setIsEditMode(false)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              !isEditMode 
+                ? 'bg-background text-foreground shadow-sm border' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+            }`}
+          >
+            👁️ View Mode
+          </button>
+          <button
+            onClick={() => setIsEditMode(true)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              isEditMode 
+                ? 'bg-orange-500 text-white shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+            }`}
+          >
+            ✏️ Edit Mode
+          </button>
         </div>
       </div>
 
