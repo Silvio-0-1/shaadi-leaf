@@ -60,7 +60,7 @@ const TemplateFilters = ({ onFiltersChange, selectedFilters }: TemplateFiltersPr
   }, []);
 
   const toggleFilter = (category: keyof FilterOptions, value: string) => {
-    const currentFilters = selectedFilters[category];
+    const currentFilters = selectedFilters[category] || [];
     const newFilters = currentFilters.includes(value)
       ? currentFilters.filter(f => f !== value)
       : [...currentFilters, value];
@@ -95,7 +95,8 @@ const TemplateFilters = ({ onFiltersChange, selectedFilters }: TemplateFiltersPr
       <h4 className="font-medium text-foreground">{title}</h4>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
-          const isSelected = selectedFilters[category].includes(option);
+          const categoryFilters = selectedFilters[category] || [];
+          const isSelected = categoryFilters.includes(option);
           const tagColor = tagColors?.find(t => t.name === option)?.color;
           return (
             <Badge
