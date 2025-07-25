@@ -290,18 +290,23 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
   return (
     <div className="space-y-6">
       {/* Edit Mode Toggle */}
-      <div className="flex items-center justify-center space-x-3 p-3 bg-muted/30 rounded-lg">
-        <Label htmlFor="premium-edit-mode" className="text-sm font-medium">
+      <div className="flex items-center justify-center gap-4 p-4 bg-gradient-to-r from-muted/20 to-muted/30 rounded-xl border">
+        <div className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          !isEditMode ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+        }`}>
           View Mode
-        </Label>
+        </div>
         <Switch
           id="premium-edit-mode"
           checked={isEditMode}
           onCheckedChange={setIsEditMode}
+          className="data-[state=checked]:bg-orange-500"
         />
-        <Label htmlFor="premium-edit-mode" className="text-sm font-medium">
+        <div className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          isEditMode ? 'bg-orange-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
+        }`}>
           Edit Mode
-        </Label>
+        </div>
       </div>
 
       {/* Premium Control Panel - Only show in edit mode */}
@@ -313,11 +318,6 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
                 <Move className="h-3 w-3 mr-1" />
                 Edit Mode Active
               </Badge>
-              {selectedElement && (
-                <Badge variant="outline" className="text-xs">
-                  Selected: {selectedElement}
-                </Badge>
-              )}
             </div>
             
             <div className="flex items-center gap-2">

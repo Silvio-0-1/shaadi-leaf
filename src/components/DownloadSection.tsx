@@ -102,89 +102,101 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
           Export & Share
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {/* Download Image */}
-        <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <Image className="h-4 w-4 text-blue-600" />
-            </div>
-            <div>
-              <h4 className="font-medium text-sm">High Resolution Image</h4>
-              <p className="text-xs text-muted-foreground">PNG format, perfect for printing</p>
+      <CardContent className="space-y-4">
+        {/* Download Options Grid */}
+        <div className="grid gap-3">
+          {/* Download Image */}
+          <div className="p-4 border rounded-xl bg-gradient-to-r from-blue-50/50 to-blue-100/30 hover:shadow-sm transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="p-2.5 bg-blue-100 rounded-lg shrink-0">
+                  <Image className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-sm text-blue-900">High-Res Image</h4>
+                  <p className="text-xs text-blue-700/80">PNG • Perfect for printing</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:ml-auto">
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
+                  {CREDIT_COSTS.DOWNLOAD_HIGH_RES} credits
+                </Badge>
+                <CreditActionButton
+                  creditCost={CREDIT_COSTS.DOWNLOAD_HIGH_RES}
+                  actionType="download_image"
+                  actionName="Download Image"
+                  onAction={handleDownloadImage}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  Download
+                </CreditActionButton>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {CREDIT_COSTS.DOWNLOAD_HIGH_RES} credits
-            </Badge>
-            <CreditActionButton
-              creditCost={CREDIT_COSTS.DOWNLOAD_HIGH_RES}
-              actionType="download_image"
-              actionName="Download Image"
-              onAction={handleDownloadImage}
-              variant="outline"
-              size="sm"
-            >
-              Download
-            </CreditActionButton>
-          </div>
-        </div>
 
-        {/* Download PDF */}
-        <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-50 rounded-lg">
-              <FileText className="h-4 w-4 text-red-600" />
-            </div>
-            <div>
-              <h4 className="font-medium text-sm">PDF Document</h4>
-              <p className="text-xs text-muted-foreground">Printable PDF format</p>
+          {/* Download PDF */}
+          <div className="p-4 border rounded-xl bg-gradient-to-r from-red-50/50 to-red-100/30 hover:shadow-sm transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="p-2.5 bg-red-100 rounded-lg shrink-0">
+                  <FileText className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-sm text-red-900">PDF Document</h4>
+                  <p className="text-xs text-red-700/80">PDF • Ready to print</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:ml-auto">
+                <Badge variant="secondary" className="text-xs bg-red-100 text-red-700 border-red-200">
+                  {CREDIT_COSTS.DOWNLOAD_PDF} credits
+                </Badge>
+                <CreditActionButton
+                  creditCost={CREDIT_COSTS.DOWNLOAD_PDF}
+                  actionType="download_pdf"
+                  actionName="Download PDF"
+                  onAction={handleDownloadPDF}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white border-red-200 text-red-700 hover:bg-red-50"
+                >
+                  Download
+                </CreditActionButton>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {CREDIT_COSTS.DOWNLOAD_PDF} credits
-            </Badge>
-            <CreditActionButton
-              creditCost={CREDIT_COSTS.DOWNLOAD_PDF}
-              actionType="download_pdf"
-              actionName="Download PDF"
-              onAction={handleDownloadPDF}
-              variant="outline"
-              size="sm"
-            >
-              Download
-            </CreditActionButton>
-          </div>
-        </div>
 
-        {/* Create Magic Link */}
-        <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-50 rounded-lg">
-              <Share2 className="h-4 w-4 text-purple-600" />
+          {/* Create Magic Link */}
+          <div className="p-4 border rounded-xl bg-gradient-to-r from-purple-50/50 to-purple-100/30 hover:shadow-sm transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="p-2.5 bg-purple-100 rounded-lg shrink-0">
+                  <Share2 className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-sm text-purple-900">Magic Link</h4>
+                  <p className="text-xs text-purple-700/80">Share instantly with anyone</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:ml-auto">
+                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
+                  {CREDIT_COSTS.SHARE_MAGIC_LINK} credits
+                </Badge>
+                <CreditActionButton
+                  creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
+                  actionType="share_magic_link"
+                  actionName="Create Magic Link"
+                  onAction={handleShareableLink}
+                  variant="outline"
+                  size="sm"
+                  disabled={shareLoading}
+                  className="bg-white border-purple-200 text-purple-700 hover:bg-purple-50"
+                >
+                  {shareLoading ? 'Creating...' : 'Create'}
+                </CreditActionButton>
+              </div>
             </div>
-            <div>
-              <h4 className="font-medium text-sm">Magic Link</h4>
-              <p className="text-xs text-muted-foreground">Share your card with anyone</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {CREDIT_COSTS.SHARE_MAGIC_LINK} credits
-            </Badge>
-            <CreditActionButton
-              creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
-              actionType="share_magic_link"
-              actionName="Create Magic Link"
-              onAction={handleShareableLink}
-              variant="outline"
-              size="sm"
-              disabled={shareLoading}
-            >
-              {shareLoading ? 'Creating...' : 'Create'}
-            </CreditActionButton>
           </div>
         </div>
         

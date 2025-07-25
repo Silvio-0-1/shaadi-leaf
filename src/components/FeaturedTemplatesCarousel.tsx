@@ -135,16 +135,16 @@ const FeaturedTemplatesCarousel = ({
           </div>
         </div>
         
-        {/* Indicators */}
-        <div className="flex justify-center gap-2 mt-6">
+        {/* Progress Indicators */}
+        <div className="flex justify-center gap-1 mt-6">
           {featuredTemplates.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`h-1 rounded-full transition-all duration-300 ${
                 index === currentIndex 
-                  ? 'bg-primary w-6' 
-                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  ? 'bg-primary w-8' 
+                  : 'bg-muted-foreground/20 w-4 hover:bg-muted-foreground/40'
               }`}
             />
           ))}
