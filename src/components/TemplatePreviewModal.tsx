@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +32,10 @@ const TemplatePreviewModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl h-[95vh] p-0 border-0 bg-gradient-to-br from-background via-background/98 to-background/95 backdrop-blur-xl flex flex-col [&>button]:hidden">
+        <DialogTitle className="sr-only">{template.name} Template Preview</DialogTitle>
+        <DialogDescription className="sr-only">
+          Preview and customize the {template.name} wedding invitation template
+        </DialogDescription>
         
         {/* Header */}
         <div className="relative border-b border-border/50 bg-background/80 backdrop-blur-sm">
