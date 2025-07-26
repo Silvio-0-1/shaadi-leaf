@@ -91,7 +91,7 @@ const FeaturedTemplatesCarousel = ({
               
               <Button 
                 onClick={() => onTemplateSelect(currentTemplate)}
-                className="bg-gradient-elegant hover:opacity-90 text-white w-full sm:w-auto"
+                className="bg-white text-black hover:bg-gray-100 border border-gray-200 shadow-sm w-full sm:w-auto font-medium"
                 size="lg"
               >
                 Start Creating
@@ -134,19 +134,18 @@ const FeaturedTemplatesCarousel = ({
           </div>
         </div>
         
-        {/* Template Navigation Dots - Hidden on Mobile */}
-        <div className="hidden md:flex justify-center gap-2 mt-6">
-          {featuredTemplates.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-primary border-primary shadow-sm scale-110' 
-                  : 'bg-transparent border-muted-foreground/30 hover:border-muted-foreground/60 hover:scale-105'
-              }`}
+        {/* Progress Bar */}
+        <div className="mt-6 px-4">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+            <span>{currentIndex + 1} of {featuredTemplates.length}</span>
+            <span className="text-primary font-medium">{currentTemplate.name}</span>
+          </div>
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out rounded-full"
+              style={{ width: `${((currentIndex + 1) / featuredTemplates.length) * 100}%` }}
             />
-          ))}
+          </div>
         </div>
       </CardContent>
     </Card>
