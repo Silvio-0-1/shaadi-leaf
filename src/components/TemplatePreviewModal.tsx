@@ -31,7 +31,7 @@ const TemplatePreviewModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl h-[95vh] p-0 border-0 bg-gradient-to-br from-background via-background/98 to-background/95 backdrop-blur-xl flex flex-col">
+      <DialogContent className="max-w-7xl h-[95vh] p-0 border-0 bg-gradient-to-br from-background via-background/98 to-background/95 backdrop-blur-xl flex flex-col [&>button]:hidden">
         
         {/* Header */}
         <div className="relative border-b border-border/50 bg-background/80 backdrop-blur-sm">
@@ -42,9 +42,9 @@ const TemplatePreviewModal = ({
                 <h1 className="text-2xl lg:text-3xl font-serif font-bold text-foreground">{template.name}</h1>
               </div>
               {template.isPremium && (
-                <Badge className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-3 py-1 text-sm font-medium">
+                <Badge className="bg-gradient-to-r from-violet-500 to-purple-600 text-white px-3 py-1 text-sm font-medium shadow-lg">
                   <Crown className="h-4 w-4 mr-1" />
-                  Premium Template
+                  Premium
                 </Badge>
               )}
             </div>
