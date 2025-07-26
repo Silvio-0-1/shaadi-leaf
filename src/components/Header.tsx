@@ -126,11 +126,6 @@ const Header = () => {
                       Sign In
                     </Button>
                   </Link>
-                  <Link to="/auth">
-                    <Button className="wedding-gradient text-white">
-                      Get Started
-                    </Button>
-                  </Link>
                 </div>
               )}
             </div>
@@ -209,20 +204,15 @@ const Header = () => {
                         Sign Out
                       </Button>
                     </div>
-                  ) : (
+                   ) : (
                      <div className="space-y-3">
                        <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                          <Button variant="outline" className="w-full justify-start touch-manipulation min-h-[44px]">
                            Sign In
                          </Button>
                        </Link>
-                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                         <Button className="wedding-gradient text-white w-full touch-manipulation min-h-[44px]">
-                           Get Started
-                         </Button>
-                       </Link>
                      </div>
-                  )}
+                   )}
                 </div>
               </nav>
             </div>

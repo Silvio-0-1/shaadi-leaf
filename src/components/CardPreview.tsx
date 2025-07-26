@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
+import AuthRequiredModal from './AuthRequiredModal';
 import InteractiveCardPreview from './InteractiveCardPreview';
 import { toast } from 'sonner';
 
@@ -22,6 +23,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   const { user } = useAuth();
   const { deductCredits, hasEnoughCredits } = useCredits();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authAction, setAuthAction] = useState('');
   const [pendingDownload, setPendingDownload] = useState<'image' | 'pdf' | 'video' | null>(null);
   const [isInteractive, setIsInteractive] = useState(false);
   const [savedPositions, setSavedPositions] = useState<CardElements | null>(null);
@@ -50,8 +53,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const handleDownloadAttempt = (type: 'image' | 'pdf' | 'video') => {
     if (!user) {
-      setPendingDownload(type);
-      setShowAuthDialog(true);
+      setAuthAction(type === 'image' ? 'download image' : type === 'pdf' ? 'download PDF' : 'create video');
+      setShowAuthModal(true);
       return;
     }
     
@@ -703,6 +706,12 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         open={showAuthDialog}
         onOpenChange={setShowAuthDialog}
         onSuccess={handleAuthSuccess}
+      />
+
+      <AuthRequiredModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        action={authAction}
       />
     </>
   );

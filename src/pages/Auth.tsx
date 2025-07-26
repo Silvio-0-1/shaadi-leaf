@@ -74,8 +74,12 @@ const Auth = () => {
           </Button>
           
           <div className="flex items-center justify-center mb-6">
-            <Heart className="h-8 w-8 text-primary mr-2" fill="currentColor" />
-            <span className="font-serif text-2xl font-semibold">Digital Wedding Cards</span>
+            <img 
+              src="/lovable-uploads/f8c2c939-c72d-4f7b-ac30-2af4b750ac5b.png" 
+              alt="Shaadi Leaf Logo" 
+              className="h-8 w-8 object-contain mr-2"
+            />
+            <span className="font-serif text-2xl font-semibold">Shaadi Leaf</span>
           </div>
         </div>
 

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, ReactNode } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PremiumDraggableElementProps {
   id: string;
@@ -41,7 +40,6 @@ const PremiumDraggableElement = ({
   const [resizeDirection, setResizeDirection] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<number>(1);
   const elementRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
 
   // Calculate aspect ratio
   useEffect(() => {
@@ -53,6 +51,18 @@ const PremiumDraggableElement = ({
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     onSelect?.(id);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!containerRef.current || isResizing) return;
+    
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setStartPosition(position);
+    onSelect?.(id);
+    
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -68,13 +78,12 @@ const PremiumDraggableElement = ({
     e.stopPropagation();
   };
 
-  const handleResizeTouchStart = (e: React.TouchEvent, direction: string) => {
+  const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
     if (!containerRef.current) return;
     
-    const touch = e.touches[0];
     setIsResizing(true);
     setResizeDirection(direction);
-    setResizeStart({ x: touch.clientX, y: touch.clientY });
+    setResizeStart({ x: e.clientX, y: e.clientY });
     setStartSize(size);
     onSelect?.(id);
     
@@ -82,24 +91,13 @@ const PremiumDraggableElement = ({
     e.stopPropagation();
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current || isResizing) return;
-    
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setStartPosition(position);
-    onSelect?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
+  const handleResizeTouchStart = (e: React.TouchEvent, direction: string) => {
     if (!containerRef.current) return;
     
+    const touch = e.touches[0];
     setIsResizing(true);
     setResizeDirection(direction);
-    setResizeStart({ x: e.clientX, y: e.clientY });
+    setResizeStart({ x: touch.clientX, y: touch.clientY });
     setStartSize(size);
     onSelect?.(id);
     
@@ -272,13 +270,13 @@ const PremiumDraggableElement = ({
           <div className="absolute -inset-2 border-2 border-primary/40 rounded-md bg-primary/5 pointer-events-none animate-pulse" />
         )}
         
-        {/* Resize handles */}
+        {/* Resize handles - larger for mobile */}
         {resizable && isSelected && (
           <>
             {resizeHandles.map((handle) => (
               <div
                 key={handle.direction}
-                className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-white border-2 border-primary rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-110 transition-all duration-150 ${handle.position}`}
+                className={`absolute w-6 h-6 bg-white border-2 border-primary rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-110 transition-all duration-150 ${handle.position}`}
                 style={{ cursor: handle.cursor }}
                 onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
                 onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}

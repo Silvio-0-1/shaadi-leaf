@@ -66,8 +66,9 @@ const DraggableElement = ({
     setDragStart({ x: touch.clientX, y: touch.clientY });
     setStartPosition(position);
     
-    // Prevent text selection during drag
+    // Prevent text selection and scrolling during drag
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
@@ -252,15 +253,16 @@ const DraggableElement = ({
     <div
       ref={elementRef}
       className={`absolute select-none ${isDragging || isResizing ? 'z-50' : 'z-10'} ${!isResizing ? 'cursor-move' : ''} group`}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       style={{
         transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
         left: '50%',
         top: '50%',
         width: resizable ? `${size.width}px` : 'auto',
         height: resizable ? `${size.height}px` : 'auto',
+        touchAction: 'none', // Prevent default touch behaviors
       }}
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
     >
       <div 
         className={`${isDragging || isResizing ? 'shadow-lg' : ''} transition-shadow relative w-full h-full`}
