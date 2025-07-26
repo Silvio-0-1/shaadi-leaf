@@ -133,8 +133,7 @@ const TemplatePreviewModal = ({
                   
                   {/* Section Header */}
                   <div className="text-center lg:text-left">
-                    <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-2">Template Details</h2>
-                    <p className="text-muted-foreground">Everything you need to know about this template</p>
+                    <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-6">Template Details</h2>
                   </div>
                   
                   {/* Details Grid */}
