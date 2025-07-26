@@ -67,9 +67,6 @@ const FeaturedTemplatesCarousel = ({
                 )}
               </div>
               
-              <p className="text-muted-foreground text-lg">
-                Elegant {currentTemplate.category} design with customizable elements and premium features.
-              </p>
               
               {/* Features */}
               <div className="flex flex-wrap gap-2">
@@ -91,7 +88,7 @@ const FeaturedTemplatesCarousel = ({
               
               <Button 
                 onClick={() => onTemplateSelect(currentTemplate)}
-                className="bg-white text-black hover:bg-gray-100 border border-gray-200 shadow-sm w-full sm:w-auto font-medium"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto font-medium"
                 size="lg"
               >
                 Start Creating
