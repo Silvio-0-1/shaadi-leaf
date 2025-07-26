@@ -197,26 +197,26 @@ const Index = () => {
               <ul className="space-y-2 text-muted-foreground text-sm sm:text-base">
                 <li><a href="/templates" className="hover:text-primary transition-colors">Templates</a></li>
                 <li><a href="/pricing" className="hover:text-primary transition-colors">Pricing</a></li>
-                <li><a href="/dashboard" className="hover:text-primary transition-colors">Dashboard</a></li>
+                <li><a href="/dashboard" className="hover:text-primary transition-colors">My Cards</a></li>
                 <li><a href="/contact" className="hover:text-primary transition-colors">Contact</a></li>
               </ul>
             </div>
 
             {/* Contact */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm sm:text-base">Contact</h4>
+              <h4 className="font-semibold text-foreground mb-4 text-sm sm:text-base">Contact Us</h4>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-center">
                   <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm break-all">hello@shaadileaf.com</span>
+                  <span className="text-xs sm:text-sm break-all">contact@shaadileaf.com</span>
                 </li>
-                <li className="flex items-center">
+                {/* <li className="flex items-center">
                   <Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
                   <span className="text-xs sm:text-sm">+1 (555) 123-4567</span>
-                </li>
+                </li> */}
                 <li className="flex items-center">
                   <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm">San Francisco, CA</span>
+                  <span className="text-xs sm:text-sm">Kolkata, India</span>
                 </li>
               </ul>
             </div>
@@ -224,7 +224,7 @@ const Index = () => {
 
           <div className="border-t border-border/50 pt-6 sm:pt-8 text-center">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center justify-center flex-wrap">
-              <span>© 2024 Shaadi Leaf. Made with</span>
+              <span>© 2025 Shaadi Leaf. Made with</span>
               <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-primary inline mx-1" fill="currentColor" />
               <span>for couples everywhere.</span>
             </p>
