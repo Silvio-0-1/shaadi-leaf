@@ -68,8 +68,7 @@ const FeaturedTemplatesCarousel = ({
               </div>
               
               <p className="text-muted-foreground text-lg">
-                Create stunning wedding invitations with our most popular {currentTemplate.category} template.
-                Perfect for modern couples looking for elegance and sophistication.
+                Elegant {currentTemplate.category} design with customizable elements and premium features.
               </p>
               
               {/* Features */}
@@ -135,16 +134,16 @@ const FeaturedTemplatesCarousel = ({
           </div>
         </div>
         
-        {/* Progress Indicators */}
-        <div className="flex justify-center gap-1 mt-6">
+        {/* Template Navigation Dots */}
+        <div className="flex justify-center gap-2 mt-6">
           {featuredTemplates.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`h-1 rounded-full transition-all duration-300 ${
+              className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
                 index === currentIndex 
-                  ? 'bg-primary w-8' 
-                  : 'bg-muted-foreground/20 w-4 hover:bg-muted-foreground/40'
+                  ? 'bg-primary border-primary shadow-sm scale-110' 
+                  : 'bg-transparent border-muted-foreground/30 hover:border-muted-foreground/60 hover:scale-105'
               }`}
             />
           ))}
