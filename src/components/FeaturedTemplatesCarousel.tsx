@@ -91,7 +91,7 @@ const FeaturedTemplatesCarousel = ({
               
               <Button 
                 onClick={() => onTemplateSelect(currentTemplate)}
-                className="bg-gradient-elegant hover:opacity-90 text-white"
+                className="bg-gradient-elegant hover:opacity-90 text-white w-full sm:w-auto"
                 size="lg"
               >
                 Start Creating
@@ -134,8 +134,8 @@ const FeaturedTemplatesCarousel = ({
           </div>
         </div>
         
-        {/* Template Navigation Dots */}
-        <div className="flex justify-center gap-2 mt-6">
+        {/* Template Navigation Dots - Hidden on Mobile */}
+        <div className="hidden md:flex justify-center gap-2 mt-6">
           {featuredTemplates.map((_, index) => (
             <button
               key={index}
