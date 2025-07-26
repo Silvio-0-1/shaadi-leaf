@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -44,11 +44,15 @@ const AuthRequiredModal = ({
       <Dialog open={isOpen && !showAuthDialog} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-md mx-4">
           <DialogHeader>
-            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full">
-              <Heart className="w-8 h-8 text-primary" fill="currentColor" />
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4">
+              <img 
+                src="/lovable-uploads/f8c2c939-c72d-4f7b-ac30-2af4b750ac5b.png" 
+                alt="Shaadi Leaf" 
+                className="w-12 h-12 object-contain"
+              />
             </div>
             <DialogTitle className="text-center text-xl">
-              Sign In Required
+              Shaadi Leaf
             </DialogTitle>
             <DialogDescription className="text-center text-base">
               <span className="text-primary font-medium">
@@ -58,9 +62,6 @@ const AuthRequiredModal = ({
           </DialogHeader>
 
           <div className="space-y-4 mt-6">
-            <p className="text-sm text-muted-foreground text-center">
-              Create your account or sign in to access all features and save your beautiful wedding cards.
-            </p>
             
             <div className="flex flex-col gap-3">
               <Button 
