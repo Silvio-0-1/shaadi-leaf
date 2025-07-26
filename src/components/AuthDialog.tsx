@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -85,19 +85,18 @@ const AuthDialog = ({ open, onOpenChange, onSuccess }: AuthDialogProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
-            <Heart className="h-6 w-6 text-primary mr-2" fill="currentColor" />
-            <span className="font-serif text-lg font-semibold">Digital Wedding Cards</span>
+            <img 
+              src="/lovable-uploads/f8c2c939-c72d-4f7b-ac30-2af4b750ac5b.png" 
+              alt="Shaadi Leaf" 
+              className="w-8 h-8 object-contain mr-2"
+            />
+            <span className="font-serif text-lg font-semibold">Shaadi Leaf</span>
           </div>
           <DialogTitle className="text-xl">
-            {isLogin ? 'Sign In to Download' : 'Create Account'}
+            {isLogin ? 'Sign In' : 'Create Account'}
           </DialogTitle>
           <DialogDescription className="text-center">
             <span className="text-primary font-medium">You can download for free after signing in</span>
-            <br />
-            {isLogin 
-              ? 'Sign in to download your beautiful wedding card'
-              : 'Create an account to download and save your wedding cards'
-            }
           </DialogDescription>
         </DialogHeader>
 
