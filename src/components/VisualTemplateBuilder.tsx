@@ -12,6 +12,7 @@ import { Template, CardElements, ElementPosition } from '@/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import AuthRequiredModal from './AuthRequiredModal';
 import DraggableElement from '@/components/DraggableElement';
 
 interface VisualTemplateBuilderProps {
@@ -39,6 +40,8 @@ const ELEMENT_CONFIGS: ElementConfig[] = [
 
 const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps) => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -187,9 +190,9 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
       toast.error('Please upload a background image');
       return;
     }
-
+    
     if (!user) {
-      toast.error('You must be logged in to create templates');
+      setShowAuthModal(true);
       return;
     }
 
@@ -461,6 +464,12 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
           <Save className="h-4 w-4 mr-2" />
           Save Template
         </Button>
+
+        <AuthRequiredModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          action="create templates"
+        />
       </Card>
 
       {/* Right Panel - Canvas */}

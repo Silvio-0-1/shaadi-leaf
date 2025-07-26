@@ -2,20 +2,11 @@
 import { Heart, Sparkles, Users, Download, ArrowRight, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import AuthRequiredModal from '@/components/AuthRequiredModal';
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleGetStarted = () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
     navigate('/templates');
   };
 
@@ -189,12 +180,6 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
-
-      <AuthRequiredModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        action="create cards"
-      />
     </section>
   );
 };

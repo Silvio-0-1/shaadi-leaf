@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Upload, Palette, Type, Save, Eye } from 'lucide-react';
+import AuthRequiredModal from './AuthRequiredModal';
 import { Template, CardElements } from '@/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +18,8 @@ interface CustomTemplateCreatorProps {
 
 const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps) => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [templateData, setTemplateData] = useState({
     name: '',
     category: 'custom' as const,
@@ -81,9 +84,9 @@ const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps
       toast.error('Please enter a template name');
       return;
     }
-
+    
     if (!user) {
-      toast.error('You must be logged in to create templates');
+      setShowAuthModal(true);
       return;
     }
 
@@ -371,6 +374,12 @@ const CustomTemplateCreator = ({ onTemplateCreated }: CustomTemplateCreatorProps
           <Save className="h-4 w-4 mr-2" />
           Create Template
         </Button>
+
+        <AuthRequiredModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          action="create templates"
+        />
       </div>
     </Card>
   );

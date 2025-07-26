@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import InsufficientCreditsModal from './InsufficientCreditsModal';
+import AuthRequiredModal from './AuthRequiredModal';
 import { toast } from 'sonner';
 
 interface CreditActionButtonProps {
@@ -32,11 +33,12 @@ const CreditActionButton = ({
   const { user } = useAuth();
   const { balance, hasEnoughCredits, deductCredits } = useCredits();
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleClick = async () => {
     if (!user) {
-      toast.error('Please sign in to perform this action');
+      setShowAuthModal(true);
       return;
     }
 
@@ -86,6 +88,12 @@ const CreditActionButton = ({
         requiredCredits={creditCost}
         currentBalance={balance}
         actionName={actionName}
+      />
+
+      <AuthRequiredModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        action={actionName.toLowerCase()}
       />
     </>
   );
