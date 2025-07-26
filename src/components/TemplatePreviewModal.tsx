@@ -61,217 +61,228 @@ const TemplatePreviewModal = ({
 
         {/* Content */}
         <div className="flex-1 overflow-auto">
-          <div className="p-6 lg:p-8">
+          <div className="p-4 lg:p-8">
             
-            {/* Preview Section */}
-            <div className="mb-8 lg:mb-12">
-              <div className="text-center mb-6">
-                <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-2">Live Preview</h2>
-                <p className="text-muted-foreground">See how your invitation will look with sample content</p>
-              </div>
+            {/* Main Content Layout */}
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
               
-              <div className="flex justify-center">
-                <div className="relative w-full max-w-md lg:max-w-lg">
-                  <div className="aspect-[3/4] relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-sm">
-                    {/* Background */}
-                    {template.backgroundImage ? (
-                      <img 
-                        src={template.backgroundImage}
-                        alt="Template background"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div 
-                        className="w-full h-full bg-gradient-to-br from-current to-transparent opacity-20"
-                        style={{ color: template.colors.secondary }}
-                      />
-                    )}
-                    
-                    {/* Content Overlay */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 lg:p-8 text-center">
-                      <div 
-                        className="space-y-4 lg:space-y-6 backdrop-blur-sm bg-white/10 rounded-xl p-6 lg:p-8 border border-white/20"
-                        style={{ color: template.colors.primary }}
-                      >
-                        <div className="space-y-2">
-                          <h1 className="text-2xl lg:text-3xl font-serif font-bold leading-tight">
-                            {sampleData.brideName}
-                          </h1>
-                          <div className="text-2xl lg:text-3xl">💕</div>
-                          <h1 className="text-2xl lg:text-3xl font-serif font-bold leading-tight">
-                            {sampleData.groomName}
-                          </h1>
+              {/* Left Side - Template Preview */}
+              <div className="flex-1 lg:max-w-md">
+                <div className="sticky top-4">
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-2">Live Preview</h2>
+                    <p className="text-muted-foreground text-sm lg:text-base">See how your invitation will look</p>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <div className="relative w-full max-w-sm">
+                      <div className="aspect-[3/4] relative rounded-2xl overflow-hidden shadow-2xl border border-border/20 bg-gradient-to-br from-card/50 to-card/80 backdrop-blur-sm">
+                        {/* Background */}
+                        {template.backgroundImage ? (
+                          <img 
+                            src={template.backgroundImage}
+                            alt="Template background"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div 
+                            className="w-full h-full bg-gradient-to-br from-current to-transparent opacity-20"
+                            style={{ color: template.colors.secondary }}
+                          />
+                        )}
+                        
+                        {/* Content Overlay */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 lg:p-6 text-center">
+                          <div 
+                            className="space-y-3 lg:space-y-4 backdrop-blur-sm bg-white/10 rounded-xl p-4 lg:p-6 border border-white/20"
+                            style={{ color: template.colors.primary }}
+                          >
+                            <div className="space-y-1">
+                              <h1 className="text-lg lg:text-2xl font-serif font-bold leading-tight">
+                                {sampleData.brideName}
+                              </h1>
+                              <div className="text-lg lg:text-2xl">💕</div>
+                              <h1 className="text-lg lg:text-2xl font-serif font-bold leading-tight">
+                                {sampleData.groomName}
+                              </h1>
+                            </div>
+                            
+                            <div className="h-px bg-current opacity-30"></div>
+                            
+                            <div className="space-y-2">
+                              <p className="text-sm lg:text-base font-medium">{sampleData.weddingDate}</p>
+                              <p className="text-xs lg:text-sm opacity-90">{sampleData.venue}</p>
+                            </div>
+                            
+                            <div className="h-px bg-current opacity-30"></div>
+                            
+                            <p className="text-xs lg:text-sm italic leading-relaxed max-w-xs mx-auto opacity-90">
+                              {sampleData.message}
+                            </p>
+                          </div>
                         </div>
-                        
-                        <div className="h-px bg-current opacity-30"></div>
-                        
-                        <div className="space-y-3">
-                          <p className="text-lg font-medium">{sampleData.weddingDate}</p>
-                          <p className="text-sm opacity-90">{sampleData.venue}</p>
-                        </div>
-                        
-                        <div className="h-px bg-current opacity-30"></div>
-                        
-                        <p className="text-sm italic leading-relaxed max-w-xs mx-auto opacity-90">
-                          {sampleData.message}
-                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Template Specifications */}
-            <div className="mb-8">
-              <div className="text-center mb-6">
-                <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-2">Template Specifications</h2>
-                <p className="text-muted-foreground">Everything you need to know about this template</p>
+              {/* Right Side - Template Details */}
+              <div className="flex-1 lg:max-w-2xl">
+                <div className="space-y-8">
+                  
+                  {/* Section Header */}
+                  <div className="text-center lg:text-left">
+                    <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-2">Template Details</h2>
+                    <p className="text-muted-foreground">Everything you need to know about this template</p>
+                  </div>
+                  
+                  {/* Details Grid */}
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    
+                    {/* Category */}
+                    <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors">
+                      <CardContent className="p-4 lg:p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Sparkles className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-foreground text-sm lg:text-base">Category</h3>
+                        </div>
+                        <p className="capitalize text-base lg:text-lg font-medium text-foreground">{template.category}</p>
+                      </CardContent>
+                    </Card>
+
+                    {/* Features */}
+                    <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors">
+                      <CardContent className="p-4 lg:p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Layout className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-foreground text-sm lg:text-base">Features</h3>
+                        </div>
+                        <div className="space-y-2">
+                          {template.supportsMultiPhoto && (
+                            <div className="flex items-center gap-2">
+                              <Image className="h-3 w-3 lg:h-4 lg:w-4 text-green-500" />
+                              <span className="text-xs lg:text-sm">Multi-Photo Support</span>
+                            </div>
+                          )}
+                          {template.supportsVideo && (
+                            <div className="flex items-center gap-2">
+                              <Video className="h-3 w-3 lg:h-4 lg:w-4 text-blue-500" />
+                              <span className="text-xs lg:text-sm">Video Support</span>
+                            </div>
+                          )}
+                          {template.layouts && template.layouts.length > 1 && (
+                            <div className="flex items-center gap-2">
+                              <Layout className="h-3 w-3 lg:h-4 lg:w-4 text-purple-500" />
+                              <span className="text-xs lg:text-sm">Multiple Layouts</span>
+                            </div>
+                          )}
+                          {!template.supportsMultiPhoto && !template.supportsVideo && (!template.layouts || template.layouts.length <= 1) && (
+                            <span className="text-xs lg:text-sm text-muted-foreground">Standard features</span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Color Palette */}
+                    <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors">
+                      <CardContent className="p-4 lg:p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <PaletteIcon className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-foreground text-sm lg:text-base">Color Palette</h3>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 border-border shadow-sm"
+                              style={{ backgroundColor: template.colors.primary }}
+                            />
+                            <span className="text-xs lg:text-sm font-medium">Primary</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 border-border shadow-sm"
+                              style={{ backgroundColor: template.colors.secondary }}
+                            />
+                            <span className="text-xs lg:text-sm font-medium">Secondary</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 border-border shadow-sm"
+                              style={{ backgroundColor: template.colors.accent }}
+                            />
+                            <span className="text-xs lg:text-sm font-medium">Accent</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Typography */}
+                    <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors">
+                      <CardContent className="p-4 lg:p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Type className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-foreground text-sm lg:text-base">Typography</h3>
+                        </div>
+                        <div className="space-y-2">
+                          <div>
+                            <span className="text-xs text-muted-foreground">Heading Font</span>
+                            <p className="text-sm lg:text-base font-medium">{template.fonts.heading}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground">Body Font</span>
+                            <p className="text-sm lg:text-base font-medium">{template.fonts.body}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Layouts */}
+                    {template.layouts && template.layouts.length > 0 && (
+                      <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors sm:col-span-2">
+                        <CardContent className="p-4 lg:p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <Layout className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+                            </div>
+                            <h3 className="font-semibold text-foreground text-sm lg:text-base">Available Layouts</h3>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {template.layouts.map((layout) => (
+                              <Badge key={layout} variant="outline" className="text-xs">
+                                {layout}
+                              </Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="text-center lg:text-left pt-4">
+                    <Button 
+                      onClick={() => onCustomize(template)}
+                      size="lg"
+                      className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground px-8 py-4 text-base lg:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    >
+                      <Palette className="h-5 w-5 mr-3" />
+                      Start Customizing This Template
+                    </Button>
+                    <p className="text-xs lg:text-sm text-muted-foreground mt-3">
+                      Personalize colors, text, images, and more
+                    </p>
+                  </div>
+                </div>
               </div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                {/* Category */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Sparkles className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="font-semibold text-foreground">Category</h3>
-                    </div>
-                    <p className="capitalize text-lg font-medium text-foreground">{template.category}</p>
-                  </CardContent>
-                </Card>
-
-                {/* Features */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Layout className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="font-semibold text-foreground">Features</h3>
-                    </div>
-                    <div className="space-y-2">
-                      {template.supportsMultiPhoto && (
-                        <div className="flex items-center gap-2">
-                          <Image className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Multi-Photo Support</span>
-                        </div>
-                      )}
-                      {template.supportsVideo && (
-                        <div className="flex items-center gap-2">
-                          <Video className="h-4 w-4 text-blue-500" />
-                          <span className="text-sm">Video Support</span>
-                        </div>
-                      )}
-                      {template.layouts && template.layouts.length > 1 && (
-                        <div className="flex items-center gap-2">
-                          <Layout className="h-4 w-4 text-purple-500" />
-                          <span className="text-sm">Multiple Layouts</span>
-                        </div>
-                      )}
-                      {!template.supportsMultiPhoto && !template.supportsVideo && (!template.layouts || template.layouts.length <= 1) && (
-                        <span className="text-sm text-muted-foreground">Standard features</span>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Color Palette */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm md:col-span-2 lg:col-span-1">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <PaletteIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="font-semibold text-foreground">Color Palette</h3>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-8 h-8 rounded-full border-2 border-border shadow-sm"
-                          style={{ backgroundColor: template.colors.primary }}
-                        />
-                        <span className="text-sm font-medium">Primary</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-8 h-8 rounded-full border-2 border-border shadow-sm"
-                          style={{ backgroundColor: template.colors.secondary }}
-                        />
-                        <span className="text-sm font-medium">Secondary</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-8 h-8 rounded-full border-2 border-border shadow-sm"
-                          style={{ backgroundColor: template.colors.accent }}
-                        />
-                        <span className="text-sm font-medium">Accent</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Typography */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Type className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="font-semibold text-foreground">Typography</h3>
-                    </div>
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground">Heading Font</span>
-                        <p className="font-medium">{template.fonts.heading}</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground">Body Font</span>
-                        <p className="font-medium">{template.fonts.body}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Layouts */}
-                {template.layouts && template.layouts.length > 0 && (
-                  <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Layout className="h-5 w-5 text-primary" />
-                        </div>
-                        <h3 className="font-semibold text-foreground">Layouts</h3>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {template.layouts.map((layout) => (
-                          <Badge key={layout} variant="outline" className="text-xs">
-                            {layout}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-
-            {/* Action Button */}
-            <div className="text-center">
-              <Button 
-                onClick={() => onCustomize(template)}
-                size="lg"
-                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <Palette className="h-5 w-5 mr-3" />
-                Start Customizing This Template
-              </Button>
-              <p className="text-sm text-muted-foreground mt-3">
-                Personalize colors, text, images, and more
-              </p>
             </div>
           </div>
         </div>
