@@ -47,7 +47,7 @@ const PremiumTemplateCard = ({
             e.stopPropagation();
             onFavorite?.(template.id);
           }}
-          className="absolute top-3 right-3 p-2 rounded-full bg-background/20 backdrop-blur-sm transition-all duration-300 hover:bg-background/40"
+          className="absolute top-3 right-3 p-2 rounded-full bg-black/60 backdrop-blur-sm transition-all duration-300 hover:bg-black/80 border border-white/20"
           title="Save to My Cards"
         >
           <Heart 
@@ -68,7 +68,7 @@ const PremiumTemplateCard = ({
               e.stopPropagation();
               onPreview(template);
             }}
-            className="flex-1 bg-background/90 backdrop-blur-sm hover:bg-background text-xs"
+            className="flex-1 bg-white/95 backdrop-blur-sm hover:bg-white text-black text-xs font-medium border border-white/20"
           >
             <Eye className="h-3 w-3 mr-1" />
             Preview
@@ -79,7 +79,7 @@ const PremiumTemplateCard = ({
               e.stopPropagation();
               onCustomize(template);
             }}
-            className="flex-1 bg-gradient-elegant hover:opacity-90 text-xs"
+            className="flex-1 bg-primary text-white hover:bg-primary/90 text-xs font-medium border border-primary/20"
           >
             <Palette className="h-3 w-3 mr-1" />
             Customize

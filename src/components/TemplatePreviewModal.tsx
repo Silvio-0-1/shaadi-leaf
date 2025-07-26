@@ -45,10 +45,10 @@ const TemplatePreviewModal = ({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
-          <div className="grid lg:grid-cols-2 gap-6 p-6 pt-0">
+        <div className="flex-1 overflow-auto max-h-[calc(90vh-120px)]">
+          <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 p-4 lg:p-6 pt-0">
             {/* Preview Card */}
-            <div className="space-y-4">
+            <div className="space-y-4 order-2 lg:order-1">
               <h3 className="font-semibold text-lg">Live Preview</h3>
               <div className="relative aspect-[3/4] bg-gradient-subtle rounded-lg overflow-hidden shadow-elegant">
                 {/* Background */}
@@ -88,10 +88,10 @@ const TemplatePreviewModal = ({
             </div>
 
             {/* Template Details */}
-            <div className="space-y-6">
+            <div className="space-y-4 lg:space-y-6 order-1 lg:order-2">
               <div>
                 <h3 className="font-semibold text-lg mb-3">Template Details</h3>
-                <div className="space-y-3">
+                <div className="space-y-2 lg:space-y-3">
                   <div>
                     <span className="text-sm text-muted-foreground">Category:</span>
                     <p className="capitalize font-medium">{template.category}</p>
@@ -99,7 +99,7 @@ const TemplatePreviewModal = ({
                   
                   <div>
                     <span className="text-sm text-muted-foreground">Features:</span>
-                    <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex flex-wrap gap-1 lg:gap-2 mt-1">
                       {template.supportsMultiPhoto && (
                         <Badge variant="secondary">Multi-Photo Support</Badge>
                       )}
@@ -114,19 +114,19 @@ const TemplatePreviewModal = ({
 
                   <div>
                     <span className="text-sm text-muted-foreground">Color Scheme:</span>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-1 lg:gap-2 mt-1">
                       <div 
-                        className="w-8 h-8 rounded-full border-2 border-border"
+                        className="w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 border-border"
                         style={{ backgroundColor: template.colors.primary }}
                         title="Primary Color"
                       />
                       <div 
-                        className="w-8 h-8 rounded-full border-2 border-border"
+                        className="w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 border-border"
                         style={{ backgroundColor: template.colors.secondary }}
                         title="Secondary Color"
                       />
                       <div 
-                        className="w-8 h-8 rounded-full border-2 border-border"
+                        className="w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 border-border"
                         style={{ backgroundColor: template.colors.accent }}
                         title="Accent Color"
                       />
@@ -163,7 +163,7 @@ const TemplatePreviewModal = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={() => onCustomize(template)}
-                  className="w-full bg-gradient-elegant hover:opacity-90 text-white"
+                  className="w-full bg-primary text-white hover:bg-primary/90"
                   size="lg"
                 >
                   <Palette className="h-4 w-4 mr-2" />
