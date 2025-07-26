@@ -418,6 +418,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      admin_remove_user_role: {
+        Args: { target_user_email: string; admin_user_id?: string }
+        Returns: boolean
+      }
+      admin_set_user_role: {
+        Args: {
+          target_user_email: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          admin_user_id?: string
+        }
+        Returns: boolean
+      }
       deduct_credits: {
         Args: {
           p_user_id: string

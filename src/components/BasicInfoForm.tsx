@@ -9,6 +9,7 @@ import { WeddingCardData } from '@/types';
 import { useState } from 'react';
 import CreditActionButton from './CreditActionButton';
 import { useCredits } from '@/hooks/useCredits';
+import { validateName, validateVenue, validateMessage, validateWeddingDate, sanitizeInput } from '@/lib/security';
 
 interface BasicInfoFormProps {
   cardData: WeddingCardData;
@@ -30,7 +31,9 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
   const { CREDIT_COSTS } = useCredits();
 
   const handleChange = (field: keyof WeddingCardData, value: string) => {
-    onDataChange({ [field]: value });
+    // Sanitize input to prevent XSS attacks
+    const sanitizedValue = sanitizeInput(value);
+    onDataChange({ [field]: sanitizedValue });
   };
 
   const generateAIMessage = async () => {
