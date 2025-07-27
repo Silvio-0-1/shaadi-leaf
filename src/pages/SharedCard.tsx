@@ -82,12 +82,20 @@ const SharedCard = () => {
       if (!id) return;
 
       try {
-        const { data, error } = await supabase
+        // Handle both full UUID and short ID (first 8 characters)
+        let query = supabase
           .from('shared_wedding_cards')
           .select('*')
-          .eq('id', id)
-          .eq('is_public', true)
-          .single();
+          .eq('is_public', true);
+        
+        // If ID is 8 characters or less, search by prefix
+        if (id.length <= 8) {
+          query = query.like('id', `${id}%`);
+        } else {
+          query = query.eq('id', id);
+        }
+        
+        const { data, error } = await query.single();
 
         if (error) throw error;
 
