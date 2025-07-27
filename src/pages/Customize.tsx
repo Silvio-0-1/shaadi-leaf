@@ -102,60 +102,57 @@ const Customize = () => {
         </div>
 
         {isMobile ? (
-          /* Mobile Layout with Sheet for Controls */
-          <div className="space-y-6">
-            {/* Save Button */}
-            {user && cardData.templateId && (
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleSaveCard}
-                  disabled={saving}
-                  className="wedding-gradient text-white"
-                  size="sm"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    editId ? 'Update' : 'Save'
-                  )}
-                </Button>
+          /* Premium Mobile Layout */
+          <div className="flex flex-col h-screen -mt-6 -mx-4">
+            {/* Sticky Template Preview */}
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b p-4">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-semibold">Live Preview</h2>
+                {user && cardData.templateId && (
+                  <Button
+                    onClick={handleSaveCard}
+                    disabled={saving}
+                    className="wedding-gradient text-white"
+                    size="sm"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      editId ? 'Update' : 'Save'
+                    )}
+                  </Button>
+                )}
               </div>
-            )}
+              <div className="w-full max-w-sm mx-auto">
+                <PremiumCardEditor cardData={cardData} />
+              </div>
+            </div>
             
-            {/* Mobile Card Editor */}
-            <div className="space-y-4">
-              <PremiumCardEditor cardData={cardData} />
-              
-              {/* Edit Details Button */}
-              <div className="flex justify-center">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Edit Details
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="bottom" className="h-[80vh] flex flex-col">
-                    <SheetHeader className="flex-shrink-0">
-                      <SheetTitle></SheetTitle>
-                    </SheetHeader>
-                    <div className="flex-1 overflow-y-auto mt-6">
-                      <PremiumCustomizationForm
-                        cardData={cardData}
-                        onDataChange={handleDataChange}
-                      />
-                    </div>
-                  </SheetContent>
-                </Sheet>
+            {/* Scrollable Form Content */}
+            <div className="flex-1 overflow-y-auto px-4 py-6">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold mb-2">Customize Your Card</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Fill in the details below to personalize your wedding card
+                  </p>
+                </div>
+                
+                <PremiumCustomizationForm
+                  cardData={cardData}
+                  onDataChange={handleDataChange}
+                />
+                
+                {/* Download Section */}
+                {cardData.templateId && (
+                  <div className="pt-6 border-t">
+                    <DownloadSection cardId="card-preview" cardData={cardData} />
+                  </div>
+                )}
               </div>
-              
-              {/* Download Section */}
-              {cardData.templateId && (
-                <DownloadSection cardId="card-preview" cardData={cardData} />
-              )}
             </div>
           </div>
         ) : (
