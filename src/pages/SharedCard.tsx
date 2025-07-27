@@ -81,20 +81,31 @@ const SharedCard = () => {
     const loadSharedCard = async () => {
       if (!id) return;
 
+      console.log('Loading shared card with ID:', id, 'Length:', id.length);
+
       try {
         let data, error;
         
         // If ID is 8 characters or less, search by prefix using starts with
         if (id.length <= 8) {
+          console.log('Searching for short ID prefix:', id);
           const { data: results, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
             .eq('is_public', true);
             
+          console.log('Query results:', results);
+          console.log('Query error:', queryError);
+            
           if (queryError) throw queryError;
           
           // Find the first card whose ID starts with the provided short ID
-          const matchingCard = results?.find(card => card.id.startsWith(id));
+          const matchingCard = results?.find(card => {
+            console.log('Checking card ID:', card.id, 'starts with:', id, '=', card.id.startsWith(id));
+            return card.id.startsWith(id);
+          });
+          
+          console.log('Matching card found:', matchingCard);
           
           if (!matchingCard) {
             throw new Error('Card not found');
