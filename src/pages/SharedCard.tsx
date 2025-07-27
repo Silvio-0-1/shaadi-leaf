@@ -81,52 +81,36 @@ const SharedCard = () => {
     const loadSharedCard = async () => {
       if (!id) return;
 
-      console.log('Loading shared card with ID:', id, 'Length:', id.length);
-
       try {
         let data, error;
         
-        // If ID is 8 characters or less, search by prefix using starts with
+        // If ID is 8 characters or less, use like pattern
         if (id.length <= 8) {
-          console.log('Searching for short ID prefix:', id);
-          const { data: results, error: queryError } = await supabase
+          const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
-            .eq('is_public', true);
+            .ilike('id', `${id}%`)
+            .eq('is_public', true)
+            .limit(1)
+            .maybeSingle();
             
-          console.log('Query results:', results);
-          console.log('Query error:', queryError);
-            
-          if (queryError) throw queryError;
-          
-          // Find the first card whose ID starts with the provided short ID
-          const matchingCard = results?.find(card => {
-            console.log('Checking card ID:', card.id, 'starts with:', id, '=', card.id.startsWith(id));
-            return card.id.startsWith(id);
-          });
-          
-          console.log('Matching card found:', matchingCard);
-          
-          if (!matchingCard) {
-            throw new Error('Card not found');
-          }
-          
-          data = matchingCard;
-          error = null;
+          data = result;
+          error = queryError;
         } else {
           // Use exact match for full UUIDs
-          const result = await supabase
+          const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
             .eq('id', id)
             .eq('is_public', true)
-            .single();
+            .maybeSingle();
             
-          data = result.data;
-          error = result.error;
+          data = result;
+          error = queryError;
         }
 
         if (error) throw error;
+        if (!data) throw new Error('Card not found');
 
         // Parse JSON fields safely
         let uploadedImages: string[] = [];
