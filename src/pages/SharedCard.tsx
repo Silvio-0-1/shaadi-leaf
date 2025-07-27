@@ -82,20 +82,38 @@ const SharedCard = () => {
       if (!id) return;
 
       try {
-        // Handle both full UUID and short ID (first 8 characters)
-        let query = supabase
-          .from('shared_wedding_cards')
-          .select('*')
-          .eq('is_public', true);
+        let data, error;
         
-        // If ID is 8 characters or less, search by prefix
+        // If ID is 8 characters or less, search by prefix using starts with
         if (id.length <= 8) {
-          query = query.like('id', `${id}%`);
+          const { data: results, error: queryError } = await supabase
+            .from('shared_wedding_cards')
+            .select('*')
+            .eq('is_public', true);
+            
+          if (queryError) throw queryError;
+          
+          // Find the first card whose ID starts with the provided short ID
+          const matchingCard = results?.find(card => card.id.startsWith(id));
+          
+          if (!matchingCard) {
+            throw new Error('Card not found');
+          }
+          
+          data = matchingCard;
+          error = null;
         } else {
-          query = query.eq('id', id);
+          // Use exact match for full UUIDs
+          const result = await supabase
+            .from('shared_wedding_cards')
+            .select('*')
+            .eq('id', id)
+            .eq('is_public', true)
+            .single();
+            
+          data = result.data;
+          error = result.error;
         }
-        
-        const { data, error } = await query.single();
 
         if (error) throw error;
 
