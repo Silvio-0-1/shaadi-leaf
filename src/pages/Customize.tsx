@@ -104,29 +104,9 @@ const Customize = () => {
         {isMobile ? (
           /* Mobile Layout with Sheet for Controls */
           <div className="space-y-6">
-            {/* Mobile Controls */}
-            <div className="flex justify-between items-center">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Edit Details
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-[80vh]">
-                  <SheetHeader>
-                    <SheetTitle>Customize Your Wedding Card</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 overflow-y-auto">
-                    <PremiumCustomizationForm
-                      cardData={cardData}
-                      onDataChange={handleDataChange}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-              
-              {user && cardData.templateId && (
+            {/* Save Button */}
+            {user && cardData.templateId && (
+              <div className="flex justify-end">
                 <Button
                   onClick={handleSaveCard}
                   disabled={saving}
@@ -142,12 +122,35 @@ const Customize = () => {
                     editId ? 'Update' : 'Save'
                   )}
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
             
             {/* Mobile Card Editor */}
             <div className="space-y-4">
               <PremiumCardEditor cardData={cardData} />
+              
+              {/* Edit Details Button */}
+              <div className="flex justify-center">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Edit Details
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[80vh] flex flex-col">
+                    <SheetHeader className="flex-shrink-0">
+                      <SheetTitle></SheetTitle>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto mt-6">
+                      <PremiumCustomizationForm
+                        cardData={cardData}
+                        onDataChange={handleDataChange}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
               
               {/* Download Section */}
               {cardData.templateId && (
