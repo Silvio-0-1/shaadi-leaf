@@ -89,10 +89,10 @@ const SharedCard = () => {
           const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
-            .like('id', `${id}%`)
+            .filter('id', 'like', `${id}%`)
             .eq('is_public', true)
             .limit(1)
-            .single();
+            .maybeSingle();
             
           data = result;
           error = queryError;
@@ -103,7 +103,7 @@ const SharedCard = () => {
             .select('*')
             .eq('id', id)
             .eq('is_public', true)
-            .single();
+            .maybeSingle();
             
           data = result;
           error = queryError;
