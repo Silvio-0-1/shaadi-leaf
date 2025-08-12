@@ -54,10 +54,10 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
         venue: cardData.venue || '',
         message: cardData.message || '',
         template_id: cardData.templateId,
-        uploaded_images: JSON.stringify(cardData.uploadedImages || []),
+        uploaded_images: cardData.uploadedImages || [],
         logo_image: cardData.logoImage || null,
-        customization: JSON.stringify(cardData.customization || {}),
-        element_positions: JSON.stringify(null),
+        customization: cardData.customization || {},
+        element_positions: null,
         user_id: user.id,
         is_public: true
       };
@@ -70,9 +70,10 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
 
       if (error) throw error;
       
-      // Generate a short shareable link with custom domain
+      // Generate a short shareable link using current domain
       const shortId = data.id.substring(0, 8); // Use first 8 characters of UUID
-      const url = `https://shaadileaf.com/shared/${shortId}`;
+      const currentDomain = window.location.origin;
+      const url = `${currentDomain}/shared/${shortId}`;
       setShareUrl(url);
       
       // Copy to clipboard

@@ -84,7 +84,7 @@ const SharedCard = () => {
       try {
         let data, error;
         
-        // If ID is 8 characters or less, use like pattern
+        // If ID is 8 characters or less, use like pattern to find matching UUID
         if (id.length <= 8) {
           const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
@@ -112,28 +112,10 @@ const SharedCard = () => {
         if (error) throw error;
         if (!data) throw new Error('Card not found');
 
-        // Parse JSON fields safely
-        let uploadedImages: string[] = [];
-        let customization = {};
-
-        try {
-          uploadedImages = data.uploaded_images ? JSON.parse(data.uploaded_images as string) : [];
-        } catch (e) {
-          uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images as string[] : [];
-        }
-
-        try {
-          customization = data.customization ? JSON.parse(data.customization as string) : {};
-        } catch (e) {
-          customization = typeof data.customization === 'object' ? data.customization : {};
-        }
-
-        let elementPositions = null;
-        try {
-          elementPositions = data.element_positions ? JSON.parse(data.element_positions as string) : null;
-        } catch (e) {
-          elementPositions = typeof data.element_positions === 'object' ? data.element_positions : null;
-        }
+        // Handle data fields (they're already in correct format from database)
+        const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images : [];
+        const customization = typeof data.customization === 'object' && data.customization !== null ? data.customization : {};
+        const elementPositions = typeof data.element_positions === 'object' && data.element_positions !== null ? data.element_positions : null;
 
         const mappedCardData: WeddingCardData = {
           id: data.id,
@@ -213,7 +195,7 @@ const SharedCard = () => {
   };
 
   const handleCreateCardClick = () => {
-    window.open('https://shaadileaf.com/', '_blank');
+    window.open(window.location.origin, '_blank');
   };
 
   if (loading) {
