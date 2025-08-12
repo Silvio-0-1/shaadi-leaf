@@ -195,7 +195,7 @@ const SharedCard = () => {
   };
 
   const handleCreateCardClick = () => {
-    window.open(window.location.origin, '_blank');
+    window.open('https://shaadileaf.com/', '_blank');
   };
 
   if (loading) {
