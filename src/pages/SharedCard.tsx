@@ -89,10 +89,10 @@ const SharedCard = () => {
           const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
-            .filter('id', 'like', `${id}%`)
+            .ilike('id', `${id}%`)
             .eq('is_public', true)
             .limit(1)
-            .maybeSingle();
+            .single();
             
           data = result;
           error = queryError;
@@ -103,7 +103,7 @@ const SharedCard = () => {
             .select('*')
             .eq('id', id)
             .eq('is_public', true)
-            .maybeSingle();
+            .single();
             
           data = result;
           error = queryError;
@@ -142,7 +142,7 @@ const SharedCard = () => {
       } catch (error) {
         console.error('Error loading shared card:', error);
         toast.error('Wedding card not found or no longer available');
-        navigate('/');
+        // Don't redirect automatically, let user choose
       } finally {
         setLoading(false);
       }
@@ -195,7 +195,7 @@ const SharedCard = () => {
   };
 
   const handleCreateCardClick = () => {
-    window.open('https://shaadileaf.com/', '_blank');
+    navigate('/');
   };
 
   if (loading) {
