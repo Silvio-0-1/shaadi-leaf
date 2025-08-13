@@ -7,6 +7,7 @@ import { Heart, Calendar, MapPin, Loader2, Sparkles } from 'lucide-react';
 import { templates } from '@/data/templates';
 import { WeddingCardData, CardElements } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
@@ -90,10 +91,18 @@ const SharedCard = () => {
       try {
         let data, error;
         
+        console.log('DEBUG: Current auth state:', await supabase.auth.getUser());
+        
+        // Create a separate client for anonymous access to public data
+        const anonSupabase = createClient(
+          "https://ievtqteyyprrakteoyaj.supabase.co",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldnRxdGV5eXBycmFrdGVveWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzOTA0MTQsImV4cCI6MjA2Nzk2NjQxNH0.jJcuCh7PfGJrdVQHxC4IvlPdHo1Nz5ZfEPh-CKGSY8c"
+        );
+        
         // If ID is 8 characters or less, use like pattern to find matching UUID
         if (id.length <= 8) {
           console.log('DEBUG: Using short ID pattern search for:', id);
-          const { data: results, error: queryError } = await supabase
+          const { data: results, error: queryError } = await anonSupabase
             .from('shared_wedding_cards')
             .select('*')
             .eq('is_public', true);
@@ -110,7 +119,7 @@ const SharedCard = () => {
         } else {
           console.log('DEBUG: Using exact ID match for:', id);
           // Use exact match for full UUIDs
-          const { data: result, error: queryError } = await supabase
+          const { data: result, error: queryError } = await anonSupabase
             .from('shared_wedding_cards')
             .select('*')
             .eq('id', id)
