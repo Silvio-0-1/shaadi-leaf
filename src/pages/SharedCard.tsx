@@ -79,13 +79,20 @@ const SharedCard = () => {
 
   useEffect(() => {
     const loadSharedCard = async () => {
-      if (!id) return;
+      if (!id) {
+        console.log('DEBUG: No ID provided');
+        return;
+      }
+
+      console.log('DEBUG: Starting to load shared card with ID:', id);
+      console.log('DEBUG: ID length:', id.length);
 
       try {
         let data, error;
         
         // If ID is 8 characters or less, use like pattern to find matching UUID
         if (id.length <= 8) {
+          console.log('DEBUG: Using short ID pattern search for:', id);
           const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
@@ -94,9 +101,12 @@ const SharedCard = () => {
             .limit(1)
             .single();
             
+          console.log('DEBUG: Short ID query result:', result);
+          console.log('DEBUG: Short ID query error:', queryError);
           data = result;
           error = queryError;
         } else {
+          console.log('DEBUG: Using exact ID match for:', id);
           // Use exact match for full UUIDs
           const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
@@ -105,12 +115,23 @@ const SharedCard = () => {
             .eq('is_public', true)
             .single();
             
+          console.log('DEBUG: Exact ID query result:', result);
+          console.log('DEBUG: Exact ID query error:', queryError);
           data = result;
           error = queryError;
         }
 
-        if (error) throw error;
-        if (!data) throw new Error('Card not found');
+        console.log('DEBUG: Final data:', data);
+        console.log('DEBUG: Final error:', error);
+
+        if (error) {
+          console.error('DEBUG: Database error occurred:', error);
+          throw error;
+        }
+        if (!data) {
+          console.error('DEBUG: No data returned from query');
+          throw new Error('Card not found');
+        }
 
         // Handle data fields (they're already in correct format from database)
         const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images : [];
