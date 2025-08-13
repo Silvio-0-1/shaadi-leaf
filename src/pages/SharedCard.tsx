@@ -93,18 +93,20 @@ const SharedCard = () => {
         // If ID is 8 characters or less, use like pattern to find matching UUID
         if (id.length <= 8) {
           console.log('DEBUG: Using short ID pattern search for:', id);
-          const { data: result, error: queryError } = await supabase
+          const { data: results, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
-            .like('id::text', `${id}%`)
-            .eq('is_public', true)
-            .limit(1)
-            .single();
+            .eq('is_public', true);
             
-          console.log('DEBUG: Short ID query result:', result);
-          console.log('DEBUG: Short ID query error:', queryError);
+          console.log('DEBUG: All public cards fetched:', results);
+          console.log('DEBUG: Query error:', queryError);
+          
+          // Filter in JavaScript to find matching ID
+          const result = results?.find(card => card.id.startsWith(id));
+          console.log('DEBUG: Filtered result:', result);
+          
           data = result;
-          error = queryError;
+          error = result ? null : { message: 'No matching card found' };
         } else {
           console.log('DEBUG: Using exact ID match for:', id);
           // Use exact match for full UUIDs
