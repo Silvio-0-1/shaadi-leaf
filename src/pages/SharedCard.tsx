@@ -96,7 +96,7 @@ const SharedCard = () => {
           const { data: result, error: queryError } = await supabase
             .from('shared_wedding_cards')
             .select('*')
-            .ilike('id', `${id}%`)
+            .filter('id', 'like', `${id}%`)
             .eq('is_public', true)
             .limit(1)
             .single();
