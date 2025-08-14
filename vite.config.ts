@@ -19,4 +19,17 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === '_redirects') {
+            return '_redirects';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
+      },
+    },
+  },
+  publicDir: 'public',
 }));
