@@ -99,7 +99,7 @@ const SharedCard = () => {
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldnRxdGV5eXBycmFrdGVveWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzOTA0MTQsImV4cCI6MjA2Nzk2NjQxNH0.jJcuCh7PfGJrdVQHxC4IvlPdHo1Nz5ZfEPh-CKGSY8c"
         );
         
-        // If ID is 8 characters or less, use like pattern to find matching UUID
+        // If ID is 8 characters or less, use substring search to find matching UUID
         if (id.length <= 8) {
           console.log('DEBUG: Using short ID pattern search for:', id);
           const { data: results, error: queryError } = await anonSupabase
@@ -107,12 +107,12 @@ const SharedCard = () => {
             .select('*')
             .eq('is_public', true);
             
-          console.log('DEBUG: All public cards fetched:', results);
+          console.log('DEBUG: All public cards fetched:', results?.length, 'cards');
           console.log('DEBUG: Query error:', queryError);
           
-          // Filter in JavaScript to find matching ID
-          const result = results?.find(card => card.id.startsWith(id));
-          console.log('DEBUG: Filtered result:', result);
+          // Filter in JavaScript to find matching ID (convert UUID to string for comparison)
+          const result = results?.find(card => String(card.id).startsWith(id));
+          console.log('DEBUG: Filtered result found:', !!result);
           
           data = result;
           error = result ? null : { message: 'No matching card found' };
