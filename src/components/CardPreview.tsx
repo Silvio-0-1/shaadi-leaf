@@ -179,8 +179,8 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
       if (error) throw error;
       
-      const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('lovableproject.com');
-      const domain = isProduction ? 'https://shaadileaf.com' : window.location.origin;
+      const isLocalhost = window.location.hostname === 'localhost';
+      const domain = isLocalhost ? window.location.origin : 'https://shaadileaf.com';
       const shareUrl = `${domain}/shared/${data.id}`;
       
       console.log('Generated share URL (CardPreview):', shareUrl);
