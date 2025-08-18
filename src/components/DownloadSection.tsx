@@ -70,10 +70,11 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
 
       if (error) throw error;
       
-      // Generate a short shareable link using custom domain
+      // Generate a short shareable link - use current domain for now
       const shortId = data.id.substring(0, 8); // Use first 8 characters of UUID
       const isLocalhost = window.location.hostname === 'localhost';
-      const domain = isLocalhost ? window.location.origin : 'https://shaadileaf.com';
+      // For now, use the current domain to ensure links work
+      const domain = window.location.origin;
       const url = `${domain}/shared/${shortId}`;
       
       console.log('Generated share URL:', url);
