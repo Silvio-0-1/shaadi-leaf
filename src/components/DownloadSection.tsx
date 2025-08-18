@@ -75,6 +75,10 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
       const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('lovableproject.com');
       const domain = isProduction ? 'https://shaadileaf.com' : window.location.origin;
       const url = `${domain}/shared/${shortId}`;
+      
+      console.log('Generated share URL:', url);
+      console.log('Card ID:', data.id);
+      console.log('Short ID:', shortId);
       setShareUrl(url);
       
       // Copy to clipboard

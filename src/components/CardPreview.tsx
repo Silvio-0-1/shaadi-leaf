@@ -182,6 +182,9 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('lovableproject.com');
       const domain = isProduction ? 'https://shaadileaf.com' : window.location.origin;
       const shareUrl = `${domain}/shared/${data.id}`;
+      
+      console.log('Generated share URL (CardPreview):', shareUrl);
+      console.log('Card ID:', data.id);
       setShareUrl(shareUrl);
       
       // Copy to clipboard

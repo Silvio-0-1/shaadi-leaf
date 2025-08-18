@@ -110,12 +110,19 @@ const SharedCard = () => {
           console.log('DEBUG: All public cards fetched:', results?.length, 'cards');
           console.log('DEBUG: Query error:', queryError);
           
-          // Filter in JavaScript to find matching ID (convert UUID to string for comparison)
-          const result = results?.find(card => String(card.id).startsWith(id));
-          console.log('DEBUG: Filtered result found:', !!result);
-          
-          data = result;
-          error = result ? null : { message: 'No matching card found' };
+          if (queryError) {
+            error = queryError;
+            data = null;
+          } else {
+            // Filter in JavaScript to find matching ID (convert UUID to string for comparison)
+            const result = results?.find(card => String(card.id).startsWith(id));
+            console.log('DEBUG: Filtered result found:', !!result);
+            console.log('DEBUG: Searching for ID pattern:', id);
+            console.log('DEBUG: Available IDs:', results?.map(r => String(r.id).substring(0, 8)));
+            
+            data = result || null;
+            error = result ? null : { message: 'No matching card found' };
+          }
         } else {
           console.log('DEBUG: Using exact ID match for:', id);
           // Use exact match for full UUIDs
@@ -124,7 +131,7 @@ const SharedCard = () => {
             .select('*')
             .eq('id', id)
             .eq('is_public', true)
-            .single();
+            .maybeSingle();
             
           console.log('DEBUG: Exact ID query result:', result);
           console.log('DEBUG: Exact ID query error:', queryError);
@@ -135,13 +142,13 @@ const SharedCard = () => {
         console.log('DEBUG: Final data:', data);
         console.log('DEBUG: Final error:', error);
 
-        if (error) {
+        if (error && error.code !== 'PGRST116') {
           console.error('DEBUG: Database error occurred:', error);
           throw error;
         }
         if (!data) {
           console.error('DEBUG: No data returned from query');
-          throw new Error('Card not found');
+          throw new Error('Wedding card not found or no longer available');
         }
 
         // Handle data fields (they're already in correct format from database)
@@ -173,8 +180,9 @@ const SharedCard = () => {
         
       } catch (error) {
         console.error('Error loading shared card:', error);
-        toast.error('Wedding card not found or no longer available');
-        // Don't redirect automatically, let user choose
+        setCardData(null);
+        setElementPositions(null);
+        // Don't show toast here, let the UI handle the not found state
       } finally {
         setLoading(false);
       }
