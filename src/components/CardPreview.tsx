@@ -155,6 +155,11 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         return;
       }
 
+      console.log('DEBUG SAVE (CardPreview): Starting to save card for sharing');
+      console.log('DEBUG SAVE (CardPreview): User ID:', user.id);
+      console.log('DEBUG SAVE (CardPreview): Raw cardData:', cardData);
+      console.log('DEBUG SAVE (CardPreview): Saved positions:', savedPositions);
+
       // Save card data to database for sharing
       const shareableCardData = {
         bride_name: cardData.brideName || 'Bride',
@@ -163,13 +168,16 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         venue: cardData.venue,
         message: cardData.message || '',
         template_id: cardData.templateId,
-        uploaded_images: JSON.stringify(cardData.uploadedImages || []),
+        uploaded_images: cardData.uploadedImages || [],
         logo_image: cardData.logoImage || null,
-        customization: JSON.stringify(cardData.customization || {}),
-        element_positions: JSON.stringify(savedPositions || null),
+        customization: cardData.customization || {},
+        element_positions: savedPositions || null,
         user_id: user.id,
         is_public: true
-      };
+      } as any;
+
+      console.log('DEBUG SAVE (CardPreview): Prepared shareableCardData:', shareableCardData);
+      console.log('DEBUG SAVE (CardPreview): Uploaded images count:', shareableCardData.uploaded_images?.length || 0);
 
       const { data, error } = await supabase
         .from('shared_wedding_cards')
@@ -177,14 +185,22 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('DEBUG SAVE (CardPreview): Database insert error:', error);
+        throw error;
+      }
+      
+      console.log('DEBUG SAVE (CardPreview): Successfully saved card to database');
+      console.log('DEBUG SAVE (CardPreview): Returned data:', data);
+      console.log('DEBUG SAVE (CardPreview): Card ID:', data.id);
+      console.log('DEBUG SAVE (CardPreview): Is public:', data.is_public);
       
       const isLocalhost = window.location.hostname === 'localhost';
       const domain = isLocalhost ? window.location.origin : 'https://shaadileaf.com';
       const shareUrl = `${domain}/shared/${data.id}`;
       
-      console.log('Generated share URL (CardPreview):', shareUrl);
-      console.log('Card ID:', data.id);
+      console.log('DEBUG SAVE (CardPreview): Generated share URL:', shareUrl);
+      console.log('DEBUG SAVE (CardPreview): Full Card ID:', data.id);
       setShareUrl(shareUrl);
       
       // Copy to clipboard

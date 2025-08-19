@@ -91,70 +91,99 @@ const SharedCard = () => {
       try {
         let data, error;
         
-        console.log('DEBUG: Current auth state:', await supabase.auth.getUser());
+        console.log('DEBUG FETCH: Current auth state:', await supabase.auth.getUser());
         
-        // Create a separate client for anonymous access to public data
-        const anonSupabase = createClient(
-          "https://ievtqteyyprrakteoyaj.supabase.co",
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldnRxdGV5eXBycmFrdGVveWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzOTA0MTQsImV4cCI6MjA2Nzk2NjQxNH0.jJcuCh7PfGJrdVQHxC4IvlPdHo1Nz5ZfEPh-CKGSY8c"
-        );
+        // Use the same supabase client for consistency
+        const client = supabase;
         
         // If ID is 8 characters or less, use substring search to find matching UUID
         if (id.length <= 8) {
-          console.log('DEBUG: Using short ID pattern search for:', id);
-          const { data: results, error: queryError } = await anonSupabase
+          console.log('DEBUG FETCH: Using short ID pattern search for:', id);
+          const { data: results, error: queryError } = await client
             .from('shared_wedding_cards')
             .select('*')
             .eq('is_public', true);
             
-          console.log('DEBUG: All public cards fetched:', results?.length, 'cards');
-          console.log('DEBUG: Query error:', queryError);
+          console.log('DEBUG FETCH: All public cards fetched:', results?.length, 'cards');
+          console.log('DEBUG FETCH: Query error:', queryError);
+          console.log('DEBUG FETCH: Raw results:', results);
           
           if (queryError) {
+            console.error('DEBUG FETCH: Database query error:', queryError);
             error = queryError;
             data = null;
           } else {
             // Filter in JavaScript to find matching ID (convert UUID to string for comparison)
             const result = results?.find(card => String(card.id).startsWith(id));
-            console.log('DEBUG: Filtered result found:', !!result);
-            console.log('DEBUG: Searching for ID pattern:', id);
-            console.log('DEBUG: Available IDs:', results?.map(r => String(r.id).substring(0, 8)));
+            console.log('DEBUG FETCH: Filtered result found:', !!result);
+            console.log('DEBUG FETCH: Searching for ID pattern:', id);
+            console.log('DEBUG FETCH: Available IDs:', results?.map(r => String(r.id).substring(0, 8)));
+            
+            if (result) {
+              console.log('DEBUG FETCH: Found matching card:', result);
+              console.log('DEBUG FETCH: Card bride name:', result.bride_name);
+              console.log('DEBUG FETCH: Card groom name:', result.groom_name);
+              console.log('DEBUG FETCH: Card template ID:', result.template_id);
+              console.log('DEBUG FETCH: Card uploaded images:', result.uploaded_images);
+              console.log('DEBUG FETCH: Card is public:', result.is_public);
+            } else {
+              console.error('DEBUG FETCH: No matching card found for pattern:', id);
+            }
             
             data = result || null;
             error = result ? null : { message: 'No matching card found' };
           }
         } else {
-          console.log('DEBUG: Using exact ID match for:', id);
+          console.log('DEBUG FETCH: Using exact ID match for:', id);
           // Use exact match for full UUIDs
-          const { data: result, error: queryError } = await anonSupabase
+          const { data: result, error: queryError } = await client
             .from('shared_wedding_cards')
             .select('*')
             .eq('id', id)
             .eq('is_public', true)
             .maybeSingle();
             
-          console.log('DEBUG: Exact ID query result:', result);
-          console.log('DEBUG: Exact ID query error:', queryError);
+          console.log('DEBUG FETCH: Exact ID query result:', result);
+          console.log('DEBUG FETCH: Exact ID query error:', queryError);
+          
+          if (result) {
+            console.log('DEBUG FETCH: Found card with exact ID:', result);
+            console.log('DEBUG FETCH: Card bride name:', result.bride_name);
+            console.log('DEBUG FETCH: Card groom name:', result.groom_name);
+            console.log('DEBUG FETCH: Card template ID:', result.template_id);
+            console.log('DEBUG FETCH: Card uploaded images:', result.uploaded_images);
+            console.log('DEBUG FETCH: Card is public:', result.is_public);
+          } else {
+            console.error('DEBUG FETCH: No card found with exact ID:', id);
+          }
+          
           data = result;
           error = queryError;
         }
 
-        console.log('DEBUG: Final data:', data);
-        console.log('DEBUG: Final error:', error);
+        console.log('DEBUG FETCH: Final data:', data);
+        console.log('DEBUG FETCH: Final error:', error);
 
         if (error && error.code !== 'PGRST116') {
-          console.error('DEBUG: Database error occurred:', error);
+          console.error('DEBUG FETCH: Database error occurred:', error);
           throw error;
         }
         if (!data) {
-          console.error('DEBUG: No data returned from query');
+          console.error('DEBUG FETCH: No data returned from query - card not found');
           throw new Error('Wedding card not found or no longer available');
         }
 
-        // Handle data fields (they're already in correct format from database)
+        console.log('DEBUG FETCH: Card found! Processing data...');
+        console.log('DEBUG FETCH: Card data:', data);
+
+        // Handle data fields - they should be JSON objects already from Supabase
         const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images : [];
         const customization = typeof data.customization === 'object' && data.customization !== null ? data.customization : {};
         const elementPositions = typeof data.element_positions === 'object' && data.element_positions !== null ? data.element_positions : null;
+
+        console.log('DEBUG FETCH: Processed uploaded images:', uploadedImages);
+        console.log('DEBUG FETCH: Processed customization:', customization);
+        console.log('DEBUG FETCH: Processed element positions:', elementPositions);
 
         const mappedCardData: WeddingCardData = {
           id: data.id,
