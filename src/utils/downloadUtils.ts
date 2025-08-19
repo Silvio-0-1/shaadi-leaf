@@ -119,9 +119,33 @@ export const downloadAsImage = async (
       onclone: (clonedDoc, clonedElement) => {
         console.log('Cloning document for capture...');
         
+        // Copy CSS variables from original document to cloned document
+        const originalRoot = document.documentElement;
+        const clonedRoot = clonedDoc.documentElement;
+        const originalStyles = window.getComputedStyle(originalRoot);
+        
+        // Copy all CSS custom properties (variables)
+        for (let i = 0; i < originalStyles.length; i++) {
+          const property = originalStyles[i];
+          if (property.startsWith('--')) {
+            const value = originalStyles.getPropertyValue(property);
+            clonedRoot.style.setProperty(property, value);
+          }
+        }
+        
+        // Copy color scheme and theme
+        const theme = originalRoot.classList.contains('dark') ? 'dark' : 'light';
+        if (theme === 'dark') {
+          clonedRoot.classList.add('dark');
+        }
+        
         // Hide scrollbars
         clonedDoc.body.style.overflow = 'hidden';
         clonedDoc.documentElement.style.overflow = 'hidden';
+        
+        // Ensure proper color space and rendering
+        clonedDoc.body.style.colorScheme = theme;
+        clonedDoc.body.style.backgroundColor = theme === 'dark' ? 'hsl(240 10% 3.9%)' : 'hsl(0 0% 100%)';
         
         // Ensure the cloned element is properly positioned
         clonedElement.style.position = 'relative';
@@ -132,33 +156,55 @@ export const downloadAsImage = async (
         clonedElement.style.margin = '0';
         clonedElement.style.padding = '0';
         
-        // Copy computed styles more comprehensively
+        // Enhanced style copying function
         const copyStyles = (original: Element, cloned: Element) => {
           const originalStyles = window.getComputedStyle(original);
           const clonedEl = cloned as HTMLElement;
           
-          // Important style properties to copy
+          // Comprehensive style properties to copy
           const criticalStyles = [
             'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight',
             'color', 'backgroundColor', 'background', 'backgroundImage',
             'backgroundSize', 'backgroundPosition', 'backgroundRepeat',
+            'backgroundClip', 'backgroundOrigin', 'backgroundAttachment',
             'padding', 'margin', 'border', 'borderRadius', 'textAlign',
             'display', 'position', 'top', 'left', 'right', 'bottom',
             'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
-            'zIndex', 'opacity', 'transform', 'boxShadow', 'textShadow',
-            'letterSpacing', 'wordSpacing', 'textDecoration', 'textTransform'
+            'zIndex', 'opacity', 'transform', 'transformOrigin', 'transformStyle',
+            'boxShadow', 'textShadow', 'filter', 'backdropFilter',
+            'letterSpacing', 'wordSpacing', 'textDecoration', 'textTransform',
+            'overflow', 'overflowX', 'overflowY', 'visibility',
+            'clipPath', 'mask', 'mixBlendMode', 'isolation'
           ];
           
           criticalStyles.forEach(prop => {
             try {
               const value = originalStyles.getPropertyValue(prop);
-              if (value) {
-                clonedEl.style.setProperty(prop, value);
+              if (value && value !== 'normal' && value !== 'initial') {
+                // Resolve CSS variables in the value
+                if (value.includes('var(--')) {
+                  const resolvedValue = value.replace(/var\(([^)]+)\)/g, (match, varName) => {
+                    const cleanVarName = varName.split(',')[0].trim();
+                    return originalStyles.getPropertyValue(cleanVarName) || match;
+                  });
+                  clonedEl.style.setProperty(prop, resolvedValue);
+                } else {
+                  clonedEl.style.setProperty(prop, value);
+                }
               }
             } catch (e) {
               // Ignore errors for read-only properties
             }
           });
+          
+          // Special handling for background gradients
+          const bgImage = originalStyles.backgroundImage;
+          if (bgImage && bgImage !== 'none') {
+            clonedEl.style.backgroundImage = bgImage;
+            clonedEl.style.backgroundSize = originalStyles.backgroundSize;
+            clonedEl.style.backgroundPosition = originalStyles.backgroundPosition;
+            clonedEl.style.backgroundRepeat = originalStyles.backgroundRepeat;
+          }
           
           // Handle absolute positioning specifically
           if (originalStyles.position === 'absolute') {
@@ -184,15 +230,30 @@ export const downloadAsImage = async (
           }
         });
         
-        // Force all images to be visible
+        // Force all images to be visible and properly loaded
         clonedElement.querySelectorAll('img').forEach(img => {
           img.style.display = 'block';
           img.style.visibility = 'visible';
           img.style.opacity = '1';
+          img.style.filter = 'none'; // Remove any filters that might darken
         });
         
-        // Wait a bit more for the clone to settle
-        return new Promise(resolve => setTimeout(resolve, 100));
+        // Ensure text is properly visible
+        clonedElement.querySelectorAll('*').forEach(el => {
+          const htmlEl = el as HTMLElement;
+          const computedStyle = window.getComputedStyle(el);
+          if (computedStyle.color.includes('var(--')) {
+            // Resolve color variables
+            const resolvedColor = computedStyle.color.replace(/var\(([^)]+)\)/g, (match, varName) => {
+              const cleanVarName = varName.split(',')[0].trim();
+              return originalStyles.getPropertyValue(cleanVarName) || match;
+            });
+            htmlEl.style.color = resolvedColor;
+          }
+        });
+        
+        // Wait for the clone to settle
+        return new Promise(resolve => setTimeout(resolve, 200));
       }
     });
 
