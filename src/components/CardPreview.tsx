@@ -180,8 +180,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       if (error) throw error;
       
       const isLocalhost = window.location.hostname === 'localhost';
-      // For now, use the current domain to ensure links work
-      const domain = window.location.origin;
+      const domain = isLocalhost ? window.location.origin : 'https://shaadileaf.com';
       const shareUrl = `${domain}/shared/${data.id}`;
       
       console.log('Generated share URL (CardPreview):', shareUrl);
@@ -225,7 +224,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const visitSharedLink = () => {
     if (shareUrl) {
-      window.open(shareUrl, '_blank');
+      window.open(shareUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
