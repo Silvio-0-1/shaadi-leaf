@@ -86,6 +86,11 @@ export default {
 					700: 'hsl(32 95% 44%)',
 					800: 'hsl(28 92% 37%)',
 					900: 'hsl(24 84% 32%)',
+				},
+				lavender: {
+					50: 'hsl(var(--lavender-light))',
+					100: 'hsl(var(--lavender-medium))',
+					200: 'hsl(var(--lavender-deep))',
 				}
 			},
 			borderRadius: {
@@ -97,6 +102,8 @@ export default {
 				serif: ['Playfair Display', 'serif'],
 				sans: ['Inter', 'sans-serif'],
 				script: ['Dancing Script', 'cursive'],
+				'premium-serif': ['Playfair Display', 'Cormorant Garamond', 'serif'],
+				'premium-sans': ['Inter', 'Poppins', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -134,13 +141,63 @@ export default {
 						opacity: '1',
 						transform: 'translateY(0)'
 					}
+				},
+				'premium-entrance': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.8) translateY(40px) rotateX(10deg)',
+						filter: 'blur(10px)'
+					},
+					'60%': {
+						opacity: '0.8',
+						transform: 'scale(1.02) translateY(-5px) rotateX(-2deg)',
+						filter: 'blur(2px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1) translateY(0) rotateX(0deg)',
+						filter: 'blur(0px)'
+					}
+				},
+				'text-fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(20px)',
+						filter: 'blur(5px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)',
+						filter: 'blur(0px)'
+					}
+				},
+				'floating-sparkles': {
+					'0%, 100%': {
+						opacity: '0.6',
+						transform: 'translateY(0px) scale(1) rotate(0deg)'
+					},
+					'25%': {
+						opacity: '1',
+						transform: 'translateY(-15px) scale(1.2) rotate(90deg)'
+					},
+					'50%': {
+						opacity: '0.8',
+						transform: 'translateY(-8px) scale(1.1) rotate(180deg)'
+					},
+					'75%': {
+						opacity: '1',
+						transform: 'translateY(-20px) scale(1.3) rotate(270deg)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out',
-				'slide-up': 'slide-up 0.6s ease-out'
+				'slide-up': 'slide-up 0.6s ease-out',
+				'premium-entrance': 'premium-entrance 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
+				'text-fade-in': 'text-fade-in 0.8s ease-out forwards',
+				'floating-sparkles': 'floating-sparkles 4s ease-in-out infinite'
 			}
 		}
 	},

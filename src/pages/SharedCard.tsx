@@ -1,29 +1,32 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Calendar, MapPin, Loader2, Sparkles } from 'lucide-react';
+import { Heart, Calendar, MapPin, Loader2, Sparkles, Star } from 'lucide-react';
 import { templates } from '@/data/templates';
 import { WeddingCardData, CardElements } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
-import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SharedCard = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [cardData, setCardData] = useState<WeddingCardData | null>(null);
   const [elementPositions, setElementPositions] = useState<CardElements | null>(null);
   const [loading, setLoading] = useState(true);
   const [animate, setAnimate] = useState(false);
 
-  // Confetti animation function
-  const triggerConfetti = () => {
-    const count = 200;
+  // Premium confetti animation with heart petals
+  const triggerPremiumConfetti = () => {
+    const count = 300;
     const defaults = {
-      origin: { y: 0.7 }
+      origin: { y: 0.7 },
+      spread: 120,
+      ticks: 400,
+      gravity: 0.6,
     };
 
     function fire(particleRatio: number, opts: any) {
@@ -31,49 +34,59 @@ const SharedCard = () => {
         ...defaults,
         ...opts,
         particleCount: Math.floor(count * particleRatio),
-        shapes: ['heart'],
-        colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1', '#ff69b4']
       });
     }
 
+    // Heart petals
     fire(0.25, {
       spread: 26,
       startVelocity: 55,
+      shapes: ['heart'],
+      colors: ['#FFB7C5', '#FFD700', '#E6E6FA', '#FF69B4', '#DDA0DD']
     });
 
+    // Golden sparkles
     fire(0.2, {
       spread: 60,
+      shapes: ['star'],
+      colors: ['#FFD700', '#FFA500', '#FF8C00', '#DAA520']
     });
 
     fire(0.35, {
       spread: 100,
       decay: 0.91,
-      scalar: 0.8
+      scalar: 0.8,
+      shapes: ['circle'],
+      colors: ['#E6E6FA', '#DDA0DD', '#B19CD9']
     });
 
     fire(0.1, {
       spread: 120,
       startVelocity: 25,
       decay: 0.92,
-      scalar: 1.2
+      scalar: 1.2,
+      shapes: ['square'],
+      colors: ['#FFD700', '#FFA500']
     });
 
     fire(0.1, {
       spread: 120,
       startVelocity: 45,
+      shapes: ['heart'],
+      colors: ['#FF69B4', '#FFB7C5']
     });
 
-    // Add sparkle effect
+    // Delayed magical sparkle burst
     setTimeout(() => {
       confetti({
-        particleCount: 50,
+        particleCount: 100,
         spread: 360,
         startVelocity: 30,
-        gravity: 0.5,
+        gravity: 0.4,
         ticks: 300,
-        colors: ['#FFD700', '#FFA500', '#FF69B4', '#87CEEB'],
+        colors: ['#FFD700', '#FFA500', '#E6E6FA', '#DDA0DD', '#FF69B4'],
         shapes: ['star'],
-        scalar: 0.8
+        scalar: 1.2
       });
     }, 500);
   };
@@ -86,56 +99,29 @@ const SharedCard = () => {
       }
 
       console.log('DEBUG: Starting to load shared card with ID:', id);
-      console.log('DEBUG: ID length:', id.length);
 
       try {
         let data, error;
-        
-        console.log('DEBUG FETCH: Current auth state:', await supabase.auth.getUser());
-        
-        // Use the same supabase client for consistency
         const client = supabase;
         
-        // If ID is 8 characters or less, use substring search to find matching UUID
+        // Handle both short ID patterns and full UUIDs
         if (id.length <= 8) {
-          console.log('DEBUG FETCH: Using short ID pattern search for:', id);
+          console.log('DEBUG: Using short ID pattern search for:', id);
           const { data: results, error: queryError } = await client
             .from('shared_wedding_cards')
             .select('*')
             .eq('is_public', true);
             
-          console.log('DEBUG FETCH: All public cards fetched:', results?.length, 'cards');
-          console.log('DEBUG FETCH: Query error:', queryError);
-          console.log('DEBUG FETCH: Raw results:', results);
-          
           if (queryError) {
-            console.error('DEBUG FETCH: Database query error:', queryError);
             error = queryError;
             data = null;
           } else {
-            // Filter in JavaScript to find matching ID (convert UUID to string for comparison)
             const result = results?.find(card => String(card.id).startsWith(id));
-            console.log('DEBUG FETCH: Filtered result found:', !!result);
-            console.log('DEBUG FETCH: Searching for ID pattern:', id);
-            console.log('DEBUG FETCH: Available IDs:', results?.map(r => String(r.id).substring(0, 8)));
-            
-            if (result) {
-              console.log('DEBUG FETCH: Found matching card:', result);
-              console.log('DEBUG FETCH: Card bride name:', result.bride_name);
-              console.log('DEBUG FETCH: Card groom name:', result.groom_name);
-              console.log('DEBUG FETCH: Card template ID:', result.template_id);
-              console.log('DEBUG FETCH: Card uploaded images:', result.uploaded_images);
-              console.log('DEBUG FETCH: Card is public:', result.is_public);
-            } else {
-              console.error('DEBUG FETCH: No matching card found for pattern:', id);
-            }
-            
             data = result || null;
             error = result ? null : { message: 'No matching card found' };
           }
         } else {
-          console.log('DEBUG FETCH: Using exact ID match for:', id);
-          // Use exact match for full UUIDs
+          console.log('DEBUG: Using exact ID match for:', id);
           const { data: result, error: queryError } = await client
             .from('shared_wedding_cards')
             .select('*')
@@ -143,47 +129,20 @@ const SharedCard = () => {
             .eq('is_public', true)
             .maybeSingle();
             
-          console.log('DEBUG FETCH: Exact ID query result:', result);
-          console.log('DEBUG FETCH: Exact ID query error:', queryError);
-          
-          if (result) {
-            console.log('DEBUG FETCH: Found card with exact ID:', result);
-            console.log('DEBUG FETCH: Card bride name:', result.bride_name);
-            console.log('DEBUG FETCH: Card groom name:', result.groom_name);
-            console.log('DEBUG FETCH: Card template ID:', result.template_id);
-            console.log('DEBUG FETCH: Card uploaded images:', result.uploaded_images);
-            console.log('DEBUG FETCH: Card is public:', result.is_public);
-          } else {
-            console.error('DEBUG FETCH: No card found with exact ID:', id);
-          }
-          
           data = result;
           error = queryError;
         }
 
-        console.log('DEBUG FETCH: Final data:', data);
-        console.log('DEBUG FETCH: Final error:', error);
-
         if (error && error.code !== 'PGRST116') {
-          console.error('DEBUG FETCH: Database error occurred:', error);
           throw error;
         }
         if (!data) {
-          console.error('DEBUG FETCH: No data returned from query - card not found');
           throw new Error('Wedding card not found or no longer available');
         }
 
-        console.log('DEBUG FETCH: Card found! Processing data...');
-        console.log('DEBUG FETCH: Card data:', data);
-
-        // Handle data fields - they should be JSON objects already from Supabase
         const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images : [];
         const customization = typeof data.customization === 'object' && data.customization !== null ? data.customization : {};
         const elementPositions = typeof data.element_positions === 'object' && data.element_positions !== null ? data.element_positions : null;
-
-        console.log('DEBUG FETCH: Processed uploaded images:', uploadedImages);
-        console.log('DEBUG FETCH: Processed customization:', customization);
-        console.log('DEBUG FETCH: Processed element positions:', elementPositions);
 
         const mappedCardData: WeddingCardData = {
           id: data.id,
@@ -201,17 +160,19 @@ const SharedCard = () => {
         setCardData(mappedCardData);
         setElementPositions(elementPositions);
         
-        // Trigger animation and confetti after a short delay
+        // Delayed premium entrance with confetti
         setTimeout(() => {
           setAnimate(true);
-          triggerConfetti();
-        }, 800);
+        }, 300);
+        
+        setTimeout(() => {
+          triggerPremiumConfetti();
+        }, 1000);
         
       } catch (error) {
         console.error('Error loading shared card:', error);
         setCardData(null);
         setElementPositions(null);
-        // Don't show toast here, let the UI handle the not found state
       } finally {
         setLoading(false);
       }
@@ -263,16 +224,66 @@ const SharedCard = () => {
     return defaultStyle;
   };
 
+  const getPhotoClasses = (isMainPhoto: boolean = false) => {
+    const photoShape = cardData?.customization?.photoShape || 'rounded';
+    const baseClasses = isMainPhoto 
+      ? `${isMobile ? 'w-24 h-24' : 'w-28 h-28'} object-cover border-4 border-gold-200 shadow-xl` 
+      : `${isMobile ? 'w-16 h-16' : 'w-20 h-20'} object-cover border-2 border-gold-200 shadow-lg`;
+    
+    switch (photoShape) {
+      case 'circle':
+        return `${baseClasses} rounded-full`;
+      case 'square':
+        return `${baseClasses} rounded-none`;
+      case 'rounded':
+      default:
+        return `${baseClasses} ${isMainPhoto ? 'rounded-full' : 'rounded-xl'}`;
+    }
+  };
+
   const handleCreateCardClick = () => {
     navigate('/');
   };
 
+  const handleCardClick = () => {
+    triggerPremiumConfetti();
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading wedding card...</p>
+      <div className="min-h-screen premium-gradient-bg flex items-center justify-center relative overflow-hidden">
+        {/* Premium loading animation background */}
+        <div className="absolute inset-0">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={`loading-sparkle-${i}`}
+              className="absolute animate-floating-sparkles"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 4}s`,
+              }}
+            >
+              <Sparkles 
+                className="h-4 w-4 text-gold-400 opacity-40" 
+              />
+            </div>
+          ))}
+        </div>
+        
+        <div className="text-center space-y-6 z-10">
+          <div className="relative">
+            <div className="absolute inset-0 animate-pulse-glow rounded-full"></div>
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-gold-600 relative z-10" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-premium-serif text-white animate-text-fade-in">
+              Unveiling Your Special Moment
+            </h2>
+            <p className="text-lavender-50 font-premium-sans animate-text-fade-in" style={{ animationDelay: '0.2s' }}>
+              Preparing something magical...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -280,13 +291,16 @@ const SharedCard = () => {
 
   if (!cardData) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Heart className="h-12 w-12 text-muted-foreground mx-auto" />
-          <h1 className="text-2xl font-semibold">Card Not Found</h1>
-          <p className="text-muted-foreground">This wedding card is no longer available.</p>
-          <Button onClick={() => navigate('/')}>
-            Go Home
+      <div className="min-h-screen premium-gradient-bg flex items-center justify-center">
+        <div className="text-center space-y-6 glassmorphism p-12 rounded-3xl max-w-md mx-4">
+          <Heart className="h-16 w-16 text-gold-500 mx-auto animate-pulse" />
+          <h1 className="text-3xl font-premium-serif text-white">Card Not Found</h1>
+          <p className="text-lavender-100 font-premium-sans">This wedding card is no longer available or has been made private.</p>
+          <Button 
+            onClick={() => navigate('/')} 
+            className="bg-gold-500 hover:bg-gold-600 text-white font-premium-sans shimmer-effect golden-border"
+          >
+            Discover More Cards
           </Button>
         </div>
       </div>
@@ -306,31 +320,34 @@ const SharedCard = () => {
     }
     
     return {
-      background: `linear-gradient(135deg, ${template?.colors.secondary} 0%, ${template?.colors.primary}15 100%)`
+      background: `linear-gradient(135deg, ${template?.colors.secondary}15 0%, ${template?.colors.primary}25 100%)`
     };
   };
 
-  const getPhotoClasses = (isMainPhoto: boolean = false) => {
-    const photoShape = cardData.customization?.photoShape || 'rounded';
-    const baseClasses = isMainPhoto ? "w-24 h-24 object-cover border-4 border-white shadow-lg" : "w-16 h-16 object-cover border-2 border-white shadow-md";
-    
-    switch (photoShape) {
-      case 'circle':
-        return `${baseClasses} rounded-full`;
-      case 'square':
-        return `${baseClasses} rounded-none`;
-      case 'rounded':
-      default:
-        return `${baseClasses} ${isMainPhoto ? 'rounded-full' : 'rounded-lg'}`;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Magical background with floating hearts and stars */}
+    <div className="min-h-screen premium-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Premium magical background elements */}
       <div className="absolute inset-0 pointer-events-none">
+        {/* Floating sparkles */}
+        {[...Array(25)].map((_, i) => (
+          <div
+            key={`sparkle-${i}`}
+            className="absolute animate-floating-sparkles"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 4}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
+            }}
+          >
+            <Sparkles 
+              className={`h-${2 + Math.floor(Math.random() * 3)} w-${2 + Math.floor(Math.random() * 3)} text-gold-400 opacity-${30 + Math.floor(Math.random() * 50)}`}
+            />
+          </div>
+        ))}
+        
         {/* Floating hearts */}
-        {[...Array(12)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <div
             key={`heart-${i}`}
             className="absolute animate-float"
@@ -338,240 +355,169 @@ const SharedCard = () => {
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
+              animationDuration: `${4 + Math.random() * 2}s`
             }}
           >
             <Heart 
-              className={`h-${3 + Math.floor(Math.random() * 3)} w-${3 + Math.floor(Math.random() * 3)} text-pink-300 opacity-${20 + Math.floor(Math.random() * 40)}`} 
+              className={`h-${3 + Math.floor(Math.random() * 2)} w-${3 + Math.floor(Math.random() * 2)} text-lavender-100 opacity-${25 + Math.floor(Math.random() * 30)}`} 
               fill="currentColor" 
             />
           </div>
         ))}
         
-        {/* Sparkling stars */}
-        {[...Array(15)].map((_, i) => (
+        {/* Golden stars */}
+        {[...Array(12)].map((_, i) => (
           <div
             key={`star-${i}`}
-            className="absolute animate-sparkle"
+            className="absolute animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${2 + Math.random() * 2}s`
+              animationDelay: `${Math.random() * 3}s`,
             }}
           >
-            <Sparkles 
-              className={`h-${2 + Math.floor(Math.random() * 3)} w-${2 + Math.floor(Math.random() * 3)} text-yellow-300 opacity-${30 + Math.floor(Math.random() * 40)}`}
+            <Star 
+              className="h-3 w-3 text-gold-300 opacity-40" 
+              fill="currentColor"
             />
           </div>
         ))}
-        
-        {/* Glowing orbs */}
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={`orb-${i}`}
-            className="absolute rounded-full bg-gradient-to-r from-pink-400 to-purple-400 opacity-10 blur-xl animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${50 + Math.random() * 100}px`,
-              height: `${50 + Math.random() * 100}px`,
-              animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          />
-        ))}
       </div>
 
-      <div className="w-full max-w-md space-y-6 z-10">
-        {/* Premium Header Section */}
-        <div className="text-center">
-          <div className={`transition-all duration-2000 ${animate ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}>
-            <div className="relative mb-8">
-              <div className="absolute -inset-8 bg-gradient-to-r from-pink-500/20 via-purple-500/30 to-pink-500/20 rounded-full blur-2xl opacity-60 animate-pulse"></div>
-              <div className="absolute -inset-4 bg-gradient-to-r from-yellow-400/10 via-pink-400/20 to-yellow-400/10 rounded-full blur-xl opacity-80 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-              
-              <h1 className="relative text-5xl font-serif font-bold mb-4 bg-gradient-to-r from-yellow-300 via-pink-300 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
-                You're Invited!
-              </h1>
-              
-              <div className="flex items-center justify-center space-x-4 mb-3">
-                <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-yellow-300 to-pink-300 rounded-full"></div>
-                <Heart className="h-6 w-6 text-pink-400 animate-pulse drop-shadow-lg" fill="currentColor" />
-                <div className="h-0.5 w-16 bg-gradient-to-l from-transparent via-yellow-300 to-pink-300 rounded-full"></div>
-              </div>
-              
-              <div className="backdrop-blur-sm bg-white/10 rounded-2xl border border-white/20 p-4 mx-4">
-                <p className="text-xl font-medium text-white drop-shadow-md">
-                  <span className="text-yellow-300 font-bold drop-shadow-lg">{cardData.brideName}</span>
-                  <span className="mx-3 text-pink-300 text-2xl">&</span>
-                  <span className="text-yellow-300 font-bold drop-shadow-lg">{cardData.groomName}</span>
-                  <br />
-                  <span className="text-lg text-pink-100 italic drop-shadow-sm">are getting married</span>
+      <div className={`w-full ${isMobile ? 'max-w-sm px-2' : 'max-w-lg'} space-y-${isMobile ? '6' : '8'} z-10`}>
+        {/* Premium header section with elegant typography */}
+        <div className={`text-center transition-all duration-1500 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+          <div className="relative mb-8">
+            <div className="absolute -inset-12 bg-gradient-to-r from-lavender-100/20 via-gold-400/30 to-lavender-100/20 rounded-full blur-3xl opacity-60 animate-pulse"></div>
+            <div className="absolute -inset-6 bg-gradient-to-r from-gold-200/10 via-lavender-200/20 to-gold-200/10 rounded-full blur-2xl opacity-80 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            
+            <h1 className={`relative ${isMobile ? 'text-4xl' : 'text-6xl'} font-premium-serif font-bold mb-6 premium-text-gradient drop-shadow-2xl`}>
+              You're Invited
+            </h1>
+            
+            <div className={`flex items-center justify-center ${isMobile ? 'space-x-4' : 'space-x-6'} mb-4`}>
+              <div className={`h-0.5 ${isMobile ? 'w-12' : 'w-20'} bg-gradient-to-r from-transparent via-gold-400 to-lavender-200 rounded-full`}></div>
+              <Heart className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} text-gold-400 animate-pulse drop-shadow-lg`} fill="currentColor" />
+              <div className={`h-0.5 ${isMobile ? 'w-12' : 'w-20'} bg-gradient-to-l from-transparent via-gold-400 to-lavender-200 rounded-full`}></div>
+            </div>
+            
+            <div className={`glassmorphism golden-border rounded-3xl ${isMobile ? 'p-4 mx-2' : 'p-6 mx-4'} shimmer-effect`}>
+              <div className="space-y-2">
+                <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-premium-serif text-gold-700 drop-shadow-sm`}>
+                  <span className="font-bold">{cardData.brideName}</span>
+                  <span className={`${isMobile ? 'mx-2 text-2xl' : 'mx-4 text-3xl'} text-lavender-200`}>&</span>
+                  <span className="font-bold">{cardData.groomName}</span>
+                </p>
+                <p className={`${isMobile ? 'text-base' : 'text-lg'} font-premium-sans text-lavender-600 italic`}>
+                  are getting married
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className={`transition-all duration-2000 delay-500 ${animate ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          <div className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-r from-pink-500/30 via-purple-500/40 to-pink-500/30 rounded-2xl blur-xl opacity-80 animate-pulse"></div>
+        {/* Premium wedding card */}
+        <div className={`transition-all duration-2000 delay-700 ${animate ? 'animate-premium-entrance' : 'opacity-0'}`}>
+          <div className="relative group">
+            <div className="absolute -inset-6 bg-gradient-to-r from-gold-400/30 via-lavender-200/40 to-gold-400/30 rounded-3xl blur-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
             <Card 
-              className="relative aspect-[3/4] overflow-hidden backdrop-blur-sm bg-white/95 border-2 border-white/50 shadow-2xl transition-all duration-500 hover:shadow-pink-500/25 hover:scale-105"
+              className="relative aspect-[3/4] glassmorphism golden-border shadow-2xl transition-all duration-700 hover:scale-105 cursor-pointer shimmer-effect group rounded-3xl overflow-hidden"
               style={getBackgroundStyle()}
+              onClick={handleCardClick}
             >
-            <div className="relative h-full p-8 flex flex-col justify-center items-center text-center">
-              {!template?.backgroundImage && (
-                <div 
-                  className="absolute top-0 left-0 right-0 h-2"
-                  style={{ backgroundColor: template?.colors.primary }}
-                />
-              )}
+              <div className="silk-texture absolute inset-0 opacity-30"></div>
               
-              {cardData.logoImage && (
-                <div style={getElementStyle('logo', { position: 'absolute', top: '24px', left: '50%', transform: 'translateX(-50%)' })}>
-                  <img 
-                    src={cardData.logoImage} 
-                    alt="Wedding Logo" 
-                    className="w-16 h-16 object-contain opacity-80"
+              <div className={`relative h-full ${isMobile ? 'p-6' : 'p-8'} flex flex-col justify-center items-center text-center space-y-${isMobile ? '3' : '4'}`}>
+                {!template?.backgroundImage && (
+                  <div 
+                    className="absolute top-0 left-0 right-0 h-3 rounded-t-3xl"
+                    style={{ backgroundColor: template?.colors.primary }}
                   />
-                </div>
-              )}
-
-              {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
-                <div style={getElementStyle('photo', { marginBottom: '24px' })}>
-                  {cardData.uploadedImages.length === 1 ? (
+                )}
+                
+                {cardData.logoImage && (
+                  <div style={getElementStyle('logo', { position: 'absolute', top: '32px', left: '50%', transform: 'translateX(-50%)' })}>
                     <img 
-                      src={cardData.uploadedImages[0]} 
-                      alt="Wedding" 
-                      className={getPhotoClasses(true)}
+                      src={cardData.logoImage} 
+                      alt="Wedding Logo" 
+                      className="w-20 h-20 object-contain opacity-90 drop-shadow-lg"
                     />
-                  ) : (
-                    <div className="flex flex-wrap justify-center gap-2 max-w-48">
-                      {cardData.uploadedImages.slice(0, 4).map((image, index) => (
-                        <img 
-                          key={index}
-                          src={image} 
-                          alt={`Wedding ${index + 1}`} 
-                          className={getPhotoClasses(false)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              <div className={`space-y-3 mb-8 ${elementPositions ? 'contents' : ''}`}>
-                <h1 
-                  className="text-3xl font-serif font-bold leading-tight"
-                  style={{ 
-                    color: template?.colors.primary,
-                    ...getElementStyle('brideName')
-                  }}
-                >
-                  {cardData.brideName}
-                </h1>
-                <div 
-                  className="flex items-center justify-center"
-                  style={getElementStyle('heartIcon')}
-                >
-                  <div 
-                    className="h-px w-8"
-                    style={{ backgroundColor: `${template?.colors.primary}50` }}
-                  />
-                  <Heart 
-                    className="h-4 w-4 mx-3" 
-                    fill={`${template?.colors.primary}80`}
-                    style={{ color: `${template?.colors.primary}80` }}
-                  />
-                  <div 
-                    className="h-px w-8"
-                    style={{ backgroundColor: `${template?.colors.primary}50` }}
-                  />
-                </div>
-                <h1 
-                  className="text-3xl font-serif font-bold leading-tight"
-                  style={{ 
-                    color: template?.colors.primary,
-                    ...getElementStyle('groomName')
-                  }}
-                >
-                  {cardData.groomName}
-                </h1>
-              </div>
+                {(cardData.uploadedImages && cardData.uploadedImages.length > 0) && (
+                  <div style={getElementStyle('photo', { marginBottom: '32px' })} className="animate-text-fade-in">
+                    {cardData.uploadedImages.length === 1 ? (
+                      <img 
+                        src={cardData.uploadedImages[0]} 
+                        alt="Wedding couple" 
+                        className={getPhotoClasses(true)}
+                      />
+                    ) : (
+                      <div className="flex flex-wrap justify-center gap-3 max-w-56">
+                        {cardData.uploadedImages.slice(0, 4).map((image, index) => (
+                          <img 
+                            key={index}
+                            src={image} 
+                            alt={`Wedding photo ${index + 1}`}
+                            className={getPhotoClasses(false)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              <div className={`space-y-4 mb-6 ${elementPositions ? 'contents' : ''}`}>
+                <div style={{...getElementStyle('brideName'), animationDelay: '0.3s'}} className="space-y-2 animate-text-fade-in">
+                  <h2 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-premium-serif font-bold text-gold-800 drop-shadow-sm`}>
+                    {cardData.brideName} & {cardData.groomName}
+                  </h2>
+                </div>
+
                 {cardData.weddingDate && (
-                  <div 
-                    className="flex items-center justify-center text-gray-700"
-                    style={getElementStyle('weddingDate')}
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span className="font-medium text-sm">
+                  <div style={{...getElementStyle('weddingDate'), animationDelay: '0.6s'}} className="flex items-center space-x-2 animate-text-fade-in">
+                    <Calendar className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-lavender-600`} />
+                    <span className={`${isMobile ? 'text-base' : 'text-lg'} font-premium-sans text-lavender-700 font-medium`}>
                       {formatDate(cardData.weddingDate)}
                     </span>
                   </div>
                 )}
 
                 {cardData.venue && (
-                  <div 
-                    className="flex items-center justify-center text-gray-700"
-                    style={getElementStyle('venue')}
-                  >
-                    <MapPin className="h-4 w-4 mr-2" />
-                    <span className="text-sm">
+                  <div style={{...getElementStyle('venue'), animationDelay: '0.9s'}} className="flex items-center space-x-2 animate-text-fade-in">
+                    <MapPin className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-lavender-600`} />
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} font-premium-sans text-lavender-700`}>
                       {cardData.venue}
                     </span>
                   </div>
                 )}
-              </div>
 
-              {cardData.message && (
-                <div 
-                  className="max-w-64 text-sm leading-relaxed text-gray-700"
-                  style={getElementStyle('message')}
-                >
-                  <span className="italic">
-                    "{cardData.message}"
-                  </span>
-                </div>
-              )}
-
-              {!template?.backgroundImage && (
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-                  <div className="flex items-center space-x-2">
-                    <div 
-                      className="h-px w-12"
-                      style={{ backgroundColor: `${template?.colors.primary}30` }}
-                    />
-                    <Heart 
-                      className="h-3 w-3"
-                      fill={`${template?.colors.primary}40`}
-                      style={{ color: `${template?.colors.primary}40` }}
-                    />
-                    <div 
-                      className="h-px w-12"
-                      style={{ backgroundColor: `${template?.colors.primary}30` }}
-                    />
+                {cardData.message && (
+                  <div style={{...getElementStyle('message'), animationDelay: '1.2s'}} className="animate-text-fade-in">
+                    <p className={`${isMobile ? 'text-sm max-w-64' : 'text-base max-w-xs'} font-premium-sans text-lavender-600 italic leading-relaxed`}>
+                      "{cardData.message}"
+                    </p>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             </Card>
           </div>
         </div>
 
-        <div className={`text-center transition-all duration-2000 delay-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          <div className="relative">
-            <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400/50 via-pink-500/50 to-yellow-400/50 rounded-full blur-lg opacity-60 animate-pulse"></div>
-            <Button 
+        {/* Premium call-to-action */}
+        <div className={`text-center transition-all duration-1500 delay-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`glassmorphism rounded-2xl ${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
+            <p className={`${isMobile ? 'text-base' : 'text-lg'} font-premium-sans text-lavender-100`}>
+              Create your own magical wedding invitation
+            </p>
+            <Button
               onClick={handleCreateCardClick}
-              className="relative bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-10 py-4 text-xl rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 hover:shadow-pink-500/50 border-2 border-white/20"
+              size={isMobile ? "default" : "lg"}
+              className={`bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white font-premium-sans font-semibold ${isMobile ? 'px-6 py-3' : 'px-8 py-4'} rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 shimmer-effect`}
             >
-              <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
-              Create Your Own Wedding Card
-              <Heart className="ml-2 h-5 w-5 animate-pulse" fill="currentColor" />
+              <Sparkles className="mr-2 h-5 w-5" />
+              Create Your Wedding Card
             </Button>
           </div>
         </div>
