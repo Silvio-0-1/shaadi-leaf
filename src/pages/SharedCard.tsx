@@ -325,7 +325,7 @@ const SharedCard = () => {
   };
 
   return (
-    <div className="min-h-screen premium-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Premium magical background elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Floating sparkles */}
@@ -391,7 +391,7 @@ const SharedCard = () => {
             <div className="absolute -inset-12 bg-gradient-to-r from-lavender-100/20 via-gold-400/30 to-lavender-100/20 rounded-full blur-3xl opacity-60 animate-pulse"></div>
             <div className="absolute -inset-6 bg-gradient-to-r from-gold-200/10 via-lavender-200/20 to-gold-200/10 rounded-full blur-2xl opacity-80 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             
-            <h1 className={`relative ${isMobile ? 'text-4xl' : 'text-6xl'} font-premium-serif font-bold mb-6 premium-text-gradient drop-shadow-2xl`}>
+            <h1 className={`relative ${isMobile ? 'text-4xl' : 'text-6xl'} font-premium-serif font-bold mb-6 text-white drop-shadow-2xl`}>
               You're Invited
             </h1>
             
@@ -507,19 +507,14 @@ const SharedCard = () => {
 
         {/* Premium call-to-action */}
         <div className={`text-center transition-all duration-1500 delay-1000 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className={`glassmorphism rounded-2xl ${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
-            <p className={`${isMobile ? 'text-base' : 'text-lg'} font-premium-sans text-lavender-100`}>
-              Create your own magical wedding invitation
-            </p>
-            <Button
-              onClick={handleCreateCardClick}
-              size={isMobile ? "default" : "lg"}
-              className={`bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white font-premium-sans font-semibold ${isMobile ? 'px-6 py-3' : 'px-8 py-4'} rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 shimmer-effect`}
-            >
-              <Sparkles className="mr-2 h-5 w-5" />
-              Create Your Wedding Card
-            </Button>
-          </div>
+          <Button
+            onClick={handleCreateCardClick}
+            size={isMobile ? "default" : "lg"}
+            className={`bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white font-premium-sans font-semibold ${isMobile ? 'px-6 py-3' : 'px-8 py-4'} rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 shimmer-effect`}
+          >
+            <Sparkles className="mr-2 h-5 w-5" />
+            Create Your Wedding Card
+          </Button>
         </div>
       </div>
     </div>
