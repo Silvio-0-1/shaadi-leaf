@@ -51,20 +51,20 @@ export const QuickActions = () => {
         <CardTitle>Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
           {actions.map((action, index) => (
             <Button
               key={index}
               variant="outline"
-              className="h-auto p-4 justify-start"
+              className="h-auto p-3 justify-start min-h-[4rem] transition-all duration-200 hover:shadow-md"
               onClick={action.action}
             >
-              <div className={`p-2 rounded-lg ${action.color} mr-3`}>
+              <div className={`p-2 rounded-lg ${action.color} mr-3 flex-shrink-0`}>
                 <action.icon className="h-4 w-4 text-white" />
               </div>
-              <div className="text-left">
-                <div className="font-medium">{action.title}</div>
-                <div className="text-xs text-muted-foreground">{action.description}</div>
+              <div className="text-left flex-1 min-w-0">
+                <div className="font-medium text-sm truncate">{action.title}</div>
+                <div className="text-xs text-muted-foreground truncate">{action.description}</div>
               </div>
             </Button>
           ))}

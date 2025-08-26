@@ -284,46 +284,55 @@ export const AdminDashboardHome = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto">
         {/* Page Header */}
-        <div>
+        <div className="animate-fade-in">
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back! Here's what's happening with your platform.</p>
         </div>
 
         {/* Stats Overview */}
-        <DashboardStats stats={stats} />
+        <div className="animate-fade-in">
+          <DashboardStats stats={stats} />
+        </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main Content Grid */}
+        <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 items-start">
           {/* Quick Actions */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 xl:col-span-1 animate-fade-in">
             <QuickActions />
           </div>
 
           {/* Recent Activity */}
-          <div className="lg:col-span-2">
-            <Card>
+          <div className="lg:col-span-2 xl:col-span-3 animate-fade-in">
+            <Card className="h-fit">
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-center justify-between border-b border-border pb-4 last:border-0">
-                      <div>
-                        <p className="text-sm font-medium">{activity.description}</p>
-                        {activity.user && (
-                          <p className="text-xs text-muted-foreground">{activity.user}</p>
-                        )}
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map((activity) => (
+                      <div key={activity.id} className="flex items-start justify-between border-b border-border pb-4 last:border-0 animate-scale-in">
+                        <div className="flex-1 min-w-0 pr-4">
+                          <p className="text-sm font-medium truncate">{activity.description}</p>
+                          {activity.user && (
+                            <p className="text-xs text-muted-foreground truncate">{activity.user}</p>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <Badge variant="outline" className="text-xs mb-1">
+                            {activity.type.replace('_', ' ')}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <Badge variant="outline" className="text-xs">
-                          {activity.type.replace('_', ' ')}
-                        </Badge>
-                        <p className="text-xs text-muted-foreground mt-1">{activity.timestamp}</p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No recent activity to display</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -331,47 +340,49 @@ export const AdminDashboardHome = () => {
         </div>
 
         {/* Popular Templates */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Popular Templates</CardTitle>
-            <Button variant="outline" size="sm" onClick={() => navigate('/admin/templates')}>
-              View All
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              {popularTemplates.map((template) => (
-                <div key={template.id} className="relative group">
-                  <div className="aspect-[3/4] bg-muted rounded-lg overflow-hidden mb-3">
-                    <img 
-                      src={template.thumbnail} 
-                      alt={template.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button size="sm" variant="secondary">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="secondary">
-                        <Edit className="h-4 w-4" />
-                      </Button>
+        <div className="animate-fade-in">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Popular Templates</CardTitle>
+              <Button variant="outline" size="sm" onClick={() => navigate('/admin/templates')}>
+                View All
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {popularTemplates.map((template, index) => (
+                  <div key={template.id} className="relative group animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <div className="aspect-[3/4] bg-muted rounded-lg overflow-hidden mb-3 transition-transform duration-300 group-hover:scale-105">
+                      <img 
+                        src={template.thumbnail} 
+                        alt={template.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2">
+                        <Button size="sm" variant="secondary" className="hover-scale">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="secondary" className="hover-scale">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium text-sm truncate pr-2">{template.name}</h3>
+                        <Star className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="truncate pr-2">{template.category}</span>
+                        <span className="flex-shrink-0">{template.downloads} downloads</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-sm">{template.name}</h3>
-                      <Star className="h-4 w-4 text-yellow-500" />
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{template.category}</span>
-                      <span>{template.downloads} downloads</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AdminLayout>
   );
