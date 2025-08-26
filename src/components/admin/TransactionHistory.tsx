@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { History, Download, Search, Filter } from 'lucide-react';
+import { History, Download, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface Transaction {
   id: string;
@@ -35,16 +35,49 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const { toast } = useToast();
+  
+  const ITEMS_PER_PAGE = 20;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (page: number = 1) => {
     try {
       setLoading(true);
       
-      // First get transactions
+      // First get total count
+      let countQuery = supabase
+        .from('credit_transactions')
+        .select('*', { count: 'exact', head: true });
+
+      if (selectedUserId) {
+        countQuery = countQuery.eq('user_id', selectedUserId);
+      }
+
+      const { count, error: countError } = await countQuery;
+      
+      if (countError) {
+        console.error('Error getting count:', countError);
+        toast({
+          title: "Error",
+          description: "Failed to load transaction count",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setTotalCount(count || 0);
+
+      // Then get transactions with pagination
+      const from = (page - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
       let query = supabase
         .from('credit_transactions')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (selectedUserId) {
         query = query.eq('user_id', selectedUserId);
@@ -54,7 +87,11 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
 
       if (transactionsError) {
         console.error('Error fetching transactions:', transactionsError);
-        toast.error('Failed to load transaction history');
+        toast({
+          title: "Error",
+          description: "Failed to load transaction history",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -62,51 +99,88 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
       const userIds = transactionsData?.map(transaction => transaction.user_id) || [];
       const uniqueUserIds = [...new Set(userIds)];
       
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .in('id', uniqueUserIds);
+      if (uniqueUserIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', uniqueUserIds);
 
-      if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
-        toast.error('Failed to load user profiles');
-        return;
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+          toast({
+            title: "Error",
+            description: "Failed to load user profiles",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Combine the data
+        const combinedData = transactionsData?.map(transaction => {
+          const profile = profilesData?.find(p => p.id === transaction.user_id);
+          return {
+            ...transaction,
+            profiles: profile ? {
+              full_name: profile.full_name,
+              email: profile.email
+            } : null
+          };
+        }) || [];
+
+        setTransactions(combinedData);
+      } else {
+        setTransactions([]);
       }
-
-      // Combine the data
-      const combinedData = transactionsData?.map(transaction => {
-        const profile = profilesData?.find(p => p.id === transaction.user_id);
-        return {
-          ...transaction,
-          profiles: profile ? {
-            full_name: profile.full_name,
-            email: profile.email
-          } : null
-        };
-      }) || [];
-
-      setTransactions(combinedData);
     } catch (error) {
       console.error('Error fetching transactions:', error);
-      toast.error('Failed to load transaction history');
+      toast({
+        title: "Error",
+        description: "Failed to load transaction history",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTransactions();
+    setCurrentPage(1);
+    fetchTransactions(1);
   }, [selectedUserId]);
+
+  useEffect(() => {
+    fetchTransactions(currentPage);
+  }, [currentPage]);
 
   const exportTransactions = async () => {
     try {
-      const filteredTransactions = getFilteredTransactions();
+      // For export, get all transactions (not paginated)
+      let query = supabase
+        .from('credit_transactions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (selectedUserId) {
+        query = query.eq('user_id', selectedUserId);
+      }
+
+      const { data: allTransactions, error } = await query;
+
+      if (error) {
+        console.error('Error fetching all transactions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to export transaction history",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const csvContent = [
-        ['Date', 'User', 'Email', 'Amount', 'Type', 'Description', 'Action Type', 'Reference ID'],
-        ...filteredTransactions.map(t => [
+        ['Date', 'User ID', 'Amount', 'Type', 'Description', 'Action Type', 'Reference ID'],
+        ...(allTransactions || []).map(t => [
           format(new Date(t.created_at), 'yyyy-MM-dd HH:mm:ss'),
-          t.profiles?.full_name || 'N/A',
-          t.profiles?.email || 'N/A',
+          t.user_id,
           t.amount.toString(),
           t.transaction_type,
           t.description,
@@ -123,10 +197,17 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
       a.click();
       window.URL.revokeObjectURL(url);
       
-      toast.success('Transaction history exported successfully');
+      toast({
+        title: "Success",
+        description: "Transaction history exported successfully"
+      });
     } catch (error) {
       console.error('Error exporting transactions:', error);
-      toast.error('Failed to export transaction history');
+      toast({
+        title: "Error",
+        description: "Failed to export transaction history",
+        variant: "destructive"
+      });
     }
   };
 
@@ -141,6 +222,28 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
       
       return matchesSearch && matchesType;
     });
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  const handleTypeFilterChange = (value: string) => {
+    setTypeFilter(value);
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
   const getTransactionBadge = (amount: number, type: string) => {
@@ -208,31 +311,31 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search transactions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search transactions..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={typeFilter} onValueChange={handleTypeFilterChange}>
+                <SelectTrigger className="w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="signup_bonus">Signup Bonus</SelectItem>
+                  <SelectItem value="purchase">Purchase</SelectItem>
+                  <SelectItem value="deduction">Deduction</SelectItem>
+                  <SelectItem value="admin_credit">Admin Credit</SelectItem>
+                  <SelectItem value="admin_debit">Admin Debit</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-48">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="signup_bonus">Signup Bonus</SelectItem>
-                <SelectItem value="purchase">Purchase</SelectItem>
-                <SelectItem value="deduction">Deduction</SelectItem>
-                <SelectItem value="admin_credit">Admin Credit</SelectItem>
-                <SelectItem value="admin_debit">Admin Debit</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="rounded-md border">
             <Table>
@@ -292,6 +395,38 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, totalCount)} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} transactions
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviousPage}
+                disabled={currentPage <= 1 || loading}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="flex items-center gap-1">
+                <span className="text-sm">Page {currentPage} of {totalPages}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages || loading}
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {getFilteredTransactions().length === 0 && (

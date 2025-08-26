@@ -162,7 +162,7 @@ export const AdminCredits = () => {
             onBack={() => setSelectedUserId(null)}
           />
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="space-y-6">
             <UserCreditsManager onUserSelect={setSelectedUserId} />
             <TransactionHistory />
           </div>

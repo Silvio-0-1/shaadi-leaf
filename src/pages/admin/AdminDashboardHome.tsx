@@ -2,14 +2,11 @@
 import { useEffect, useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { DashboardStats } from '@/components/admin/DashboardStats';
-import { QuickActions } from '@/components/admin/QuickActions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Edit, Star } from 'lucide-react';
 
 interface RecentActivity {
   id: string;
@@ -294,11 +291,6 @@ export const AdminDashboardHome = () => {
         {/* Stats Overview */}
         <div className="animate-fade-in">
           <DashboardStats stats={stats} />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="animate-fade-in">
-          <QuickActions />
         </div>
 
         {/* Recent Activity */}
