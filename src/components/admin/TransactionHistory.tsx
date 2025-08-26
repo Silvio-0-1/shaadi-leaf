@@ -341,12 +341,11 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
+                  <TableHead className="w-48">Date</TableHead>
                   {!selectedUserId && <TableHead>User</TableHead>}
                   <TableHead>Amount</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead className="w-36">Action</TableHead>
                   <TableHead>Reference</TableHead>
                 </TableRow>
               </TableHeader>
@@ -372,14 +371,19 @@ export const TransactionHistory = ({ selectedUserId, onBack }: TransactionHistor
                         {transaction.transaction_type.replace('_', ' ')}
                       </Badge>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate" title={transaction.description}>
-                      {transaction.description}
-                    </TableCell>
                     <TableCell>
                       {transaction.action_type ? (
-                        <Badge variant="outline">{transaction.action_type.replace('_', ' ')}</Badge>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                          <span className="font-medium text-sm capitalize">
+                            {transaction.action_type.replace('_', ' ')}
+                          </span>
+                        </div>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-muted-foreground/40"></div>
+                          <span className="text-muted-foreground text-sm">No action</span>
+                        </div>
                       )}
                     </TableCell>
                     <TableCell>
