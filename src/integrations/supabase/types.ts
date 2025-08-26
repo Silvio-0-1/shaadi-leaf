@@ -190,6 +190,7 @@ export type Database = {
           is_public: boolean | null
           logo_image: string | null
           message: string | null
+          share_token: string | null
           template_id: string
           updated_at: string
           uploaded_images: Json | null
@@ -207,6 +208,7 @@ export type Database = {
           is_public?: boolean | null
           logo_image?: string | null
           message?: string | null
+          share_token?: string | null
           template_id: string
           updated_at?: string
           uploaded_images?: Json | null
@@ -224,6 +226,7 @@ export type Database = {
           is_public?: boolean | null
           logo_image?: string | null
           message?: string | null
+          share_token?: string | null
           template_id?: string
           updated_at?: string
           uploaded_images?: Json | null

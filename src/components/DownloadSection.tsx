@@ -72,7 +72,7 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
       const { data, error } = await supabase
         .from('shared_wedding_cards')
         .insert(shareableCardData)
-        .select()
+        .select('share_token')
         .single();
 
       if (error) {
@@ -82,18 +82,14 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
       
       console.log('DEBUG SAVE: Successfully saved card to database');
       console.log('DEBUG SAVE: Returned data:', data);
-      console.log('DEBUG SAVE: Card ID:', data.id);
-      console.log('DEBUG SAVE: Is public:', data.is_public);
+      console.log('DEBUG SAVE: Share token:', data.share_token);
       
-      // Generate a short shareable link using custom domain
-      const shortId = data.id.substring(0, 8); // Use first 8 characters of UUID
+      // Generate shareable link using token
       const isLocalhost = window.location.hostname === 'localhost';
       const domain = isLocalhost ? window.location.origin : 'https://shaadileaf.com';
-      const url = `${domain}/shared/${shortId}`;
+      const url = `${domain}/shared/${data.share_token}`;
       
       console.log('DEBUG SAVE: Generated share URL:', url);
-      console.log('DEBUG SAVE: Full Card ID:', data.id);
-      console.log('DEBUG SAVE: Short ID:', shortId);
       setShareUrl(url);
       
       // Copy to clipboard

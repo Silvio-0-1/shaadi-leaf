@@ -182,7 +182,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       const { data, error } = await supabase
         .from('shared_wedding_cards')
         .insert(shareableCardData)
-        .select()
+        .select('share_token')
         .single();
 
       if (error) {
@@ -192,15 +192,13 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
       
       console.log('DEBUG SAVE (CardPreview): Successfully saved card to database');
       console.log('DEBUG SAVE (CardPreview): Returned data:', data);
-      console.log('DEBUG SAVE (CardPreview): Card ID:', data.id);
-      console.log('DEBUG SAVE (CardPreview): Is public:', data.is_public);
+      console.log('DEBUG SAVE (CardPreview): Share token:', data.share_token);
       
       const isLocalhost = window.location.hostname === 'localhost';
       const domain = isLocalhost ? window.location.origin : 'https://shaadileaf.com';
-      const shareUrl = `${domain}/shared/${data.id}`;
+      const shareUrl = `${domain}/shared/${data.share_token}`;
       
       console.log('DEBUG SAVE (CardPreview): Generated share URL:', shareUrl);
-      console.log('DEBUG SAVE (CardPreview): Full Card ID:', data.id);
       setShareUrl(shareUrl);
       
       // Copy to clipboard

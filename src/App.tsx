@@ -54,7 +54,7 @@ const App = () => (
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/shared/:id" element={<SharedCard />} />
+              <Route path="/shared/:token" element={<SharedCard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

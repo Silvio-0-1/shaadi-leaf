@@ -11,7 +11,7 @@ import confetti from 'canvas-confetti';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const SharedCard = () => {
-  const { id } = useParams();
+  const { token } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [cardData, setCardData] = useState<WeddingCardData | null>(null);
@@ -93,45 +93,23 @@ const SharedCard = () => {
 
   useEffect(() => {
     const loadSharedCard = async () => {
-      if (!id) {
-        console.log('DEBUG: No ID provided');
+      if (!token) {
+        console.log('DEBUG: No token provided');
         return;
       }
 
-      console.log('DEBUG: Starting to load shared card with ID:', id);
+      console.log('DEBUG: Starting to load shared card with token:', token);
 
       try {
-        let data, error;
         const client = supabase;
         
-        // Handle both short ID patterns and full UUIDs
-        if (id.length <= 8) {
-          console.log('DEBUG: Using short ID pattern search for:', id);
-          const { data: results, error: queryError } = await client
-            .from('shared_wedding_cards')
-            .select('*')
-            .eq('is_public', true);
-            
-          if (queryError) {
-            error = queryError;
-            data = null;
-          } else {
-            const result = results?.find(card => String(card.id).startsWith(id));
-            data = result || null;
-            error = result ? null : { message: 'No matching card found' };
-          }
-        } else {
-          console.log('DEBUG: Using exact ID match for:', id);
-          const { data: result, error: queryError } = await client
-            .from('shared_wedding_cards')
-            .select('*')
-            .eq('id', id)
-            .eq('is_public', true)
-            .maybeSingle();
-            
-          data = result;
-          error = queryError;
-        }
+        // Fetch card using share_token
+        const { data, error } = await client
+          .from('shared_wedding_cards')
+          .select('*')
+          .eq('share_token', token)
+          .eq('is_public', true)
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           throw error;
@@ -140,9 +118,9 @@ const SharedCard = () => {
           throw new Error('Wedding card not found or no longer available');
         }
 
-        const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images : [];
-        const customization = typeof data.customization === 'object' && data.customization !== null ? data.customization : {};
-        const elementPositions = typeof data.element_positions === 'object' && data.element_positions !== null ? data.element_positions : null;
+        const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images as string[] : [];
+        const customization = typeof data.customization === 'object' && data.customization !== null && !Array.isArray(data.customization) ? data.customization as any : {};
+        const elementPositions = typeof data.element_positions === 'object' && data.element_positions !== null && !Array.isArray(data.element_positions) ? data.element_positions as unknown as CardElements : null;
 
         const mappedCardData: WeddingCardData = {
           id: data.id,
@@ -179,7 +157,7 @@ const SharedCard = () => {
     };
 
     loadSharedCard();
-  }, [id, navigate]);
+  }, [token, navigate]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
