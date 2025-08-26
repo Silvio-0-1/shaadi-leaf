@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -401,42 +401,42 @@ export type Database = {
     Functions: {
       add_credits: {
         Args: {
-          p_user_id: string
           p_amount: number
           p_description: string
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: undefined
       }
       admin_manage_credits: {
         Args: {
-          p_target_user_id: string
-          p_amount: number
-          p_operation: string
-          p_description: string
           p_admin_user_id: string
+          p_amount: number
+          p_description: string
+          p_operation: string
+          p_target_user_id: string
         }
         Returns: boolean
       }
       admin_remove_user_role: {
-        Args: { target_user_email: string; admin_user_id?: string }
+        Args: { admin_user_id?: string; target_user_email: string }
         Returns: boolean
       }
       admin_set_user_role: {
         Args: {
-          target_user_email: string
-          new_role: Database["public"]["Enums"]["app_role"]
           admin_user_id?: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          target_user_email: string
         }
         Returns: boolean
       }
       deduct_credits: {
         Args: {
-          p_user_id: string
-          p_amount: number
           p_action_type: string
+          p_amount: number
           p_description: string
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: boolean
       }
@@ -446,16 +446,16 @@ export type Database = {
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       log_admin_action: {
         Args: {
+          action_details?: Json
           action_type: string
           target_user_id: string
-          action_details?: Json
         }
         Returns: undefined
       }
