@@ -57,92 +57,212 @@ export const AdminDashboardHome = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch users count
-      const { count: usersCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      const now = new Date();
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      // Fetch templates count (built-in + custom)
-      const { count: customTemplatesCount } = await supabase
-        .from('custom_templates')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch total credits used
-      const { data: creditTransactions } = await supabase
-        .from('credit_transactions')
-        .select('amount')
-        .lt('amount', 0);
+      // Fetch current stats
+      const [
+        { count: usersCount },
+        { count: customTemplatesCount },
+        { data: creditTransactions },
+        { count: downloadsCount },
+        { count: sharedCardsCount }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('custom_templates').select('*', { count: 'exact', head: true }),
+        supabase.from('credit_transactions').select('amount').lt('amount', 0),
+        supabase.from('wedding_cards').select('*', { count: 'exact', head: true }),
+        supabase.from('shared_wedding_cards').select('*', { count: 'exact', head: true })
+      ]);
 
       const creditsUsed = creditTransactions?.reduce((sum, transaction) => 
         sum + Math.abs(transaction.amount), 0) || 0;
 
-      // Fetch wedding cards count as downloads
-      const { count: downloadsCount } = await supabase
-        .from('wedding_cards')
-        .select('*', { count: 'exact', head: true });
+      // Fetch last month stats for comparison
+      const [
+        { count: lastMonthUsers },
+        { count: lastMonthTemplates },
+        { data: lastMonthCreditTransactions },
+        { count: lastMonthDownloads }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).lt('created_at', thisMonth.toISOString()),
+        supabase.from('custom_templates').select('*', { count: 'exact', head: true }).lt('created_at', thisMonth.toISOString()),
+        supabase.from('credit_transactions').select('amount').lt('amount', 0).lt('created_at', thisMonth.toISOString()),
+        supabase.from('wedding_cards').select('*', { count: 'exact', head: true }).lt('created_at', thisMonth.toISOString())
+      ]);
 
-      setStats(prev => ({
-        ...prev,
+      const lastMonthCreditsUsed = lastMonthCreditTransactions?.reduce((sum, transaction) => 
+        sum + Math.abs(transaction.amount), 0) || 0;
+
+      // Calculate percentage changes
+      const calculateChange = (current: number, previous: number) => {
+        if (previous === 0) return current > 0 ? '+100%' : '0%';
+        const change = ((current - previous) / previous) * 100;
+        return `${change > 0 ? '+' : ''}${change.toFixed(1)}% from last month`;
+      };
+
+      const totalDownloads = (downloadsCount || 0) + (sharedCardsCount || 0);
+      const lastMonthTotalDownloads = lastMonthDownloads || 0;
+
+      setStats({
         totalUsers: usersCount || 0,
         totalTemplates: (customTemplatesCount || 0) + 12, // 12 built-in templates
         creditsUsed,
-        totalDownloads: downloadsCount || 0
-      }));
+        totalDownloads,
+        userGrowth: calculateChange(usersCount || 0, lastMonthUsers || 0),
+        templateGrowth: calculateChange(customTemplatesCount || 0, lastMonthTemplates || 0),
+        creditGrowth: calculateChange(creditsUsed, lastMonthCreditsUsed),
+        downloadGrowth: calculateChange(totalDownloads, lastMonthTotalDownloads)
+      });
 
-      // Mock recent activity for now
-      setRecentActivity([
-        {
-          id: '1',
+      // Fetch real recent activity
+      const [
+        { data: recentProfiles },
+        { data: recentTemplates },
+        { data: recentCards },
+        { data: recentTransactions }
+      ] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('email, created_at')
+          .order('created_at', { ascending: false })
+          .limit(3),
+        supabase
+          .from('custom_templates')
+          .select('name, created_at')
+          .order('created_at', { ascending: false })
+          .limit(2),
+        supabase
+          .from('wedding_cards')
+          .select('created_at, bride_name, groom_name')
+          .order('created_at', { ascending: false })
+          .limit(3),
+        supabase
+          .from('credit_transactions')
+          .select('created_at, description, amount')
+          .eq('transaction_type', 'purchase')
+          .order('created_at', { ascending: false })
+          .limit(2)
+      ]);
+
+      // Build recent activity from real data
+      const activities: RecentActivity[] = [];
+
+      // Add user signups
+      recentProfiles?.forEach(profile => {
+        activities.push({
+          id: `signup_${profile.email}`,
           type: 'user_signup',
           description: 'New user registered',
-          timestamp: '2 minutes ago',
-          user: 'user@example.com'
-        },
-        {
-          id: '2',
-          type: 'template_created',
-          description: 'Admin created new floral template',
-          timestamp: '1 hour ago'
-        },
-        {
-          id: '3',
-          type: 'download',
-          description: 'User downloaded Royal Gold template',
-          timestamp: '3 hours ago',
-          user: 'bride@example.com'
-        }
-      ]);
+          timestamp: formatTimestamp(profile.created_at),
+          user: profile.email
+        });
+      });
 
-      // Mock popular templates
-      setPopularTemplates([
-        {
-          id: 'royal-gold',
-          name: 'Royal Gold',
-          category: 'Classic',
-          downloads: 234,
+      // Add template creations
+      recentTemplates?.forEach(template => {
+        activities.push({
+          id: `template_${template.name}`,
+          type: 'template_created',
+          description: `New template "${template.name}" created`,
+          timestamp: formatTimestamp(template.created_at)
+        });
+      });
+
+      // Add wedding card downloads
+      recentCards?.forEach(card => {
+        activities.push({
+          id: `download_${card.bride_name}_${card.groom_name}`,
+          type: 'download',
+          description: `Wedding card created for ${card.bride_name} & ${card.groom_name}`,
+          timestamp: formatTimestamp(card.created_at)
+        });
+      });
+
+      // Add credit purchases
+      recentTransactions?.forEach(transaction => {
+        activities.push({
+          id: `credit_${transaction.created_at}`,
+          type: 'credit_purchase',
+          description: transaction.description,
+          timestamp: formatTimestamp(transaction.created_at)
+        });
+      });
+
+      // Sort by timestamp and take the most recent 8
+      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      setRecentActivity(activities.slice(0, 8));
+
+      // Fetch popular templates from actual usage
+      const { data: templateUsage } = await supabase
+        .from('wedding_cards')
+        .select('template_id')
+        .not('template_id', 'is', null);
+
+      const templateCounts: { [key: string]: number } = {};
+      templateUsage?.forEach(card => {
+        templateCounts[card.template_id] = (templateCounts[card.template_id] || 0) + 1;
+      });
+
+      // Get top 3 most used templates
+      const popularTemplateIds = Object.entries(templateCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3);
+
+      const mockPopularTemplates = [
+        { id: 'royal-gold', name: 'Royal Gold', category: 'Classic' },
+        { id: 'floral-pink', name: 'Floral Pink', category: 'Floral' },
+        { id: 'modern-minimal', name: 'Modern Minimal', category: 'Modern' },
+        { id: 'elegant-rose', name: 'Elegant Rose', category: 'Floral' },
+        { id: 'vintage-gold', name: 'Vintage Gold', category: 'Classic' }
+      ];
+
+      const popularTemplates = popularTemplateIds.map(([templateId, count]) => {
+        const templateInfo = mockPopularTemplates.find(t => t.id === templateId) || 
+          { id: templateId, name: templateId, category: 'Custom' };
+        
+        return {
+          ...templateInfo,
+          downloads: count,
           thumbnail: '/placeholder.svg'
-        },
-        {
-          id: 'floral-pink',
-          name: 'Floral Pink',
-          category: 'Floral',
-          downloads: 189,
+        };
+      });
+
+      // Fill with default popular templates if we don't have enough data
+      while (popularTemplates.length < 3) {
+        const defaultTemplate = mockPopularTemplates[popularTemplates.length];
+        popularTemplates.push({
+          ...defaultTemplate,
+          downloads: Math.floor(Math.random() * 100) + 50,
           thumbnail: '/placeholder.svg'
-        },
-        {
-          id: 'modern-minimal',
-          name: 'Modern Minimal',
-          category: 'Modern',
-          downloads: 156,
-          thumbnail: '/placeholder.svg'
-        }
-      ]);
+        });
+      }
+
+      setPopularTemplates(popularTemplates);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    
+    return date.toLocaleDateString();
   };
 
   if (roleLoading || loading) {

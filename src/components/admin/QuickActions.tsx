@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Users, Coins, BarChart3, Settings } from 'lucide-react';
+import { Plus, Users, Coins, BarChart3, Tags } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const QuickActions = () => {
@@ -30,11 +30,18 @@ export const QuickActions = () => {
       color: 'bg-yellow-500 hover:bg-yellow-600'
     },
     {
+      title: 'Manage Tags',
+      description: 'Organize template tags',
+      icon: Tags,
+      action: () => navigate('/admin/tags'),
+      color: 'bg-purple-500 hover:bg-purple-600'
+    },
+    {
       title: 'Analytics',
       description: 'View detailed reports',
       icon: BarChart3,
       action: () => navigate('/admin/analytics'),
-      color: 'bg-purple-500 hover:bg-purple-600'
+      color: 'bg-indigo-500 hover:bg-indigo-600'
     }
   ];
 
@@ -44,7 +51,7 @@ export const QuickActions = () => {
         <CardTitle>Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {actions.map((action, index) => (
             <Button
               key={index}
