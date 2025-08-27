@@ -17,8 +17,9 @@ import {
   ZoomIn,
   ZoomOut
 } from 'lucide-react';
-import { WeddingCardData, CardElements, ElementPosition } from '@/types';
+import { WeddingCardData, CardElements, ElementPosition, Template } from '@/types';
 import { templates } from '@/data/templates';
+import { supabase } from '@/integrations/supabase/client';
 import PremiumDraggableElement from './PremiumDraggableElement';
 
 interface PremiumCardEditorProps {
@@ -43,38 +44,101 @@ const defaultPositions: CardElements = {
 };
 
 const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: PremiumCardEditorProps) => {
-  const template = templates.find(t => t.id === cardData.templateId);
+  const [template, setTemplate] = useState<Template | null>(null);
+  const [loading, setLoading] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Fetch template (static or custom)
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      if (!cardData.templateId) {
+        setLoading(false);
+        return;
+      }
+
+      // First check static templates
+      const staticTemplate = templates.find(t => t.id === cardData.templateId);
+      if (staticTemplate) {
+        setTemplate(staticTemplate);
+        setLoading(false);
+        return;
+      }
+
+      // Then check custom templates
+      try {
+        const { data, error } = await supabase
+          .from('custom_templates')
+          .select('*')
+          .eq('id', cardData.templateId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching custom template:', error);
+          setTemplate(null);
+        } else {
+          const customTemplate: Template = {
+            id: data.id,
+            name: data.name,
+            category: 'custom' as const,
+            thumbnail: data.background_image || '/placeholder.svg',
+            isPremium: data.is_premium,
+            colors: data.colors as any,
+            fonts: data.fonts as any,
+            layouts: ['custom'],
+            supportsMultiPhoto: true,
+            supportsVideo: false,
+            backgroundImage: data.background_image,
+            defaultPositions: data.default_positions as any,
+            tags: data.tags || []
+          };
+          setTemplate(customTemplate);
+        }
+      } catch (error) {
+        console.error('Error fetching custom template:', error);
+        setTemplate(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTemplate();
+  }, [cardData.templateId]);
   
   const [positions, setPositions] = useState<CardElements>(() => {
     if (initialPositions) return initialPositions;
-    
-    const basePositions = template?.defaultPositions ? {
-      ...template.defaultPositions,
-      photo: template.defaultPositions.photo || defaultPositions.photo,
-      photos: []
-    } : defaultPositions;
+    return defaultPositions;
+  });
 
-    // Initialize photos array for multiple images
-    if (cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0) {
-      if (cardData.uploadedImages.length === 1) {
-        return { ...basePositions, photos: [] };
+  // Update positions when template loads and has default positions
+  useEffect(() => {
+    if (template?.defaultPositions && !initialPositions) {
+      const basePositions = {
+        ...template.defaultPositions,
+        photo: template.defaultPositions.photo || defaultPositions.photo,
+        photos: []
+      };
+
+      // Initialize photos array for multiple images
+      if (cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0) {
+        if (cardData.uploadedImages.length === 1) {
+          setPositions({ ...basePositions, photos: [] });
+        } else {
+          const photosArray = cardData.uploadedImages.map((_, index) => ({
+            id: `photo-${index}`,
+            position: { 
+              x: (index % 2 === 0 ? -70 : 70) + (index * 15), 
+              y: -140 + (Math.floor(index / 2) * 160) 
+            },
+            size: { width: 100, height: 100 }
+          }));
+          
+          setPositions({ ...basePositions, photos: photosArray });
+        }
       } else {
-        const photosArray = cardData.uploadedImages.map((_, index) => ({
-          id: `photo-${index}`,
-          position: { 
-            x: (index % 2 === 0 ? -70 : 70) + (index * 15), 
-            y: -140 + (Math.floor(index / 2) * 160) 
-          },
-          size: { width: 100, height: 100 }
-        }));
-        
-        return { ...basePositions, photos: photosArray };
+        setPositions(basePositions);
       }
     }
-    
-    return basePositions;
-  });
+  }, [template, cardData.uploadedImages, initialPositions]);
 
   const [history, setHistory] = useState<CardElements[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -221,6 +285,20 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate }: Pr
     setHistoryIndex(0);
     setSelectedElement(null);
   };
+
+  if (loading) {
+    return (
+      <Card className="aspect-[3/4] p-8 flex items-center justify-center bg-gradient-to-br from-muted/20 to-muted/40">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <div>
+            <h3 className="text-lg font-medium text-muted-foreground">Loading Template</h3>
+            <p className="text-sm text-muted-foreground/70">Please wait...</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   if (!template) {
     return (

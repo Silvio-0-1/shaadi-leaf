@@ -493,6 +493,18 @@ const VisualTemplateBuilder = ({ onTemplateCreated }: VisualTemplateBuilderProps
               backgroundRepeat: 'no-repeat'
             }}
           >
+            {/* Grid Lines Overlay */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-30"
+              style={{
+                backgroundImage: `
+                  linear-gradient(to right, #ccc 1px, transparent 1px),
+                  linear-gradient(to bottom, #ccc 1px, transparent 1px)
+                `,
+                backgroundSize: '20px 20px'
+              }}
+            />
+            
             {!templateData.backgroundImage && (
               <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
