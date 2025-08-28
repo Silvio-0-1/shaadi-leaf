@@ -103,35 +103,36 @@ const SharedCard = () => {
       try {
         const client = supabase;
         
-        // Fetch card using share_token
-        const { data, error } = await client
-          .from('shared_wedding_cards')
-          .select('*')
-          .eq('share_token', token)
-          .eq('is_public', true)
-          .maybeSingle();
+        // Fetch card using secure RPC
+        const { data, error } = await client.rpc('fetch_shared_card', {
+          p_share_token: token
+        });
 
-        if (error && error.code !== 'PGRST116') {
+        if (error) {
           throw error;
         }
-        if (!data) {
+        
+        if (!data || data.length === 0) {
           throw new Error('Wedding card not found or no longer available');
         }
+        
+        // Get the first result from the RPC
+        const cardResult = Array.isArray(data) ? data[0] : data;
 
-        const uploadedImages = Array.isArray(data.uploaded_images) ? data.uploaded_images as string[] : [];
-        const customization = typeof data.customization === 'object' && data.customization !== null && !Array.isArray(data.customization) ? data.customization as any : {};
-        const elementPositions = typeof data.element_positions === 'object' && data.element_positions !== null && !Array.isArray(data.element_positions) ? data.element_positions as unknown as CardElements : null;
+        const uploadedImages = Array.isArray(cardResult.uploaded_images) ? cardResult.uploaded_images as string[] : [];
+        const customization = typeof cardResult.customization === 'object' && cardResult.customization !== null && !Array.isArray(cardResult.customization) ? cardResult.customization as any : {};
+        const elementPositions = typeof cardResult.element_positions === 'object' && cardResult.element_positions !== null && !Array.isArray(cardResult.element_positions) ? cardResult.element_positions as unknown as CardElements : null;
 
         const mappedCardData: WeddingCardData = {
-          id: data.id,
-          brideName: data.bride_name,
-          groomName: data.groom_name,
-          weddingDate: data.wedding_date,
-          venue: data.venue,
-          message: data.message,
-          templateId: data.template_id,
+          id: cardResult.id,
+          brideName: cardResult.bride_name,
+          groomName: cardResult.groom_name,
+          weddingDate: cardResult.wedding_date,
+          venue: cardResult.venue,
+          message: cardResult.message,
+          templateId: cardResult.template_id,
           uploadedImages: uploadedImages,
-          logoImage: data.logo_image,
+          logoImage: cardResult.logo_image,
           customization: customization,
         };
 

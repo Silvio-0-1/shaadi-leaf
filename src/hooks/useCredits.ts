@@ -55,32 +55,8 @@ export const useCredits = () => {
 
       if (error) {
         console.error('Error fetching credits:', error);
-        // If user doesn't have credits record, try to create one
-        if (error.code === 'PGRST116') {
-          try {
-            const { data: newRecord, error: insertError } = await supabase
-              .from('user_credits')
-              .insert({ user_id: user.id, balance: 100 })
-              .select()
-              .single();
-            
-            if (!insertError) {
-              // Also create welcome transaction
-              await supabase
-                .from('credit_transactions')
-                .insert({
-                  user_id: user.id,
-                  amount: 100,
-                  transaction_type: 'signup_bonus',
-                  description: 'Welcome bonus - 100 free credits'
-                });
-              
-              return newRecord;
-            }
-          } catch (initError) {
-            console.error('Error initializing credits:', initError);
-          }
-        }
+        // Credits should be initialized automatically via server-side triggers
+        // No longer attempt client-side initialization for security
         return null;
       }
       return data;

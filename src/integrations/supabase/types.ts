@@ -412,13 +412,20 @@ export type Database = {
         Returns: undefined
       }
       admin_manage_credits: {
-        Args: {
-          p_admin_user_id: string
-          p_amount: number
-          p_description: string
-          p_operation: string
-          p_target_user_id: string
-        }
+        Args:
+          | {
+              p_admin_user_id: string
+              p_amount: number
+              p_description: string
+              p_operation: string
+              p_target_user_id: string
+            }
+          | {
+              p_amount: number
+              p_description: string
+              p_operation: string
+              p_target_user_id: string
+            }
         Returns: boolean
       }
       admin_remove_user_role: {
@@ -442,6 +449,23 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      fetch_shared_card: {
+        Args: { p_share_token: string }
+        Returns: {
+          bride_name: string
+          created_at: string
+          customization: Json
+          element_positions: Json
+          groom_name: string
+          id: string
+          logo_image: string
+          message: string
+          template_id: string
+          uploaded_images: Json
+          venue: string
+          wedding_date: string
+        }[]
       }
       get_user_role: {
         Args: Record<PropertyKey, never>

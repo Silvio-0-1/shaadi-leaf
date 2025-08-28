@@ -100,8 +100,7 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
         p_target_user_id: selectedUser.user_id,
         p_amount: parseInt(creditAmount),
         p_operation: operation,
-        p_description: description.trim(),
-        p_admin_user_id: user?.id
+        p_description: description.trim()
       });
 
       if (error) throw error;
