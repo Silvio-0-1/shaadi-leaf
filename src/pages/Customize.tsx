@@ -127,7 +127,7 @@ const Customize = () => {
             
             {/* Mobile Card Editor */}
             <div className="space-y-4">
-              <PremiumCardEditor cardData={cardData} />
+              <PremiumCardEditor cardData={cardData} onDataChange={handleDataChange} />
               
               {/* Edit Details Button */}
               <div className="flex justify-center">
@@ -171,7 +171,7 @@ const Customize = () => {
             
             {/* Right Panel - Premium Live Editor */}
             <div className="lg:col-span-2 space-y-6">
-              <PremiumCardEditor cardData={cardData} />
+              <PremiumCardEditor cardData={cardData} onDataChange={handleDataChange} />
               
               {/* Action Buttons - Always show if user is logged in and template is selected */}
               <div className="space-y-4">
