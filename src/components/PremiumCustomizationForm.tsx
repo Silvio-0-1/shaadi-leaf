@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Heart, Image, Crown, Palette, Video, Sparkles } from 'lucide-react';
+import { Heart, Image, Crown, Palette, Video, Sparkles, Settings } from 'lucide-react';
 import { WeddingCardData, VideoCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
@@ -83,16 +83,35 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
   };
 
   return (
-    <Card className="overflow-hidden bg-white border shadow-lg">
-      {/* Simplified Header */}
-      <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <h2 className="font-semibold text-lg text-foreground">
-            Customize Card
-          </h2>
+    <div className="space-y-6">
+      {/* Usage Instructions */}
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <Settings className="h-4 w-4 text-blue-600" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-medium text-blue-900">How to customize your card:</h3>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• <strong>Drag</strong> any element to move it around</li>
+              <li>• <strong>Double-click</strong> on text to edit it directly</li>
+              <li>• <strong>Resize</strong> photos by dragging the corners</li>
+              <li>• Use controls to undo, redo, or reset changes</li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </Card>
+
+      <Card className="overflow-hidden bg-white border shadow-lg">
+        {/* Simplified Header */}
+        <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h2 className="font-semibold text-lg text-foreground">
+              Customize Card
+            </h2>
+          </div>
+        </div>
 
       {/* Simplified Navigation Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -196,7 +215,8 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
           </TabsContent>
         </div>
       </Tabs>
-    </Card>
+      </Card>
+    </div>
   );
 };
 
