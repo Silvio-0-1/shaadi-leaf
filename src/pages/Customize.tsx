@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ArrowLeft, Loader2, Settings } from 'lucide-react';
 import Header from '@/components/Header';
 import PremiumCustomizationForm from '@/components/PremiumCustomizationForm';
-import PremiumCardEditor from '@/components/PremiumCardEditor';
+import EnhancedCardEditor from '@/components/EnhancedCardEditor';
 import DownloadSection from '@/components/DownloadSection';
 import { WeddingCardData } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -127,7 +127,7 @@ const Customize = () => {
             
             {/* Mobile Card Editor */}
             <div className="space-y-4">
-              <PremiumCardEditor cardData={cardData} onDataChange={handleDataChange} />
+              <EnhancedCardEditor cardData={cardData} onDataChange={handleDataChange} />
               
               {/* Edit Details Button */}
               <div className="flex justify-center">
@@ -169,9 +169,9 @@ const Customize = () => {
               />
             </div>
             
-            {/* Right Panel - Premium Live Editor */}
+            {/* Right Panel - Enhanced Live Editor */}
             <div className="lg:col-span-2 space-y-6">
-              <PremiumCardEditor cardData={cardData} onDataChange={handleDataChange} />
+              <EnhancedCardEditor cardData={cardData} onDataChange={handleDataChange} />
               
               {/* Action Buttons - Always show if user is logged in and template is selected */}
               <div className="space-y-4">

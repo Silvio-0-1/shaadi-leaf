@@ -258,6 +258,103 @@
   .premium-button:hover::before {
     left: 100%;
   }
+
+  /* Enhanced drag and drop animations */
+  .dragging {
+    cursor: grabbing !important;
+    user-select: none;
+    transform: scale(1.02);
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
+    z-index: 50 !important;
+  }
+
+  .drag-ghost {
+    opacity: 0.8;
+    transform: rotate(3deg);
+  }
+
+  .smooth-drag {
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .alignment-guide {
+    position: absolute;
+    background: #3b82f6;
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+    pointer-events: none;
+    z-index: 60;
+    animation: guideFadeIn 0.15s ease-out;
+  }
+
+  .alignment-guide-vertical {
+    width: 1px;
+    height: 100%;
+  }
+
+  .alignment-guide-horizontal {
+    width: 100%;
+    height: 1px;
+  }
+
+  /* Gridlines */
+  .grid-overlay {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+  }
+
+  .grid-line {
+    background: #e5e7eb;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+  }
+
+  .grid-line-center {
+    opacity: 0.5;
+  }
+
+  /* Resize handles enhancement */
+  .resize-handle {
+    background: white;
+    border: 2px solid hsl(var(--primary));
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.9;
+  }
+
+  .resize-handle:hover {
+    transform: scale(1.25);
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .resize-handle:active {
+    transform: scale(1.1);
+  }
+
+  /* Selection indicators */
+  .selection-ring {
+    border: 2px solid hsl(var(--primary) / 0.4);
+    background: hsl(var(--primary) / 0.05);
+    border-radius: 4px;
+    animation: selectionPulse 2s ease-in-out infinite;
+  }
+
+  /* Enhanced toolbar */
+  .editor-toolbar {
+    backdrop-filter: blur(12px);
+    background: hsl(var(--card) / 0.95);
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .editor-toolbar:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
 }
 
 /* Simplified keyframes */
@@ -315,6 +412,28 @@
   75% {
     opacity: 1;
     transform: scale(1.1) rotate(270deg);
+  }
+}
+
+@keyframes guideFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes selectionPulse {
+  0%, 100% {
+    border-color: hsl(var(--primary) / 0.4);
+    background: hsl(var(--primary) / 0.05);
+  }
+  50% {
+    border-color: hsl(var(--primary) / 0.6);
+    background: hsl(var(--primary) / 0.1);
   }
 }
 
