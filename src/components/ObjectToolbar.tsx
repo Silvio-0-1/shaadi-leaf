@@ -86,13 +86,7 @@ const ObjectToolbar = ({
   ];
 
   return (
-    <div 
-      className="absolute z-[100] bg-white/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg p-2 flex items-center gap-1 animate-fade-in"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y - 60}px`,
-        transform: 'translateX(-50%)'
-      }}
+    <div className="bg-white/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg p-2 flex items-center gap-1 animate-fade-in"
     >
       {actions.map((action) => {
         const Icon = action.icon;

@@ -548,6 +548,21 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           onCenterBoth={handleCenterBoth}
           onDuplicateElement={handleDuplicateElement}
         />
+        
+        {/* Object Toolbar in Editor Panel */}
+        {selectedElement && (
+          <ObjectToolbar
+            selectedElement={selectedElement}
+            elementLocked={elementLockStates[selectedElement] || false}
+            onDelete={handleDeleteElement}
+            onDuplicate={handleDuplicateElement}
+            onBringToFront={handleBringToFront}
+            onSendToBack={handleSendToBack}
+            onToggleLock={handleToggleLock}
+            position={{ x: 0, y: 0 }}
+            visible={true}
+          />
+        )}
       </div>
 
       {/* Enhanced Card Preview */}
@@ -565,23 +580,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           containerRef={cardRef}
         />
 
-        {/* Object Toolbar */}
-        {selectedElement && cardRef.current && (
-          <ObjectToolbar
-            selectedElement={selectedElement}
-            elementLocked={elementLockStates[selectedElement] || false}
-            onDelete={handleDeleteElement}
-            onDuplicate={handleDuplicateElement}
-            onBringToFront={handleBringToFront}
-            onSendToBack={handleSendToBack}
-            onToggleLock={handleToggleLock}
-            position={{
-              x: cardRef.current.offsetWidth / 2 + getElementPosition(selectedElement).x,
-              y: cardRef.current.offsetHeight / 2 + getElementPosition(selectedElement).y
-            }}
-            visible={true}
-          />
-        )}
 
         {/* Decorative Elements */}
         {!template?.backgroundImage && (
@@ -718,6 +716,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             position={positions.brideName}
             onMove={handleElementMove}
             containerRef={cardRef}
+            resizable={true}
+            size={{ width: 200, height: 50 }}
+            onResize={(id, size) => {}}
             isSelected={selectedElement === 'brideName'}
             isLocked={elementLockStates.brideName || false}
             onSelect={setSelectedElement}
@@ -763,6 +764,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             position={positions.heartIcon}
             onMove={handleElementMove}
             containerRef={cardRef}
+            resizable={true}
+            size={{ width: 100, height: 30 }}
+            onResize={(id, size) => {}}
             isSelected={selectedElement === 'heartIcon'}
             isLocked={elementLockStates.heartIcon || false}
             onSelect={setSelectedElement}
@@ -797,6 +801,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             position={positions.groomName}
             onMove={handleElementMove}
             containerRef={cardRef}
+            resizable={true}
+            size={{ width: 200, height: 50 }}
+            onResize={(id, size) => {}}
             isSelected={selectedElement === 'groomName'}
             isLocked={elementLockStates.groomName || false}
             onSelect={setSelectedElement}
@@ -843,6 +850,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               position={positions.weddingDate}
               onMove={handleElementMove}
               containerRef={cardRef}
+              resizable={true}
+              size={{ width: 180, height: 40 }}
+              onResize={(id, size) => {}}
               isSelected={selectedElement === 'weddingDate'}
               isLocked={elementLockStates.weddingDate || false}
               onSelect={setSelectedElement}
@@ -876,6 +886,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               position={positions.venue}
               onMove={handleElementMove}
               containerRef={cardRef}
+              resizable={true}
+              size={{ width: 160, height: 40 }}
+              onResize={(id, size) => {}}
               isSelected={selectedElement === 'venue'}
               isLocked={elementLockStates.venue || false}
               onSelect={setSelectedElement}
@@ -924,6 +937,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               position={positions.message}
               onMove={handleElementMove}
               containerRef={cardRef}
+              resizable={true}
+              size={{ width: 220, height: 60 }}
+              onResize={(id, size) => {}}
               isSelected={selectedElement === 'message'}
               isLocked={elementLockStates.message || false}
               onSelect={setSelectedElement}
