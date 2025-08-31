@@ -163,28 +163,7 @@ const EditorToolbar = ({
           </Label>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="snap-to-grid"
-            checked={snapToGrid}
-            onCheckedChange={onToggleSnapToGrid}
-            disabled={!showGridlines}
-          />
-          <Label htmlFor="snap-to-grid" className="text-xs font-medium cursor-pointer">
-            Snap
-          </Label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="alignment-guides"
-            checked={showAlignmentGuides}
-            onCheckedChange={onToggleAlignmentGuides}
-          />
-          <Label htmlFor="alignment-guides" className="text-xs font-medium cursor-pointer">
-            Guides
-          </Label>
-        </div>
+        {/* Hidden toggles - functionality remains active */}
       </div>
 
       <Separator orientation="vertical" className="h-6" />

@@ -392,7 +392,7 @@ const OptimizedDraggableElement = ({
         ref={elementRef}
         className={`absolute select-none transition-all duration-100 ${
           isDragging || isResizing ? 'z-50 scale-105' : `z-${Math.min(50, Math.max(10, zIndex))}`
-        } ${!isResizing ? 'cursor-move' : ''} group`}
+        } ${!isResizing && !isDragging ? 'cursor-move' : ''} group`}
         style={{
           transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
           left: '50%',
@@ -418,18 +418,18 @@ const OptimizedDraggableElement = ({
             <div className="absolute -inset-2 border-2 border-primary/40 rounded-md bg-primary/5 pointer-events-none animate-pulse" />
           )}
           
-          {/* Resize handles */}
+          {/* Resize handles - More prominent corner handles */}
           {resizable && isSelected && (
             <>
               {resizeHandles.map((handle) => (
                 <div
                   key={handle.direction}
-                  className={`absolute ${isMobile ? 'w-8 h-8' : 'w-5 h-5'} bg-white border-2 border-primary rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-125 transition-all duration-150 flex items-center justify-center ${handle.position}`}
-                  style={{ cursor: handle.cursor }}
+                  className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-primary border-2 border-white rounded-full shadow-lg opacity-100 hover:scale-150 transition-all duration-200 flex items-center justify-center z-50 ${handle.position}`}
+                  style={{ cursor: handle.cursor, touchAction: 'none' }}
                   onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
                   onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
                 >
-                  <div className="w-2 h-2 bg-primary rounded-full" />
+                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
                 </div>
               ))}
             </>
