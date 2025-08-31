@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ElementPosition } from '@/types';
+import { ResizeHandle } from '@/types/editor';
+import { RotateCw } from 'lucide-react';
 
-interface OptimizedDraggableElementProps {
+interface AdvancedDraggableElementProps {
   id: string;
   position: ElementPosition;
   onMove: (elementId: string, position: ElementPosition) => void;
@@ -10,22 +12,24 @@ interface OptimizedDraggableElementProps {
   children: ReactNode;
   resizable?: boolean;
   size?: { width: number; height: number };
+  rotation?: number;
   onResize?: (elementId: string, size: { width: number; height: number }) => void;
+  onRotate?: (elementId: string, rotation: number) => void;
   minSize?: { width: number; height: number };
   maxSize?: { width: number; height: number };
   maintainAspectRatio?: boolean;
   isSelected?: boolean;
+  isLocked?: boolean;
   onSelect?: (elementId: string | null) => void;
   gridSize?: number;
   snapToGrid?: boolean;
   zIndex?: number;
-  onZIndexChange?: (elementId: string, direction: 'up' | 'down') => void;
   showAlignmentGuides?: boolean;
   alignmentThreshold?: number;
   otherElements?: Array<{ id: string; position: ElementPosition; size?: { width: number; height: number } }>;
 }
 
-const OptimizedDraggableElement = ({ 
+const AdvancedDraggableElement = ({ 
   id, 
   position, 
   onMove, 
@@ -33,25 +37,29 @@ const OptimizedDraggableElement = ({
   children, 
   resizable = false,
   size = { width: 100, height: 100 },
+  rotation = 0,
   onResize,
+  onRotate,
   minSize = { width: 50, height: 50 },
   maxSize = { width: 300, height: 300 },
   maintainAspectRatio = false,
   isSelected = false,
+  isLocked = false,
   onSelect,
   gridSize = 10,
   snapToGrid = false,
   zIndex = 10,
-  onZIndexChange,
   showAlignmentGuides = false,
   alignmentThreshold = 5,
   otherElements = []
-}: OptimizedDraggableElementProps) => {
+}: AdvancedDraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0 });
+  const [rotationStart, setRotationStart] = useState({ x: 0, y: 0, angle: 0 });
   const [startSize, setStartSize] = useState({ width: 0, height: 0 });
   const [resizeDirection, setResizeDirection] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<number>(1);
@@ -115,8 +123,24 @@ const OptimizedDraggableElement = ({
     return guides;
   }, [showAlignmentGuides, alignmentThreshold, otherElements, id, containerRef]);
 
-  // Optimized move handler with requestAnimationFrame
-  const optimizedMove = useCallback((clientX: number, clientY: number) => {
+  // Calculate rotation angle from mouse position
+  const calculateRotation = useCallback((clientX: number, clientY: number) => {
+    if (!elementRef.current || !containerRef.current) return rotation;
+
+    const elementRect = elementRef.current.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+    
+    const centerX = elementRect.left + elementRect.width / 2;
+    const centerY = elementRect.top + elementRect.height / 2;
+    
+    const angle = Math.atan2(clientY - centerY, clientX - centerX);
+    const degrees = (angle * 180) / Math.PI;
+    
+    return degrees + 90; // Adjust for handle position
+  }, [rotation]);
+
+  // Optimized interaction handler with requestAnimationFrame
+  const optimizedInteraction = useCallback((clientX: number, clientY: number) => {
     if (!containerRef.current) return;
 
     if (animationFrameRef.current !== null) {
@@ -124,7 +148,7 @@ const OptimizedDraggableElement = ({
     }
 
     animationFrameRef.current = requestAnimationFrame(() => {
-      if (isDragging) {
+      if (isDragging && !isLocked) {
         const containerRect = containerRef.current!.getBoundingClientRect();
         const deltaX = clientX - dragStart.x;
         const deltaY = clientY - dragStart.y;
@@ -174,38 +198,54 @@ const OptimizedDraggableElement = ({
         setAlignmentGuides(guides);
         
         onMove(id, newPosition);
-      } else if (isResizing && onResize) {
+      } else if (isResizing && !isLocked && onResize) {
         const deltaX = clientX - resizeStart.x;
         const deltaY = clientY - resizeStart.y;
         
         let newWidth = startSize.width;
         let newHeight = startSize.height;
         
-        switch (resizeDirection) {
-          case 'se':
-            newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
-            newHeight = maintainAspectRatio 
-              ? newWidth / aspectRatio 
-              : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
-            break;
-          case 'sw':
-            newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
-            newHeight = maintainAspectRatio 
-              ? newWidth / aspectRatio 
-              : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
-            break;
-          case 'ne':
-            newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
-            newHeight = maintainAspectRatio 
-              ? newWidth / aspectRatio 
-              : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
-            break;
-          case 'nw':
-            newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
-            newHeight = maintainAspectRatio 
-              ? newWidth / aspectRatio 
-              : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
-            break;
+        const handle = resizeHandles.find(h => h.direction === resizeDirection);
+        
+        if (handle) {
+          switch (resizeDirection) {
+            case 'n':
+              newHeight = Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
+              break;
+            case 's':
+              newHeight = Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
+              break;
+            case 'e':
+              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
+              break;
+            case 'w':
+              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
+              break;
+            case 'ne':
+              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
+              newHeight = handle.proportional && maintainAspectRatio 
+                ? newWidth / aspectRatio 
+                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
+              break;
+            case 'nw':
+              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
+              newHeight = handle.proportional && maintainAspectRatio 
+                ? newWidth / aspectRatio 
+                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
+              break;
+            case 'se':
+              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
+              newHeight = handle.proportional && maintainAspectRatio 
+                ? newWidth / aspectRatio 
+                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
+              break;
+            case 'sw':
+              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
+              newHeight = handle.proportional && maintainAspectRatio 
+                ? newWidth / aspectRatio 
+                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
+              break;
+          }
         }
         
         // Snap resize to grid
@@ -218,25 +258,17 @@ const OptimizedDraggableElement = ({
         newWidth = Math.max(minSize.width, Math.min(maxSize.width, newWidth));
         newHeight = Math.max(minSize.height, Math.min(maxSize.height, newHeight));
         
-        if (maintainAspectRatio) {
-          if (newWidth / aspectRatio > maxSize.height) {
-            newWidth = maxSize.height * aspectRatio;
-            newHeight = maxSize.height;
-          } else if (newHeight * aspectRatio > maxSize.width) {
-            newHeight = maxSize.width / aspectRatio;
-            newWidth = maxSize.width;
-          } else {
-            newHeight = newWidth / aspectRatio;
-          }
-        }
-        
         onResize(id, { width: newWidth, height: newHeight });
+      } else if (isRotating && !isLocked && onRotate) {
+        const newRotation = calculateRotation(clientX, clientY);
+        onRotate(id, newRotation);
       }
     });
   }, [
-    isDragging, isResizing, dragStart, startPosition, resizeStart, startSize, 
-    resizeDirection, aspectRatio, snapToGrid, snapToGridValue, showAlignmentGuides,
-    alignmentThreshold, otherElements, id, onMove, onResize, calculateAlignmentGuides
+    isDragging, isResizing, isRotating, isLocked, dragStart, startPosition, 
+    resizeStart, startSize, resizeDirection, aspectRatio, snapToGrid, 
+    snapToGridValue, showAlignmentGuides, alignmentThreshold, otherElements, 
+    id, onMove, onResize, onRotate, calculateAlignmentGuides, calculateRotation
   ]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -245,7 +277,7 @@ const OptimizedDraggableElement = ({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current || isResizing) return;
+    if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -257,7 +289,7 @@ const OptimizedDraggableElement = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!containerRef.current || isResizing) return;
+    if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
     const touch = e.touches[0];
     setIsDragging(true);
@@ -270,7 +302,7 @@ const OptimizedDraggableElement = ({
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isLocked) return;
     
     setIsResizing(true);
     setResizeDirection(direction);
@@ -283,7 +315,7 @@ const OptimizedDraggableElement = ({
   };
 
   const handleResizeTouchStart = (e: React.TouchEvent, direction: string) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isLocked) return;
     
     const touch = e.touches[0];
     setIsResizing(true);
@@ -296,14 +328,37 @@ const OptimizedDraggableElement = ({
     e.stopPropagation();
   };
 
+  const handleRotationMouseDown = (e: React.MouseEvent) => {
+    if (!containerRef.current || isLocked) return;
+    
+    setIsRotating(true);
+    setRotationStart({ x: e.clientX, y: e.clientY, angle: rotation });
+    onSelect?.(id);
+    
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleRotationTouchStart = (e: React.TouchEvent) => {
+    if (!containerRef.current || isLocked) return;
+    
+    const touch = e.touches[0];
+    setIsRotating(true);
+    setRotationStart({ x: touch.clientX, y: touch.clientY, angle: rotation });
+    onSelect?.(id);
+    
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const handleMouseMove = (e: MouseEvent) => {
-    optimizedMove(e.clientX, e.clientY);
+    optimizedInteraction(e.clientX, e.clientY);
   };
 
   const handleTouchMove = (e: TouchEvent) => {
     if (e.touches.length > 0) {
       const touch = e.touches[0];
-      optimizedMove(touch.clientX, touch.clientY);
+      optimizedInteraction(touch.clientX, touch.clientY);
     }
     e.preventDefault();
   };
@@ -311,6 +366,7 @@ const OptimizedDraggableElement = ({
   const handleMouseUp = () => {
     setIsDragging(false);
     setIsResizing(false);
+    setIsRotating(false);
     setResizeDirection('');
     setAlignmentGuides([]);
     
@@ -322,7 +378,7 @@ const OptimizedDraggableElement = ({
 
   // Global event listeners
   useEffect(() => {
-    if (isDragging || isResizing) {
+    if (isDragging || isResizing || isRotating) {
       const handleGlobalMouseMove = (e: MouseEvent) => handleMouseMove(e);
       const handleGlobalTouchMove = (e: TouchEvent) => handleTouchMove(e);
       const handleGlobalMouseUp = () => handleMouseUp();
@@ -339,7 +395,7 @@ const OptimizedDraggableElement = ({
         document.removeEventListener('touchend', handleGlobalMouseUp);
       };
     }
-  }, [isDragging, isResizing]);
+  }, [isDragging, isResizing, isRotating]);
 
   // Cleanup animation frame on unmount
   useEffect(() => {
@@ -350,11 +406,16 @@ const OptimizedDraggableElement = ({
     };
   }, []);
 
-  const resizeHandles = [
-    { direction: 'nw', cursor: 'nw-resize', position: 'top-0 left-0 -translate-x-1/2 -translate-y-1/2' },
-    { direction: 'ne', cursor: 'ne-resize', position: 'top-0 right-0 translate-x-1/2 -translate-y-1/2' },
-    { direction: 'se', cursor: 'se-resize', position: 'bottom-0 right-0 translate-x-1/2 translate-y-1/2' },
-    { direction: 'sw', cursor: 'sw-resize', position: 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2' },
+  // Enhanced resize handles - 8 points (4 corners + 4 sides)
+  const resizeHandles: ResizeHandle[] = [
+    { direction: 'n', cursor: 'n-resize', position: 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2', proportional: false },
+    { direction: 'ne', cursor: 'ne-resize', position: 'top-0 right-0 translate-x-1/2 -translate-y-1/2', proportional: true },
+    { direction: 'e', cursor: 'e-resize', position: 'top-1/2 right-0 translate-x-1/2 -translate-y-1/2', proportional: false },
+    { direction: 'se', cursor: 'se-resize', position: 'bottom-0 right-0 translate-x-1/2 translate-y-1/2', proportional: true },
+    { direction: 's', cursor: 's-resize', position: 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2', proportional: false },
+    { direction: 'sw', cursor: 'sw-resize', position: 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2', proportional: true },
+    { direction: 'w', cursor: 'w-resize', position: 'top-1/2 left-0 -translate-x-1/2 -translate-y-1/2', proportional: false },
+    { direction: 'nw', cursor: 'nw-resize', position: 'top-0 left-0 -translate-x-1/2 -translate-y-1/2', proportional: true },
   ];
 
   return (
@@ -391,16 +452,18 @@ const OptimizedDraggableElement = ({
       <div
         ref={elementRef}
         className={`absolute select-none transition-all duration-100 ${
-          isDragging || isResizing ? 'z-50 scale-105' : `z-${Math.min(50, Math.max(10, zIndex))}`
-        } ${!isResizing && !isDragging ? 'cursor-move' : ''} group`}
+          isDragging || isResizing || isRotating ? 'z-50 scale-105' : `z-${Math.min(50, Math.max(10, zIndex))}`
+        } ${!isResizing && !isRotating && !isDragging && !isLocked ? 'cursor-move' : ''} ${
+          isLocked ? 'opacity-75' : ''
+        } group`}
         style={{
-          transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
+          transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
           left: '50%',
           top: '50%',
           width: resizable ? `${size.width}px` : 'auto',
           height: resizable ? `${size.height}px` : 'auto',
           touchAction: 'none',
-          willChange: isDragging || isResizing ? 'transform' : 'auto',
+          willChange: isDragging || isResizing || isRotating ? 'transform' : 'auto',
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -408,28 +471,53 @@ const OptimizedDraggableElement = ({
       >
         <div 
           className={`relative w-full h-full transition-all duration-100 ${
-            isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-          } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-white/50' : ''} rounded-sm`}
+            isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
+          } ${isSelected && !isLocked ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-white/50' : ''} ${
+            isLocked ? 'ring-2 ring-yellow-500/50 ring-offset-2 ring-offset-white/50' : ''
+          } rounded-sm`}
         >
           {children}
           
           {/* Selection Indicator */}
-          {isSelected && (
+          {isSelected && !isLocked && (
             <div className="absolute -inset-2 border-2 border-primary/40 rounded-md bg-primary/5 pointer-events-none animate-pulse" />
           )}
           
-          {/* Resize handles - More prominent corner handles */}
-          {resizable && isSelected && (
+          {/* Lock Indicator */}
+          {isLocked && (
+            <div className="absolute -inset-2 border-2 border-yellow-500/40 rounded-md bg-yellow-500/5 pointer-events-none" />
+          )}
+          
+          {/* Rotation Handle */}
+          {resizable && isSelected && !isLocked && (
+            <div
+              className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-primary border-2 border-white rounded-full shadow-lg cursor-grab hover:cursor-grabbing hover:scale-125 transition-all duration-200 flex items-center justify-center z-50"
+              style={{ touchAction: 'none' }}
+              onMouseDown={handleRotationMouseDown}
+              onTouchStart={handleRotationTouchStart}
+            >
+              <RotateCw className="h-3 w-3 text-white" />
+            </div>
+          )}
+          
+          {/* Resize Handles - 8 Points */}
+          {resizable && isSelected && !isLocked && (
             <>
               {resizeHandles.map((handle) => (
                 <div
                   key={handle.direction}
-                  className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-primary border-2 border-white rounded-full shadow-lg opacity-100 hover:scale-150 transition-all duration-200 flex items-center justify-center z-50 ${handle.position}`}
+                  className={`absolute ${
+                    handle.proportional 
+                      ? `${isMobile ? 'w-5 h-5' : 'w-4 h-4'} bg-primary border-2 border-white rounded-full` 
+                      : `${isMobile ? 'w-4 h-3' : 'w-3 h-2'} bg-primary border border-white rounded-sm`
+                  } shadow-lg opacity-100 hover:scale-125 transition-all duration-200 flex items-center justify-center z-50 ${handle.position}`}
                   style={{ cursor: handle.cursor, touchAction: 'none' }}
                   onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
                   onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
                 >
-                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                  {handle.proportional && (
+                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                  )}
                 </div>
               ))}
             </>
@@ -440,4 +528,4 @@ const OptimizedDraggableElement = ({
   );
 };
 
-export default OptimizedDraggableElement;
+export default AdvancedDraggableElement;

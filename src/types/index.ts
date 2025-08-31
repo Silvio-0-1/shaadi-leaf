@@ -42,12 +42,16 @@ export interface ElementPosition {
 export interface PhotoElement {
   position: ElementPosition;
   size: { width: number; height: number };
+  rotation?: number;
+  isLocked?: boolean;
 }
 
 export interface IndividualPhotoElement {
   position: ElementPosition;
   size: { width: number; height: number };
   id: string;
+  rotation?: number;
+  isLocked?: boolean;
 }
 
 export interface CardElements {

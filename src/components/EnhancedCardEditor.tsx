@@ -10,10 +10,11 @@ import {
 import { WeddingCardData, CardElements, ElementPosition, Template, IndividualPhotoElement } from '@/types';
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
-import OptimizedDraggableElement from './OptimizedDraggableElement';
+import AdvancedDraggableElement from './AdvancedDraggableElement';
 import InlineTextEditor from './InlineTextEditor';
 import EditorToolbar from './EditorToolbar';
 import GridOverlay from './GridOverlay';
+import ObjectToolbar from './ObjectToolbar';
 import { toast } from 'sonner';
 
 interface EnhancedCardEditorProps {
@@ -51,6 +52,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
   const [gridSize] = useState(30);
   const [elementZIndices, setElementZIndices] = useState<Record<string, number>>({});
+  const [elementRotations, setElementRotations] = useState<Record<string, number>>({});
+  const [elementLockStates, setElementLockStates] = useState<Record<string, boolean>>({});
   
   // Fetch template (static or custom)
   useEffect(() => {
@@ -228,6 +231,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     });
   }, [addToHistory]);
 
+  const handleElementRotate = useCallback((elementId: string, rotation: number) => {
+    setElementRotations(prev => ({
+      ...prev,
+      [elementId]: rotation
+    }));
+  }, []);
+
   const handleTextChange = useCallback((field: keyof WeddingCardData, value: string) => {
     onDataChange?.({ [field]: value });
   }, [onDataChange]);
@@ -306,6 +316,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     setElementZIndices(prev => ({
       ...prev,
       [elementId]: Math.min(...Object.values(prev), 10) - 1
+    }));
+  }, []);
+
+  const handleToggleLock = useCallback((elementId: string) => {
+    setElementLockStates(prev => ({
+      ...prev,
+      [elementId]: !prev[elementId]
     }));
   }, []);
 
@@ -546,6 +563,24 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           containerRef={cardRef}
         />
 
+        {/* Object Toolbar */}
+        {selectedElement && cardRef.current && (
+          <ObjectToolbar
+            selectedElement={selectedElement}
+            elementLocked={elementLockStates[selectedElement] || false}
+            onDelete={handleDeleteElement}
+            onDuplicate={handleDuplicateElement}
+            onBringToFront={handleBringToFront}
+            onSendToBack={handleSendToBack}
+            onToggleLock={handleToggleLock}
+            position={{
+              x: cardRef.current.offsetWidth / 2 + getElementPosition(selectedElement).x,
+              y: cardRef.current.offsetHeight / 2 + getElementPosition(selectedElement).y
+            }}
+            visible={true}
+          />
+        )}
+
         {/* Decorative Elements */}
         {!template?.backgroundImage && (
           <>
@@ -563,13 +598,16 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         <div className="relative h-full flex items-center justify-center p-8">
           {/* Logo */}
           {cardData.logoImage && (
-            <OptimizedDraggableElement
+            <AdvancedDraggableElement
               id="logo"
               position={positions.logo}
               onMove={handleElementMove}
               containerRef={cardRef}
               isSelected={selectedElement === 'logo'}
+              isLocked={elementLockStates.logo || false}
               onSelect={setSelectedElement}
+              rotation={elementRotations.logo || 0}
+              onRotate={handleElementRotate}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
@@ -583,22 +621,25 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   className="w-20 h-20 object-contain opacity-90 filter drop-shadow-sm"
                 />
               </div>
-            </OptimizedDraggableElement>
+            </AdvancedDraggableElement>
           )}
 
           {/* Photos */}
           {cardData.uploadedImages && Array.isArray(cardData.uploadedImages) && cardData.uploadedImages.length > 0 && (
             <>
               {cardData.uploadedImages.length === 1 ? (
-                <OptimizedDraggableElement
+                <AdvancedDraggableElement
                   id="photo"
                   position={positions.photo.position}
                   onMove={handleElementMove}
                   containerRef={cardRef}
                   resizable={true}
                   size={positions.photo.size}
+                  rotation={elementRotations.photo || 0}
                   onResize={handleElementResize}
+                  onRotate={handleElementRotate}
                   isSelected={selectedElement === 'photo'}
+                  isLocked={elementLockStates.photo || false}
                   onSelect={setSelectedElement}
                   minSize={{ width: 80, height: 80 }}
                   maxSize={{ width: 240, height: 240 }}
@@ -622,11 +663,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                       backgroundRepeat: 'no-repeat'
                     }}
                   />
-                </OptimizedDraggableElement>
+                </AdvancedDraggableElement>
               ) : (
                 positions.photos?.map((photo, index) => (
                   cardData.uploadedImages && cardData.uploadedImages[index] && (
-                    <OptimizedDraggableElement
+                    <AdvancedDraggableElement
                       key={photo.id}
                       id={photo.id}
                       position={photo.position}
@@ -634,8 +675,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                       containerRef={cardRef}
                       resizable={true}
                       size={photo.size}
+                      rotation={elementRotations[photo.id] || 0}
                       onResize={handleElementResize}
+                      onRotate={handleElementRotate}
                       isSelected={selectedElement === photo.id}
+                      isLocked={elementLockStates[photo.id] || false}
                       onSelect={setSelectedElement}
                       minSize={{ width: 60, height: 60 }}
                       maxSize={{ width: 180, height: 180 }}
@@ -659,7 +703,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                           backgroundRepeat: 'no-repeat'
                         }}
                       />
-                    </OptimizedDraggableElement>
+                    </AdvancedDraggableElement>
                   )
                 ))
               )}
@@ -667,13 +711,16 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           )}
 
           {/* Bride's Name */}
-          <OptimizedDraggableElement
+          <AdvancedDraggableElement
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
             containerRef={cardRef}
             isSelected={selectedElement === 'brideName'}
+            isLocked={elementLockStates.brideName || false}
             onSelect={setSelectedElement}
+            rotation={elementRotations.brideName || 0}
+            onRotate={handleElementRotate}
             gridSize={gridSize}
             snapToGrid={snapToGrid}
             showAlignmentGuides={showAlignmentGuides}
@@ -706,16 +753,19 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </OptimizedDraggableElement>
+          </AdvancedDraggableElement>
 
           {/* Heart Icon */}
-          <OptimizedDraggableElement
+          <AdvancedDraggableElement
             id="heartIcon"
             position={positions.heartIcon}
             onMove={handleElementMove}
             containerRef={cardRef}
             isSelected={selectedElement === 'heartIcon'}
+            isLocked={elementLockStates.heartIcon || false}
             onSelect={setSelectedElement}
+            rotation={elementRotations.heartIcon || 0}
+            onRotate={handleElementRotate}
             gridSize={gridSize}
             snapToGrid={snapToGrid}
             showAlignmentGuides={showAlignmentGuides}
@@ -737,16 +787,19 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 style={{ backgroundColor: `${colors.primary}60` }}
               />
             </div>
-          </OptimizedDraggableElement>
+          </AdvancedDraggableElement>
 
           {/* Groom's Name */}
-          <OptimizedDraggableElement
+          <AdvancedDraggableElement
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
             containerRef={cardRef}
             isSelected={selectedElement === 'groomName'}
+            isLocked={elementLockStates.groomName || false}
             onSelect={setSelectedElement}
+            rotation={elementRotations.groomName || 0}
+            onRotate={handleElementRotate}
             gridSize={gridSize}
             snapToGrid={snapToGrid}
             showAlignmentGuides={showAlignmentGuides}
@@ -779,17 +832,20 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </OptimizedDraggableElement>
+          </AdvancedDraggableElement>
 
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <OptimizedDraggableElement
+            <AdvancedDraggableElement
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
               containerRef={cardRef}
               isSelected={selectedElement === 'weddingDate'}
+              isLocked={elementLockStates.weddingDate || false}
               onSelect={setSelectedElement}
+              rotation={elementRotations.weddingDate || 0}
+              onRotate={handleElementRotate}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
@@ -808,18 +864,21 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </OptimizedDraggableElement>
+            </AdvancedDraggableElement>
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <OptimizedDraggableElement
+            <AdvancedDraggableElement
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
               containerRef={cardRef}
               isSelected={selectedElement === 'venue'}
+              isLocked={elementLockStates.venue || false}
               onSelect={setSelectedElement}
+              rotation={elementRotations.venue || 0}
+              onRotate={handleElementRotate}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
@@ -853,18 +912,21 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </div>
                 )}
               </div>
-            </OptimizedDraggableElement>
+            </AdvancedDraggableElement>
           )}
 
           {/* Message */}
           {cardData.message && (
-            <OptimizedDraggableElement
+            <AdvancedDraggableElement
               id="message"
               position={positions.message}
               onMove={handleElementMove}
               containerRef={cardRef}
               isSelected={selectedElement === 'message'}
+              isLocked={elementLockStates.message || false}
               onSelect={setSelectedElement}
+              rotation={elementRotations.message || 0}
+              onRotate={handleElementRotate}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
@@ -896,7 +958,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </p>
                 )}
               </div>
-            </OptimizedDraggableElement>
+            </AdvancedDraggableElement>
           )}
         </div>
       </Card>
