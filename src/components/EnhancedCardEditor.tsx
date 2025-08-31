@@ -17,6 +17,8 @@ import GridOverlay from './GridOverlay';
 import ObjectToolbar from './ObjectToolbar';
 import { toast } from 'sonner';
 
+// Force cache refresh - Enhanced Card Editor v2.0
+
 interface EnhancedCardEditorProps {
   cardData: WeddingCardData;
   initialPositions?: CardElements | null;
