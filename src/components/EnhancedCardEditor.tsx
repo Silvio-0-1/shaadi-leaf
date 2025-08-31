@@ -571,7 +571,12 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         ref={cardRef}
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
-        onClick={() => setSelectedElement(null)}
+        onClick={(e) => {
+          // Only deselect if clicking directly on the card container, not its children
+          if (e.target === e.currentTarget) {
+            setSelectedElement(null);
+          }
+        }}
       >
         {/* Grid Overlay */}
         <GridOverlay 
