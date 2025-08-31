@@ -56,6 +56,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [elementZIndices, setElementZIndices] = useState<Record<string, number>>({});
   const [elementRotations, setElementRotations] = useState<Record<string, number>>({});
   const [elementLockStates, setElementLockStates] = useState<Record<string, boolean>>({});
+  const [elementFontSizes, setElementFontSizes] = useState<Record<string, number>>({
+    brideName: 36,
+    groomName: 36,
+    weddingDate: 14,
+    venue: 14,
+    message: 16
+  });
   
   // Fetch template (static or custom)
   useEffect(() => {
@@ -221,11 +228,41 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               : photo
           ) || []
         };
-      } else {
+      } else if (elementId === 'photo') {
         newPositions = {
           ...prev,
           photo: { ...prev.photo, size: newSize }
         };
+      } else {
+        // For text elements, scale font size based on width change
+        const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(elementId);
+        if (isTextElement) {
+          const baseFontSizes = {
+            brideName: 36,
+            groomName: 36,
+            weddingDate: 14,
+            venue: 14,
+            message: 16
+          };
+          
+          const baseSizes = {
+            brideName: 200,
+            groomName: 200,
+            weddingDate: 180,
+            venue: 160,
+            message: 220
+          };
+          
+          const scaleRatio = newSize.width / (baseSizes[elementId as keyof typeof baseSizes] || 200);
+          const newFontSize = Math.max(8, Math.min(72, (baseFontSizes[elementId as keyof typeof baseFontSizes] || 16) * scaleRatio));
+          
+          setElementFontSizes(prev => ({
+            ...prev,
+            [elementId]: newFontSize
+          }));
+        }
+        
+        newPositions = prev;
       }
 
       addToHistory(newPositions);
@@ -572,8 +609,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
-          // Only deselect if clicking directly on the card background, not on any child elements
-          if (e.target === cardRef.current) {
+          // Deselect when clicking on background areas (not on interactive elements)
+          const target = e.target as HTMLElement;
+          const isBackground = target === cardRef.current || 
+                             target.closest('.card-background') ||
+                             (!target.closest('[data-draggable-element]') && target !== cardRef.current);
+          
+          if (isBackground) {
             setSelectedElement(null);
           }
         }}
@@ -600,7 +642,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </>
         )}
 
-        <div className="relative h-full flex items-center justify-center p-8">
+        <div className="relative h-full flex items-center justify-center p-8 card-background">
           {/* Logo */}
           {cardData.logoImage && (
             <AdvancedDraggableElement
@@ -735,7 +777,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             otherElements={getAllElements()}
             zIndex={elementZIndices.brideName || 30}
           >
-            <div onDoubleClick={() => handleDoubleClick('brideName')}>
+            <div 
+              onDoubleClick={() => handleDoubleClick('brideName')} 
+              className="w-full h-full flex items-center justify-center"
+              data-draggable-element="brideName"
+            >
               {editingElement === 'brideName' ? (
                 <InlineTextEditor
                   value={cardData.brideName || 'Bride\'s Name'}
@@ -749,12 +795,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 />
               ) : (
                 <h1 
-                  className={`text-4xl font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
+                  className={`font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
                     selectedElement === 'brideName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
                   }`}
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: `${elementFontSizes.brideName || 36}px`
                   }}
                 >
                   {cardData.brideName || 'Bride\'s Name'}
@@ -783,7 +830,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             otherElements={getAllElements()}
             zIndex={elementZIndices.heartIcon || 25}
           >
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center w-full h-full" data-draggable-element="heartIcon">
               <div 
                 className="h-px w-12 transition-all duration-200"
                 style={{ backgroundColor: `${colors.primary}60` }}
@@ -820,7 +867,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             otherElements={getAllElements()}
             zIndex={elementZIndices.groomName || 30}
           >
-            <div onDoubleClick={() => handleDoubleClick('groomName')}>
+            <div 
+              onDoubleClick={() => handleDoubleClick('groomName')} 
+              className="w-full h-full flex items-center justify-center"
+              data-draggable-element="groomName"
+            >
               {editingElement === 'groomName' ? (
                 <InlineTextEditor
                   value={cardData.groomName || 'Groom\'s Name'}
@@ -834,12 +885,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 />
               ) : (
                 <h1 
-                  className={`text-4xl font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
+                  className={`font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
                     selectedElement === 'groomName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
                   }`}
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: `${elementFontSizes.groomName || 36}px`
                   }}
                 >
                   {cardData.groomName || 'Groom\'s Name'}
@@ -870,13 +922,17 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               zIndex={elementZIndices.weddingDate || 25}
             >
               <div 
-                className="flex items-center justify-center transition-all duration-200" 
+                className="flex items-center justify-center w-full h-full transition-all duration-200" 
                 style={{ color: colors.text }}
+                data-draggable-element="weddingDate"
               >
                 <Calendar className="h-4 w-4 mr-2 opacity-70" />
                 <span 
-                  className="font-medium text-sm"
-                  style={{ fontFamily: getFontFamily('date') }}
+                  className="font-medium"
+                  style={{ 
+                    fontFamily: getFontFamily('date'),
+                    fontSize: `${elementFontSizes.weddingDate || 14}px`
+                  }}
                 >
                   {formatDate(cardData.weddingDate)}
                 </span>
@@ -905,7 +961,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               otherElements={getAllElements()}
               zIndex={elementZIndices.venue || 25}
             >
-              <div onDoubleClick={() => handleDoubleClick('venue')}>
+              <div 
+                onDoubleClick={() => handleDoubleClick('venue')} 
+                className="w-full h-full flex items-center justify-center"
+                data-draggable-element="venue"
+              >
                 {editingElement === 'venue' ? (
                   <InlineTextEditor
                     value={cardData.venue}
@@ -924,8 +984,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   >
                     <MapPin className="h-4 w-4 mr-2 opacity-70" />
                     <span 
-                      className="font-medium text-sm"
-                      style={{ fontFamily: getFontFamily('venue') }}
+                      className="font-medium"
+                      style={{ 
+                        fontFamily: getFontFamily('venue'),
+                        fontSize: `${elementFontSizes.venue || 14}px`
+                      }}
                     >
                       {cardData.venue}
                     </span>
@@ -956,7 +1019,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               otherElements={getAllElements()}
               zIndex={elementZIndices.message || 25}
             >
-              <div onDoubleClick={() => handleDoubleClick('message')}>
+              <div 
+                onDoubleClick={() => handleDoubleClick('message')} 
+                className="w-full h-full flex items-center justify-center"
+                data-draggable-element="message"
+              >
                 {editingElement === 'message' ? (
                   <InlineTextEditor
                     value={cardData.message}
@@ -971,10 +1038,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   />
                 ) : (
                   <p 
-                    className="text-center text-sm italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
+                    className="text-center italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
                     style={{ 
                       color: colors.text,
-                      fontFamily: getFontFamily('message')
+                      fontFamily: getFontFamily('message'),
+                      fontSize: `${elementFontSizes.message || 16}px`
                     }}
                   >
                     {cardData.message}
