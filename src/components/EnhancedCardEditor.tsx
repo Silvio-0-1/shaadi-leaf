@@ -535,7 +535,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
       <Card 
         id="card-preview"
         ref={cardRef}
-        className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white"
+        className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={() => setSelectedElement(null)}
       >

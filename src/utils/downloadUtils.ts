@@ -156,6 +156,20 @@ export const downloadAsImage = async (
         clonedElement.style.margin = '0';
         clonedElement.style.padding = '0';
         
+        // Hide gridlines and grid overlay during capture
+        const gridOverlay = clonedElement.querySelector('[class*="grid-overlay"]');
+        if (gridOverlay) {
+          (gridOverlay as HTMLElement).style.display = 'none';
+        }
+        
+        // Hide all elements with grid-related classes
+        clonedElement.querySelectorAll('[class*="grid"], [class*="Grid"]').forEach(el => {
+          const htmlEl = el as HTMLElement;
+          if (htmlEl.style.position === 'absolute' && htmlEl.style.pointerEvents === 'none') {
+            htmlEl.style.display = 'none';
+          }
+        });
+
         // Enhanced style copying function
         const copyStyles = (original: Element, cloned: Element) => {
           const originalStyles = window.getComputedStyle(original);
@@ -348,6 +362,20 @@ export const downloadAsPDF = async (
         clonedElement.style.margin = '0';
         clonedElement.style.padding = '0';
         
+        // Hide gridlines and grid overlay during PDF capture
+        const gridOverlay = clonedElement.querySelector('[class*="grid-overlay"]');
+        if (gridOverlay) {
+          (gridOverlay as HTMLElement).style.display = 'none';
+        }
+        
+        // Hide all elements with grid-related classes
+        clonedElement.querySelectorAll('[class*="grid"], [class*="Grid"]').forEach(el => {
+          const htmlEl = el as HTMLElement;
+          if (htmlEl.style.position === 'absolute' && htmlEl.style.pointerEvents === 'none') {
+            htmlEl.style.display = 'none';
+          }
+        });
+
         // Copy computed styles more comprehensively
         const copyStyles = (original: Element, cloned: Element) => {
           const originalStyles = window.getComputedStyle(original);

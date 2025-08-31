@@ -4,16 +4,12 @@ interface GridOverlayProps {
   visible: boolean;
   gridSize: number;
   containerRef: React.RefObject<HTMLDivElement>;
-  opacity?: number;
-  color?: string;
 }
 
 const GridOverlay = ({ 
   visible, 
   gridSize, 
-  containerRef, 
-  opacity = 0.3,
-  color = '#e5e7eb'
+  containerRef
 }: GridOverlayProps) => {
   const gridLines = useMemo(() => {
     if (!visible || !containerRef.current) return { vertical: [], horizontal: [] };
@@ -49,16 +45,17 @@ const GridOverlay = ({
   if (!visible) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-5">
+    <div className="absolute inset-0 pointer-events-none z-5 grid-overlay">
       {/* Vertical lines */}
       {gridLines.vertical.map((x, index) => (
         <div
           key={`v-${index}`}
-          className="absolute top-0 bottom-0 w-px"
+          className="absolute top-0 bottom-0"
           style={{
             left: `${x}px`,
-            backgroundColor: color,
-            opacity: opacity,
+            backgroundColor: '#6b7280',
+            opacity: 0.6,
+            width: '1.5px',
           }}
         />
       ))}
@@ -67,31 +64,34 @@ const GridOverlay = ({
       {gridLines.horizontal.map((y, index) => (
         <div
           key={`h-${index}`}
-          className="absolute left-0 right-0 h-px"
+          className="absolute left-0 right-0"
           style={{
             top: `${y}px`,
-            backgroundColor: color,
-            opacity: opacity,
+            backgroundColor: '#6b7280',
+            opacity: 0.6,
+            height: '1.5px',
           }}
         />
       ))}
       
       {/* Center lines (more prominent) */}
       <div
-        className="absolute top-0 bottom-0 w-px"
+        className="absolute top-0 bottom-0"
         style={{
           left: '50%',
-          backgroundColor: color,
-          opacity: opacity * 1.5,
+          backgroundColor: '#374151',
+          opacity: 0.8,
+          width: '2px',
           transform: 'translateX(-50%)',
         }}
       />
       <div
-        className="absolute left-0 right-0 h-px"
+        className="absolute left-0 right-0"
         style={{
           top: '50%',
-          backgroundColor: color,
-          opacity: opacity * 1.5,
+          backgroundColor: '#374151',
+          opacity: 0.8,
+          height: '2px',
           transform: 'translateY(-50%)',
         }}
       />

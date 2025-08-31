@@ -319,7 +319,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
       <Card 
         ref={cardRef}
         id="card-preview"
-        className={`aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl relative ${!template?.backgroundImage ? getBackgroundClass() : ''}`}
+        className={`aspect-[3/4] overflow-hidden wedding-card-shadow transition-all duration-300 hover:shadow-xl relative rounded-none ${!template?.backgroundImage ? getBackgroundClass() : ''}`}
         style={getBackgroundStyle()}
       >
         <div className="relative h-full flex items-center justify-center">
