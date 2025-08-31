@@ -53,9 +53,9 @@ const GridOverlay = ({
           className="absolute top-0 bottom-0"
           style={{
             left: `${x}px`,
-            backgroundColor: '#6b7280',
-            opacity: 0.6,
-            width: '1.5px',
+            backgroundColor: '#9ca3af',
+            opacity: 0.3,
+            width: '1px',
           }}
         />
       ))}
@@ -67,9 +67,9 @@ const GridOverlay = ({
           className="absolute left-0 right-0"
           style={{
             top: `${y}px`,
-            backgroundColor: '#6b7280',
-            opacity: 0.6,
-            height: '1.5px',
+            backgroundColor: '#9ca3af',
+            opacity: 0.3,
+            height: '1px',
           }}
         />
       ))}
@@ -79,9 +79,9 @@ const GridOverlay = ({
         className="absolute top-0 bottom-0"
         style={{
           left: '50%',
-          backgroundColor: '#374151',
-          opacity: 0.8,
-          width: '2px',
+          backgroundColor: '#6b7280',
+          opacity: 0.5,
+          width: '1px',
           transform: 'translateX(-50%)',
         }}
       />
@@ -89,9 +89,9 @@ const GridOverlay = ({
         className="absolute left-0 right-0"
         style={{
           top: '50%',
-          backgroundColor: '#374151',
-          opacity: 0.8,
-          height: '2px',
+          backgroundColor: '#6b7280',
+          opacity: 0.5,
+          height: '1px',
           transform: 'translateY(-50%)',
         }}
       />

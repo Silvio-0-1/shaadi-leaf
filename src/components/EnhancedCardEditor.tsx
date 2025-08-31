@@ -49,7 +49,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [showGridlines, setShowGridlines] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
-  const [gridSize] = useState(20);
+  const [gridSize] = useState(30);
   const [elementZIndices, setElementZIndices] = useState<Record<string, number>>({});
   
   // Fetch template (static or custom)

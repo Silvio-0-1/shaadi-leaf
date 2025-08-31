@@ -156,18 +156,15 @@ export const downloadAsImage = async (
         clonedElement.style.margin = '0';
         clonedElement.style.padding = '0';
         
-        // Hide gridlines and grid overlay during capture
-        const gridOverlay = clonedElement.querySelector('[class*="grid-overlay"]');
+        // ALWAYS hide gridlines during capture (regardless of toggle state)
+        const gridOverlay = clonedElement.querySelector('.grid-overlay');
         if (gridOverlay) {
           (gridOverlay as HTMLElement).style.display = 'none';
         }
         
-        // Hide all elements with grid-related classes
-        clonedElement.querySelectorAll('[class*="grid"], [class*="Grid"]').forEach(el => {
-          const htmlEl = el as HTMLElement;
-          if (htmlEl.style.position === 'absolute' && htmlEl.style.pointerEvents === 'none') {
-            htmlEl.style.display = 'none';
-          }
+        // Hide all grid-related elements
+        clonedElement.querySelectorAll('[class*="grid-overlay"], [class*="Grid"], .grid-overlay').forEach(el => {
+          (el as HTMLElement).style.display = 'none';
         });
 
         // Enhanced style copying function
@@ -362,18 +359,15 @@ export const downloadAsPDF = async (
         clonedElement.style.margin = '0';
         clonedElement.style.padding = '0';
         
-        // Hide gridlines and grid overlay during PDF capture
-        const gridOverlay = clonedElement.querySelector('[class*="grid-overlay"]');
+        // ALWAYS hide gridlines during PDF capture (regardless of toggle state)
+        const gridOverlay = clonedElement.querySelector('.grid-overlay');
         if (gridOverlay) {
           (gridOverlay as HTMLElement).style.display = 'none';
         }
         
-        // Hide all elements with grid-related classes
-        clonedElement.querySelectorAll('[class*="grid"], [class*="Grid"]').forEach(el => {
-          const htmlEl = el as HTMLElement;
-          if (htmlEl.style.position === 'absolute' && htmlEl.style.pointerEvents === 'none') {
-            htmlEl.style.display = 'none';
-          }
+        // Hide all grid-related elements
+        clonedElement.querySelectorAll('[class*="grid-overlay"], [class*="Grid"], .grid-overlay').forEach(el => {
+          (el as HTMLElement).style.display = 'none';
         });
 
         // Copy computed styles more comprehensively
