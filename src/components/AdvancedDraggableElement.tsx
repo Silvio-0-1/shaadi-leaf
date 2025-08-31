@@ -272,6 +272,7 @@ const AdvancedDraggableElement = ({
   ]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    console.log('Element clicked:', id);
     e.stopPropagation();
     onSelect?.(id);
   };
@@ -279,6 +280,7 @@ const AdvancedDraggableElement = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
+    console.log('Element mouse down:', id);
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setStartPosition(position);

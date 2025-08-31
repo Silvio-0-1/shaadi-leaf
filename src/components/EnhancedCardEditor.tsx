@@ -609,13 +609,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
-          // Deselect when clicking on background areas (not on interactive elements)
-          const target = e.target as HTMLElement;
-          const isBackground = target === cardRef.current || 
-                             target.closest('.card-background') ||
-                             (!target.closest('[data-draggable-element]') && target !== cardRef.current);
-          
-          if (isBackground) {
+          console.log('Card clicked, target:', e.target, 'cardRef:', cardRef.current);
+          // Simple and reliable deselection: only when clicking on the card container itself
+          if (e.target === cardRef.current) {
+            console.log('Deselecting element');
             setSelectedElement(null);
           }
         }}
@@ -642,7 +639,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </>
         )}
 
-        <div className="relative h-full flex items-center justify-center p-8 card-background">
+        <div className="relative h-full flex items-center justify-center p-8">
           {/* Logo */}
           {cardData.logoImage && (
             <AdvancedDraggableElement
