@@ -199,45 +199,6 @@ const EditorToolbar = ({
             >
               <AlignCenter className="h-4 w-4" />
             </Button>
-            
-            <Separator orientation="vertical" className="h-4 mx-1" />
-            
-            <Button
-              onClick={handleDuplicateElement}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              title="Duplicate element"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handleBringToFront}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              title="Bring to front"
-            >
-              <BringToFront className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handleSendToBack}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              title="Send to back"
-            >
-              <SendToBack className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handleDeleteElement}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-              title="Delete element"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </>
         )}
         

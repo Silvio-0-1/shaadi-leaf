@@ -572,8 +572,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
-          // Only deselect if clicking directly on the card container, not its children
-          if (e.target === e.currentTarget) {
+          // Only deselect if clicking directly on the card background, not on any child elements
+          if (e.target === cardRef.current) {
             setSelectedElement(null);
           }
         }}
@@ -723,7 +723,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             resizable={true}
             size={{ width: 200, height: 50 }}
-            onResize={(id, size) => {}}
+            onResize={handleElementResize}
             isSelected={selectedElement === 'brideName'}
             isLocked={elementLockStates.brideName || false}
             onSelect={setSelectedElement}
@@ -771,7 +771,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             resizable={true}
             size={{ width: 100, height: 30 }}
-            onResize={(id, size) => {}}
+            onResize={handleElementResize}
             isSelected={selectedElement === 'heartIcon'}
             isLocked={elementLockStates.heartIcon || false}
             onSelect={setSelectedElement}
@@ -808,7 +808,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             resizable={true}
             size={{ width: 200, height: 50 }}
-            onResize={(id, size) => {}}
+            onResize={handleElementResize}
             isSelected={selectedElement === 'groomName'}
             isLocked={elementLockStates.groomName || false}
             onSelect={setSelectedElement}
@@ -857,7 +857,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               resizable={true}
               size={{ width: 180, height: 40 }}
-              onResize={(id, size) => {}}
+              onResize={handleElementResize}
               isSelected={selectedElement === 'weddingDate'}
               isLocked={elementLockStates.weddingDate || false}
               onSelect={setSelectedElement}
@@ -893,7 +893,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               resizable={true}
               size={{ width: 160, height: 40 }}
-              onResize={(id, size) => {}}
+              onResize={handleElementResize}
               isSelected={selectedElement === 'venue'}
               isLocked={elementLockStates.venue || false}
               onSelect={setSelectedElement}
@@ -944,7 +944,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               resizable={true}
               size={{ width: 220, height: 60 }}
-              onResize={(id, size) => {}}
+              onResize={handleElementResize}
               isSelected={selectedElement === 'message'}
               isLocked={elementLockStates.message || false}
               onSelect={setSelectedElement}
