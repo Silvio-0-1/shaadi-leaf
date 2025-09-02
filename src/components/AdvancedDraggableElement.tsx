@@ -306,6 +306,7 @@ const AdvancedDraggableElement = ({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     console.log('🟠 AdvancedDraggableElement handleMouseDown:', id, 'isSelected:', isSelected);
+    e.stopPropagation(); // Prevent card onClick from firing
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
     setIsDragging(true);
