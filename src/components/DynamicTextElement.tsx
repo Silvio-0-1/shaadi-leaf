@@ -56,10 +56,11 @@ const DynamicTextElement = ({
     }
   }, [isEditing]);
 
-  // Calculate text dimensions with real-time updates
+  // Calculate text dimensions with real-time updates and performance optimization
   const getTextDimensions = (textContent: string, font: string) => {
     if (!measureRef.current) return { width: 100, height: 20 };
     
+    // Use requestAnimationFrame for smooth updates
     measureRef.current.style.font = font;
     measureRef.current.style.whiteSpace = 'pre-wrap';
     measureRef.current.style.wordBreak = 'break-word';
@@ -67,23 +68,30 @@ const DynamicTextElement = ({
     
     const rect = measureRef.current.getBoundingClientRect();
     return {
-      width: Math.max(rect.width + 24, 80), // Responsive padding + minimum width
-      height: Math.max(rect.height + 16, 24) // Responsive padding + minimum height
+      width: Math.max(Math.ceil(rect.width + 24), 80), // Ceil for crisp pixels
+      height: Math.max(Math.ceil(rect.height + 16), 24) // Ceil for crisp pixels
     };
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
     setCurrentText(newText);
-    onTextChange(id, newText);
     
-    // Force re-calculation of dimensions for real-time resizing
-    if (textRef.current) {
-      const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
-      const newDimensions = getTextDimensions(newText, fontStyle);
-      textRef.current.style.width = `${newDimensions.width}px`;
-      textRef.current.style.height = `${newDimensions.height}px`;
-    }
+    // Real-time dimension updates with smooth animation
+    requestAnimationFrame(() => {
+      if (textRef.current) {
+        const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        const newDimensions = getTextDimensions(newText, fontStyle);
+        
+        // Smooth transition for border updates
+        textRef.current.style.transition = 'width 0.1s ease-out, height 0.1s ease-out';
+        textRef.current.style.width = `${newDimensions.width}px`;
+        textRef.current.style.height = `${newDimensions.height}px`;
+      }
+      
+      // Notify parent of text change after dimension update
+      onTextChange(id, newText);
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -129,9 +137,16 @@ const DynamicTextElement = ({
           minHeight: '24px',
           padding: '8px 12px',
           borderRadius: isEditing ? '6px' : '2px',
-          border: isEditing ? '2px solid hsl(var(--primary))' : isSelected ? '1px dashed hsl(var(--primary) / 0.4)' : 'none',
+          border: isEditing 
+            ? '2px solid hsl(var(--primary))' 
+            : isSelected 
+              ? '1px dashed hsl(var(--primary) / 0.4)' 
+              : 'none',
           cursor: isEditing ? 'text' : 'move',
-          overflow: 'visible'
+          overflow: 'visible',
+          // Smooth resizing performance
+          willChange: isEditing ? 'width, height' : 'auto',
+          backfaceVisibility: 'hidden' // Prevent flickering
         }}
         onClick={(e) => {
           console.log('🟠 DynamicTextElement onClick:', id);
@@ -180,9 +195,9 @@ const DynamicTextElement = ({
           </div>
         )}
 
-        {/* Dynamic Border Indicator */}
+        {/* Dynamic Border Indicator with smooth transitions */}
         {isSelected && !isEditing && (
-          <div className="absolute inset-0 border-2 border-dashed border-primary/40 rounded pointer-events-none animate-pulse" />
+          <div className="absolute inset-0 border-2 border-dashed border-primary/40 rounded pointer-events-none transition-all duration-150 ease-out animate-pulse" />
         )}
 
         {/* Resize Preview for Text */}

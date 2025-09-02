@@ -262,7 +262,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           };
           
           const scaleRatio = newSize.width / (baseSizes[elementId as keyof typeof baseSizes] || 200);
-          const newFontSize = Math.max(8, Math.min(72, (baseFontSizes[elementId as keyof typeof baseFontSizes] || 16) * scaleRatio));
+          const newFontSize = Math.max(8, Math.min(72, Math.round((baseFontSizes[elementId as keyof typeof baseFontSizes] || 16) * scaleRatio)));
           
           setElementFontSizes(prev => ({
             ...prev,
