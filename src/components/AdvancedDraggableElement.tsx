@@ -297,7 +297,7 @@ const AdvancedDraggableElement = ({
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
     console.log('🟡 AdvancedDraggableElement handleClick:', id, 'isSelected:', isSelected);
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent card onClick from firing
     if (!isSelected) {
       console.log('🟢 AdvancedDraggableElement calling onSelect for:', id);
       onSelect?.(id);
@@ -516,6 +516,7 @@ const AdvancedDraggableElement = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={handleClick}
+        data-draggable-element={id}
       >
         <div 
           className={`relative w-full h-full transition-all duration-100 ${
