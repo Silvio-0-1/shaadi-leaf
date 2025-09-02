@@ -47,11 +47,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const cardRef = useRef<HTMLDivElement>(null);
   const [editingElement, setEditingElement] = useState<string | null>(null);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [lastSelectionTime, setLastSelectionTime] = useState<number>(0);
   
-  // Debug selection changes
-  useEffect(() => {
-    console.log('🔵 Selected element changed to:', selectedElement);
-  }, [selectedElement]);
+  // Custom selection handler that tracks timing
+  const handleElementSelect = useCallback((elementId: string) => {
+    setSelectedElement(elementId);
+    setLastSelectionTime(Date.now());
+  }, []);
   
   // Editor state
   const [showGridlines, setShowGridlines] = useState(false);
@@ -618,6 +620,16 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
+          // Prevent immediate deselection by checking timing
+          const now = Date.now();
+          const timeSinceSelection = now - lastSelectionTime;
+          
+          // If an element was just selected (within 150ms), don't deselect it
+          if (timeSinceSelection < 150) {
+            console.log('🔴 Preventing deselection - element was just selected:', timeSinceSelection, 'ms ago');
+            return;
+          }
+          
           // Deselect when clicking on empty space (not on any draggable element)
           const target = e.target as HTMLElement;
           
@@ -628,12 +640,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             target.getAttribute('data-draggable-element') !== null ||
             !!target.closest('.absolute.select-none'); // Fallback to class-based detection
           
-          console.log('🔴 Card onClick - target:', target.tagName, 'id:', target.id, 'classList:', target.classList.toString());
-          console.log('🔴 Target data-draggable-element:', target.getAttribute('data-draggable-element'));
-          console.log('🔴 Target data-container:', target.getAttribute('data-container'));
-          console.log('🔴 Closest draggable element:', target.closest('[data-draggable-element]'));
-          console.log('🔴 Closest by class:', target.closest('.absolute.select-none'));
-          console.log('🔴 Final isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
+          console.log('🔴 Card onClick - timeSinceSelection:', timeSinceSelection, 'target:', target.tagName);
           
           // Only deselect if clicking on card background (not on elements)
           if (!isDraggableElement) {
@@ -676,7 +683,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               isSelected={selectedElement === 'logo'}
               isLocked={elementLockStates.logo || false}
-              onSelect={setSelectedElement}
+              onSelect={handleElementSelect}
               rotation={elementRotations.logo || 0}
               onRotate={handleElementRotate}
               gridSize={gridSize}
@@ -711,7 +718,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   onRotate={handleElementRotate}
                   isSelected={selectedElement === 'photo'}
                   isLocked={elementLockStates.photo || false}
-                  onSelect={setSelectedElement}
+                  onSelect={handleElementSelect}
                   minSize={{ width: 80, height: 80 }}
                   maxSize={{ width: 240, height: 240 }}
                   maintainAspectRatio={true}
@@ -751,7 +758,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                       onRotate={handleElementRotate}
                       isSelected={selectedElement === photo.id}
                       isLocked={elementLockStates[photo.id] || false}
-                      onSelect={setSelectedElement}
+                      onSelect={handleElementSelect}
                       minSize={{ width: 60, height: 60 }}
                       maxSize={{ width: 180, height: 180 }}
                       maintainAspectRatio={true}
@@ -792,7 +799,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onResize={handleElementResize}
             isSelected={selectedElement === 'brideName'}
             isLocked={elementLockStates.brideName || false}
-            onSelect={setSelectedElement}
+            onSelect={handleElementSelect}
             rotation={elementRotations.brideName || 0}
             onRotate={handleElementRotate}
             gridSize={gridSize}
@@ -845,7 +852,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onResize={handleElementResize}
             isSelected={selectedElement === 'heartIcon'}
             isLocked={elementLockStates.heartIcon || false}
-            onSelect={setSelectedElement}
+            onSelect={handleElementSelect}
             rotation={elementRotations.heartIcon || 0}
             onRotate={handleElementRotate}
             gridSize={gridSize}
@@ -882,7 +889,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onResize={handleElementResize}
             isSelected={selectedElement === 'groomName'}
             isLocked={elementLockStates.groomName || false}
-            onSelect={setSelectedElement}
+            onSelect={handleElementSelect}
             rotation={elementRotations.groomName || 0}
             onRotate={handleElementRotate}
             gridSize={gridSize}
@@ -936,7 +943,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onResize={handleElementResize}
               isSelected={selectedElement === 'weddingDate'}
               isLocked={elementLockStates.weddingDate || false}
-              onSelect={setSelectedElement}
+              onSelect={handleElementSelect}
               rotation={elementRotations.weddingDate || 0}
               onRotate={handleElementRotate}
               gridSize={gridSize}
@@ -976,7 +983,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onResize={handleElementResize}
               isSelected={selectedElement === 'venue'}
               isLocked={elementLockStates.venue || false}
-              onSelect={setSelectedElement}
+              onSelect={handleElementSelect}
               rotation={elementRotations.venue || 0}
               onRotate={handleElementRotate}
               gridSize={gridSize}
@@ -1034,7 +1041,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onResize={handleElementResize}
               isSelected={selectedElement === 'message'}
               isLocked={elementLockStates.message || false}
-              onSelect={setSelectedElement}
+              onSelect={handleElementSelect}
               rotation={elementRotations.message || 0}
               onRotate={handleElementRotate}
               gridSize={gridSize}
