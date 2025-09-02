@@ -622,7 +622,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           const target = e.target as HTMLElement;
           const isDraggableElement = target.closest('[data-draggable-element]') || target.hasAttribute('data-draggable-element');
           
-          console.log('🔴 Card onClick - target:', target.tagName, 'isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
+          console.log('🔴 Card onClick - target:', target.tagName, 'classList:', target.classList.toString(), 'isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
+          console.log('🔴 Target has data-draggable-element:', target.hasAttribute('data-draggable-element'));
+          console.log('🔴 Target closest draggable:', target.closest('[data-draggable-element]'));
           
           if (!isDraggableElement) {
             console.log('🔴 Deselecting element because click was outside draggable elements');
