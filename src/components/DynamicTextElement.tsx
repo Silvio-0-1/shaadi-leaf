@@ -38,6 +38,7 @@ const DynamicTextElement = ({
   textAlign = 'center'
 }: DynamicTextElementProps) => {
   const [currentText, setCurrentText] = useState(text);
+  const [dimensions, setDimensions] = useState({ width: 100, height: 20 });
   const textRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -47,6 +48,13 @@ const DynamicTextElement = ({
   useEffect(() => {
     setCurrentText(text);
   }, [text]);
+
+  // Update dimensions when text or font changes
+  useEffect(() => {
+    const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
+    const newDimensions = getTextDimensions(currentText, fontStyle);
+    setDimensions(newDimensions);
+  }, [currentText, fontSize, fontFamily, fontWeight]);
 
   // Auto-focus input when editing starts
   useEffect(() => {
@@ -79,17 +87,13 @@ const DynamicTextElement = ({
     
     // Real-time dimension updates with smooth animation
     requestAnimationFrame(() => {
-      if (textRef.current) {
-        const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
-        const newDimensions = getTextDimensions(newText, fontStyle);
-        
-        // Smooth transition for border updates
-        textRef.current.style.transition = 'width 0.1s ease-out, height 0.1s ease-out';
-        textRef.current.style.width = `${newDimensions.width}px`;
-        textRef.current.style.height = `${newDimensions.height}px`;
-      }
+      const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
+      const newDimensions = getTextDimensions(newText, fontStyle);
       
-      // Notify parent of text change after dimension update
+      // Update state dimensions for React re-render
+      setDimensions(newDimensions);
+      
+      // Notify parent of text change
       onTextChange(id, newText);
     });
   };
@@ -105,9 +109,6 @@ const DynamicTextElement = ({
       inputRef.current?.blur();
     }
   };
-
-  const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
-  const dimensions = getTextDimensions(currentText, fontStyle);
 
   return (
     <>
