@@ -620,11 +620,19 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         onClick={(e) => {
           // Deselect when clicking on empty space (not on any draggable element)
           const target = e.target as HTMLElement;
-          const isDraggableElement = target.closest('[data-draggable-element]') || target.hasAttribute('data-draggable-element');
           
-          console.log('🔴 Card onClick - target:', target.tagName, 'classList:', target.classList.toString(), 'isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
-          console.log('🔴 Target has data-draggable-element:', target.hasAttribute('data-draggable-element'));
-          console.log('🔴 Target closest draggable:', target.closest('[data-draggable-element]'));
+          // More robust detection - check if target or any parent has data-draggable-element
+          const isDraggableElement = 
+            target.hasAttribute('data-draggable-element') ||
+            target.closest('[data-draggable-element]') !== null ||
+            target.getAttribute('data-draggable-element') !== null ||
+            !!target.closest('.absolute.select-none'); // Fallback to class-based detection
+          
+          console.log('🔴 Card onClick - target:', target.tagName, 'id:', target.id, 'classList:', target.classList.toString());
+          console.log('🔴 Target data-draggable-element:', target.getAttribute('data-draggable-element'));
+          console.log('🔴 Closest draggable element:', target.closest('[data-draggable-element]'));
+          console.log('🔴 Closest by class:', target.closest('.absolute.select-none'));
+          console.log('🔴 Final isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
           
           if (!isDraggableElement) {
             console.log('🔴 Deselecting element because click was outside draggable elements');
