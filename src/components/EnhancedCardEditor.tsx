@@ -613,8 +613,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
-          // Only deselect when clicking directly on the card background
-          if (e.target === cardRef.current) {
+          // Deselect when clicking on empty space (not on any draggable element)
+          const target = e.target as HTMLElement;
+          const isDraggableElement = target.closest('[data-draggable-element]') || target.hasAttribute('data-draggable-element');
+          
+          if (!isDraggableElement) {
             setSelectedElement(null);
           }
         }}

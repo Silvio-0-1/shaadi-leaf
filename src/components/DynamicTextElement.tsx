@@ -56,17 +56,19 @@ const DynamicTextElement = ({
     }
   }, [isEditing]);
 
-  // Calculate text dimensions
+  // Calculate text dimensions with real-time updates
   const getTextDimensions = (textContent: string, font: string) => {
     if (!measureRef.current) return { width: 100, height: 20 };
     
     measureRef.current.style.font = font;
-    measureRef.current.textContent = textContent || 'A'; // Fallback to prevent empty
+    measureRef.current.style.whiteSpace = 'pre-wrap';
+    measureRef.current.style.wordBreak = 'break-word';
+    measureRef.current.textContent = textContent || 'Click to edit';
     
     const rect = measureRef.current.getBoundingClientRect();
     return {
-      width: Math.max(rect.width + 20, 100), // Add padding + minimum width
-      height: Math.max(rect.height + 10, 20) // Add padding + minimum height
+      width: Math.max(rect.width + 24, 80), // Responsive padding + minimum width
+      height: Math.max(rect.height + 16, 24) // Responsive padding + minimum height
     };
   };
 
@@ -74,6 +76,14 @@ const DynamicTextElement = ({
     const newText = e.target.value;
     setCurrentText(newText);
     onTextChange(id, newText);
+    
+    // Force re-calculation of dimensions for real-time resizing
+    if (textRef.current) {
+      const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
+      const newDimensions = getTextDimensions(newText, fontStyle);
+      textRef.current.style.width = `${newDimensions.width}px`;
+      textRef.current.style.height = `${newDimensions.height}px`;
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -106,24 +116,26 @@ const DynamicTextElement = ({
         }}
       />
 
-      {/* Text Display/Input Container */}
+      {/* Text Display/Input Container - Auto-expanding */}
       <div
         ref={textRef}
         className={`relative inline-block select-none ${
           isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''
-        } ${isEditing ? 'bg-white/90 backdrop-blur-sm' : ''} transition-all duration-200`}
+        } ${isEditing ? 'bg-white/90 backdrop-blur-sm shadow-lg' : ''} transition-all duration-150 ease-out`}
         style={{
           width: `${dimensions.width}px`,
           height: `${dimensions.height}px`,
-          minWidth: '100px',
-          minHeight: '20px',
-          padding: '5px 10px',
-          borderRadius: isEditing ? '4px' : '0px',
-          border: isEditing ? '2px solid hsl(var(--primary))' : 'none',
-          cursor: isEditing ? 'text' : 'move'
+          minWidth: '80px',
+          minHeight: '24px',
+          padding: '8px 12px',
+          borderRadius: isEditing ? '6px' : '2px',
+          border: isEditing ? '2px solid hsl(var(--primary))' : isSelected ? '1px dashed hsl(var(--primary) / 0.4)' : 'none',
+          cursor: isEditing ? 'text' : 'move',
+          overflow: 'visible'
         }}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
+        data-draggable-element={id}
       >
         {isEditing ? (
           <textarea
