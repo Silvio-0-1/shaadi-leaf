@@ -49,7 +49,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [lastSelectionTime, setLastSelectionTime] = useState<number>(0);
   
-  // Custom selection handler that tracks timing
+  // Handle element selection with timing protection
   const handleElementSelect = useCallback((elementId: string) => {
     setSelectedElement(elementId);
     setLastSelectionTime(Date.now());
@@ -339,21 +339,34 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
 
   // Enhanced toolbar functions
   const handleDeleteElement = useCallback((elementId: string) => {
-    // Only allow deletion of photos and logos, not text elements
-    if (elementId.startsWith('photo-') || elementId === 'logo') {
-      if (elementId.startsWith('photo-')) {
-        setPositions(prev => ({
-          ...prev,
-          photos: prev.photos?.filter(photo => photo.id !== elementId) || []
-        }));
-      } else if (elementId === 'logo') {
-        onDataChange?.({ logoImage: undefined });
-      }
-      setSelectedElement(null);
-    } else {
-      toast.error('Text elements cannot be deleted');
+    const isDeletable = !['brideName', 'groomName'].includes(elementId);
+    if (!isDeletable) {
+      toast.error("Bride and Groom names cannot be deleted");
+      return;
     }
-  }, [onDataChange]);
+    
+    // Add current state to history before deletion
+    addToHistory(positions);
+    
+    if (elementId.startsWith('photo-')) {
+      // Remove photo from uploaded images
+      const photoIndex = parseInt(elementId.replace('photo-', ''));
+      const updatedImages = cardData.uploadedImages?.filter((_, index) => index !== photoIndex) || [];
+      onDataChange({ uploadedImages: updatedImages });
+    } else if (['weddingDate', 'venue', 'message'].includes(elementId)) {
+      // Clear text content for deletable text elements
+      const updates: Partial<WeddingCardData> = {};
+      if (elementId === 'weddingDate') updates.weddingDate = '';
+      if (elementId === 'venue') updates.venue = '';
+      if (elementId === 'message') updates.message = '';
+      onDataChange(updates);
+    } else if (elementId === 'logo') {
+      onDataChange({ logoImage: undefined });
+    }
+    
+    setSelectedElement(null);
+    toast.success("Element deleted");
+  }, [positions, cardData.uploadedImages, onDataChange, addToHistory]);
 
   const handleBringToFront = useCallback((elementId: string) => {
     setElementZIndices(prev => ({
@@ -422,7 +435,53 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         }
       }
     }
+    toast.success("Element duplicated");
   }, [cardData.uploadedImages, positions.photos, onDataChange]);
+
+  // Font controls
+  const handleFontSizeChange = useCallback((elementId: string, newSize: number) => {
+    setElementFontSizes(prev => ({ ...prev, [elementId]: newSize }));
+    
+    // Update customization based on element type
+    const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+                       elementId === 'weddingDate' ? 'dateSize' :
+                       elementId === 'venue' ? 'venueSize' :
+                       elementId === 'message' ? 'messageSize' : null;
+    
+    if (fontSizeKey) {
+      const updatedCustomization = {
+        ...cardData.customization,
+        fontSizes: {
+          ...cardData.customization?.fontSizes,
+          [fontSizeKey]: newSize
+        }
+      };
+      onDataChange({ customization: updatedCustomization });
+    }
+    
+    toast.success("Font size updated");
+  }, [cardData.customization, onDataChange]);
+
+  const handleFontFamilyChange = useCallback((elementId: string, newFamily: string) => {
+    // Update customization based on element type
+    const fontKey = elementId === 'brideName' || elementId === 'groomName' ? 'heading' :
+                   elementId === 'weddingDate' ? 'date' :
+                   elementId === 'venue' ? 'venue' :
+                   elementId === 'message' ? 'message' : null;
+    
+    if (fontKey) {
+      const updatedCustomization = {
+        ...cardData.customization,
+        fonts: {
+          ...cardData.customization?.fonts,
+          [fontKey]: newFamily
+        }
+      };
+      onDataChange({ customization: updatedCustomization });
+    }
+    
+    toast.success("Font family updated");
+  }, [cardData.customization, onDataChange]);
 
   const getElementPosition = (elementId: string): ElementPosition => {
     if (elementId.startsWith('photo-')) {
@@ -601,14 +660,27 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         {selectedElement && (
           <ObjectToolbar
             selectedElement={selectedElement}
-            elementLocked={elementLockStates[selectedElement] || false}
-            onDelete={handleDeleteElement}
-            onDuplicate={handleDuplicateElement}
-            onBringToFront={handleBringToFront}
-            onSendToBack={handleSendToBack}
-            onToggleLock={handleToggleLock}
+            isElementLocked={elementLockStates[selectedElement] || false}
+            visible={!!selectedElement}
             position={{ x: 0, y: 0 }}
-            visible={true}
+            onDuplicate={() => handleDuplicateElement(selectedElement)}
+            onBringForward={() => handleBringToFront(selectedElement)}
+            onSendBackward={() => handleSendToBack(selectedElement)}
+            onToggleLock={() => handleToggleLock(selectedElement)}
+            onDelete={() => handleDeleteElement(selectedElement)}
+            fontSize={selectedElement ? elementFontSizes[selectedElement] || 
+              (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
+               selectedElement === 'weddingDate' ? 24 :
+               selectedElement === 'venue' ? 20 :
+               selectedElement === 'message' ? 16 : 16) : undefined}
+            fontFamily={selectedElement ? getFontFamily(
+              selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
+              selectedElement === 'weddingDate' ? 'date' :
+              selectedElement === 'venue' ? 'venue' :
+              selectedElement === 'message' ? 'message' : 'heading'
+            ) : undefined}
+            onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
+            onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
           />
         )}
       </div>

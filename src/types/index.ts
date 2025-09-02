@@ -29,6 +29,13 @@ export interface TemplateCustomization {
     venue?: string;
     message?: string;
   };
+  fontSizes?: {
+    headingSize?: number;
+    bodySize?: number;
+    dateSize?: number;
+    venueSize?: number;
+    messageSize?: number;
+  };
   backgroundPattern?: string;
   layout?: string;
   photoShape?: 'square' | 'circle' | 'rounded';
