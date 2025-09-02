@@ -635,12 +635,12 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           console.log('🔴 Closest by class:', target.closest('.absolute.select-none'));
           console.log('🔴 Final isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
           
-          // Only deselect if clicking on card background (not on elements or main container)
-          if (!isDraggableElement && !target.hasAttribute('data-container')) {
+          // Only deselect if clicking on card background (not on elements)
+          if (!isDraggableElement) {
             console.log('🔴 Deselecting element because click was outside draggable elements');
             setSelectedElement(null);
           } else {
-            console.log('🔴 Not deselecting - click was on draggable element or container');
+            console.log('🔴 Not deselecting - click was on draggable element');
           }
         }}
       >
@@ -666,7 +666,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </>
         )}
 
-        <div className="relative h-full flex items-center justify-center p-8" data-container="card-elements">
+        <div className="relative h-full flex items-center justify-center p-8">
           {/* Logo */}
           {cardData.logoImage && (
             <AdvancedDraggableElement
