@@ -64,10 +64,13 @@ const AdvancedDraggableElement = ({
   const [resizeDirection, setResizeDirection] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<number>(1);
   const [alignmentGuides, setAlignmentGuides] = useState<Array<{ type: 'horizontal' | 'vertical'; position: number }>>([]);
+  const [showRotationIndicator, setShowRotationIndicator] = useState(false);
+  const [rotationDegrees, setRotationDegrees] = useState(0);
   
   const elementRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const currentPositionRef = useRef(position);
+  const throttleRef = useRef<number>(0);
   const isMobile = useIsMobile();
 
   // Update position ref when prop changes
@@ -123,7 +126,7 @@ const AdvancedDraggableElement = ({
     return guides;
   }, [showAlignmentGuides, alignmentThreshold, otherElements, id, containerRef]);
 
-  // Calculate rotation angle from mouse position
+  // Calculate rotation angle from mouse position with snapping
   const calculateRotation = useCallback((clientX: number, clientY: number) => {
     if (!elementRef.current || !containerRef.current) return rotation;
 
@@ -134,14 +137,33 @@ const AdvancedDraggableElement = ({
     const centerY = elementRect.top + elementRect.height / 2;
     
     const angle = Math.atan2(clientY - centerY, clientX - centerX);
-    const degrees = (angle * 180) / Math.PI;
+    let degrees = (angle * 180) / Math.PI + 90; // Adjust for handle position
     
-    return degrees + 90; // Adjust for handle position
+    // Normalize to 0-360
+    degrees = ((degrees % 360) + 360) % 360;
+    
+    // Snap to common angles (0, 90, 180, 270) with 5 degree tolerance
+    const snapAngles = [0, 90, 180, 270, 360];
+    const snapTolerance = 5;
+    
+    for (const snapAngle of snapAngles) {
+      if (Math.abs(degrees - snapAngle) <= snapTolerance) {
+        degrees = snapAngle % 360;
+        break;
+      }
+    }
+    
+    return degrees;
   }, [rotation]);
 
-  // Optimized interaction handler with requestAnimationFrame
+  // Optimized interaction handler with requestAnimationFrame and throttling
   const optimizedInteraction = useCallback((clientX: number, clientY: number) => {
     if (!containerRef.current) return;
+
+    // Throttle updates to 60fps max
+    const now = performance.now();
+    if (now - throttleRef.current < 16) return;
+    throttleRef.current = now;
 
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -261,6 +283,8 @@ const AdvancedDraggableElement = ({
         onResize(id, { width: newWidth, height: newHeight });
       } else if (isRotating && !isLocked && onRotate) {
         const newRotation = calculateRotation(clientX, clientY);
+        setRotationDegrees(newRotation);
+        setShowRotationIndicator(true);
         onRotate(id, newRotation);
       }
     });
@@ -272,19 +296,21 @@ const AdvancedDraggableElement = ({
   ]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
-    console.log('Element clicked:', id);
     e.stopPropagation();
-    onSelect?.(id);
+    if (!isSelected) {
+      onSelect?.(id);
+    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
-    console.log('Element mouse down:', id);
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setStartPosition(position);
-    onSelect?.(id);
+    if (!isSelected) {
+      onSelect?.(id);
+    }
     
     e.preventDefault();
     e.stopPropagation();
@@ -371,6 +397,7 @@ const AdvancedDraggableElement = ({
     setIsRotating(false);
     setResizeDirection('');
     setAlignmentGuides([]);
+    setShowRotationIndicator(false);
     
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -450,6 +477,20 @@ const AdvancedDraggableElement = ({
         />
       ))}
       
+      {/* Rotation Degree Indicator */}
+      {showRotationIndicator && isSelected && (
+        <div
+          className="absolute pointer-events-none z-50 bg-black/80 text-white px-2 py-1 rounded text-sm font-mono whitespace-nowrap"
+          style={{
+            left: '50%',
+            top: '50%',
+            transform: `translate(-50%, -50%) translate(${position.x + 60}px, ${position.y - 40}px)`,
+          }}
+        >
+          {Math.round(rotationDegrees)}°
+        </div>
+      )}
+      
       {/* Draggable Element */}
       <div
         ref={elementRef}
@@ -474,9 +515,9 @@ const AdvancedDraggableElement = ({
         <div 
           className={`relative w-full h-full transition-all duration-100 ${
             isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-          } ${isSelected && !isLocked ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-white/50' : ''} ${
-            isLocked ? 'ring-2 ring-yellow-500/50 ring-offset-2 ring-offset-white/50' : ''
-          } rounded-sm`}
+          } ${isSelected && !isLocked ? 'ring-2 ring-primary/50 ring-offset-1 ring-offset-white/50' : ''} ${
+            isLocked ? 'ring-2 ring-yellow-500/50 ring-offset-1 ring-offset-white/50' : ''
+          } rounded-sm overflow-visible`}
         >
           {children}
           

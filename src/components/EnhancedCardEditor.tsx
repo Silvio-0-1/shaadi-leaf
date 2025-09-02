@@ -63,6 +63,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     venue: 14,
     message: 16
   });
+  const [elementSizes, setElementSizes] = useState<Record<string, { width: number; height: number }>>({});
   
   // Fetch template (static or custom)
   useEffect(() => {
@@ -262,13 +263,16 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           }));
         }
         
+        // Update element sizes tracking
+        setElementSizes(prev => ({ ...prev, [elementId]: newSize }));
+        
         newPositions = prev;
       }
 
       addToHistory(newPositions);
       return newPositions;
     });
-  }, [addToHistory]);
+  }, [addToHistory, elementSizes]);
 
   const handleElementRotate = useCallback((elementId: string, rotation: number) => {
     setElementRotations(prev => ({
@@ -609,10 +613,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
-          console.log('Card clicked, target:', e.target, 'cardRef:', cardRef.current);
-          // Simple and reliable deselection: only when clicking on the card container itself
+          // Only deselect when clicking directly on the card background
           if (e.target === cardRef.current) {
-            console.log('Deselecting element');
             setSelectedElement(null);
           }
         }}
