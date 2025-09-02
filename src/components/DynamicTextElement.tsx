@@ -133,8 +133,16 @@ const DynamicTextElement = ({
           cursor: isEditing ? 'text' : 'move',
           overflow: 'visible'
         }}
-        onClick={onClick}
-        onDoubleClick={onDoubleClick}
+        onClick={(e) => {
+          console.log('🟠 DynamicTextElement onClick:', id);
+          e.stopPropagation();
+          onClick();
+        }}
+        onDoubleClick={(e) => {
+          console.log('🟠 DynamicTextElement onDoubleClick:', id);
+          e.stopPropagation();
+          onDoubleClick();
+        }}
         data-draggable-element={id}
       >
         {isEditing ? (

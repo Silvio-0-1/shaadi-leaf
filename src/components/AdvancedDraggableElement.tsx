@@ -296,19 +296,23 @@ const AdvancedDraggableElement = ({
   ]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    console.log('🟡 AdvancedDraggableElement handleClick:', id, 'isSelected:', isSelected);
     e.stopPropagation();
     if (!isSelected) {
+      console.log('🟢 AdvancedDraggableElement calling onSelect for:', id);
       onSelect?.(id);
     }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    console.log('🟠 AdvancedDraggableElement handleMouseDown:', id, 'isSelected:', isSelected);
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setStartPosition(position);
     if (!isSelected) {
+      console.log('🟢 AdvancedDraggableElement calling onSelect from mousedown:', id);
       onSelect?.(id);
     }
     

@@ -48,6 +48,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [editingElement, setEditingElement] = useState<string | null>(null);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   
+  // Debug selection changes
+  useEffect(() => {
+    console.log('🔵 Selected element changed to:', selectedElement);
+  }, [selectedElement]);
+  
   // Editor state
   const [showGridlines, setShowGridlines] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
@@ -617,7 +622,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           const target = e.target as HTMLElement;
           const isDraggableElement = target.closest('[data-draggable-element]') || target.hasAttribute('data-draggable-element');
           
+          console.log('🔴 Card onClick - target:', target.tagName, 'isDraggableElement:', isDraggableElement, 'currentSelected:', selectedElement);
+          
           if (!isDraggableElement) {
+            console.log('🔴 Deselecting element because click was outside draggable elements');
             setSelectedElement(null);
           }
         }}
