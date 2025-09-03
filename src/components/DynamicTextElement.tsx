@@ -49,12 +49,21 @@ const DynamicTextElement = ({
     setCurrentText(text);
   }, [text]);
 
-  // Update dimensions when text or font changes
+  // Update dimensions when text or font changes with force update
   useEffect(() => {
     const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
     const newDimensions = getTextDimensions(currentText, fontStyle);
-    setDimensions(newDimensions);
-  }, [currentText, fontSize, fontFamily, fontWeight]);
+    console.log('🟡 DynamicTextElement dimensions update:', id, newDimensions, 'text length:', currentText.length);
+    
+    // Force update dimensions state to trigger re-render
+    setDimensions(prev => {
+      if (prev.width !== newDimensions.width || prev.height !== newDimensions.height) {
+        console.log('🟡 Dimensions changed from', prev, 'to', newDimensions);
+        return newDimensions;
+      }
+      return prev;
+    });
+  }, [currentText, fontSize, fontFamily, fontWeight, id]);
 
   // Auto-focus input when editing starts
   useEffect(() => {
@@ -85,12 +94,14 @@ const DynamicTextElement = ({
     const newText = e.target.value;
     setCurrentText(newText);
     
-    // Real-time dimension updates with smooth animation
+    // Immediate real-time dimension updates for instant border resizing
     requestAnimationFrame(() => {
       const fontStyle = `${fontWeight} ${fontSize}px ${fontFamily}`;
       const newDimensions = getTextDimensions(newText, fontStyle);
       
-      // Update state dimensions for React re-render
+      console.log('🟡 Real-time input change - new dimensions:', newDimensions);
+      
+      // Force immediate dimensions update for real-time border feedback
       setDimensions(newDimensions);
       
       // Notify parent of text change
