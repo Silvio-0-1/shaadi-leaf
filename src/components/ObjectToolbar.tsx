@@ -216,10 +216,11 @@ const ObjectToolbar = ({
             variant={showGridlines ? "default" : "ghost"}
             size="sm"
             onClick={onToggleGridlines}
-            className="h-9 w-9 p-0 hover:bg-accent"
+            className="h-9 px-3 hover:bg-accent"
             title="Toggle Gridlines"
           >
-            <Grid className="h-4 w-4" />
+            <Grid className="h-4 w-4 mr-2" />
+            <span className="text-sm font-medium">Grid Lines</span>
           </Button>
         </div>
 
