@@ -419,31 +419,129 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
 
   const handleCenterHorizontally = useCallback((elementId: string) => {
     console.log('Center horizontally called for:', elementId);
-    const currentPosition = getElementPosition(elementId);
-    console.log('Current position:', currentPosition);
-    handleElementMove(elementId, { 
-      ...currentPosition, 
-      x: 0 
+    
+    setPositions(prev => {
+      let currentPosition: ElementPosition;
+      
+      // Get current position from state
+      if (elementId.startsWith('photo-')) {
+        const photo = prev.photos?.find(p => p.id === elementId);
+        currentPosition = photo ? photo.position : { x: 0, y: 0 };
+      } else if (elementId === 'photo') {
+        currentPosition = prev.photo.position;
+      } else {
+        currentPosition = prev[elementId as keyof CardElements] as ElementPosition;
+      }
+      
+      console.log('Current position:', currentPosition);
+      
+      // Create new positions with x centered
+      const newPosition = { ...currentPosition, x: 0 };
+      
+      let newPositions: CardElements;
+      if (elementId.startsWith('photo-')) {
+        newPositions = {
+          ...prev,
+          photos: prev.photos?.map(photo => 
+            photo.id === elementId 
+              ? { ...photo, position: newPosition }
+              : photo
+          ) || []
+        };
+      } else {
+        newPositions = {
+          ...prev,
+          [elementId]: elementId === 'photo' 
+            ? { ...prev.photo, position: newPosition }
+            : newPosition
+        };
+      }
+      
+      addToHistory(newPositions);
+      return newPositions;
     });
+    
     toast.success('Element centered horizontally');
-  }, [handleElementMove]);
+  }, [addToHistory]);
 
   const handleCenterVertically = useCallback((elementId: string) => {
     console.log('Center vertically called for:', elementId);
-    const currentPosition = getElementPosition(elementId);
-    console.log('Current position:', currentPosition);
-    handleElementMove(elementId, { 
-      ...currentPosition, 
-      y: 0 
+    
+    setPositions(prev => {
+      let currentPosition: ElementPosition;
+      
+      // Get current position from state
+      if (elementId.startsWith('photo-')) {
+        const photo = prev.photos?.find(p => p.id === elementId);
+        currentPosition = photo ? photo.position : { x: 0, y: 0 };
+      } else if (elementId === 'photo') {
+        currentPosition = prev.photo.position;
+      } else {
+        currentPosition = prev[elementId as keyof CardElements] as ElementPosition;
+      }
+      
+      console.log('Current position:', currentPosition);
+      
+      // Create new positions with y centered
+      const newPosition = { ...currentPosition, y: 0 };
+      
+      let newPositions: CardElements;
+      if (elementId.startsWith('photo-')) {
+        newPositions = {
+          ...prev,
+          photos: prev.photos?.map(photo => 
+            photo.id === elementId 
+              ? { ...photo, position: newPosition }
+              : photo
+          ) || []
+        };
+      } else {
+        newPositions = {
+          ...prev,
+          [elementId]: elementId === 'photo' 
+            ? { ...prev.photo, position: newPosition }
+            : newPosition
+        };
+      }
+      
+      addToHistory(newPositions);
+      return newPositions;
     });
+    
     toast.success('Element centered vertically');
-  }, [handleElementMove]);
+  }, [addToHistory]);
 
   const handleCenterBoth = useCallback((elementId: string) => {
     console.log('Center both axes called for:', elementId);
-    handleElementMove(elementId, { x: 0, y: 0 });
+    
+    setPositions(prev => {
+      const newPosition = { x: 0, y: 0 };
+      
+      let newPositions: CardElements;
+      if (elementId.startsWith('photo-')) {
+        newPositions = {
+          ...prev,
+          photos: prev.photos?.map(photo => 
+            photo.id === elementId 
+              ? { ...photo, position: newPosition }
+              : photo
+          ) || []
+        };
+      } else {
+        newPositions = {
+          ...prev,
+          [elementId]: elementId === 'photo' 
+            ? { ...prev.photo, position: newPosition }
+            : newPosition
+        };
+      }
+      
+      addToHistory(newPositions);
+      return newPositions;
+    });
+    
     toast.success('Element centered on both axes');
-  }, [handleElementMove]);
+  }, [addToHistory]);
 
   const handleDuplicateElement = useCallback((elementId: string) => {
     if (elementId.startsWith('photo-')) {
