@@ -50,9 +50,9 @@ const ObjectToolbar = ({
   const hasSelection = !!selectedElement;
 
   // Determine element type
-  const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(selectedElement);
-  const isPhotoElement = selectedElement.startsWith('photo');
-  const isDeletable = !['brideName', 'groomName'].includes(selectedElement);
+  const isTextElement = selectedElement ? ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(selectedElement) : false;
+  const isPhotoElement = selectedElement ? selectedElement.startsWith('photo') : false;
+  const isDeletable = selectedElement ? !['brideName', 'groomName'].includes(selectedElement) : false;
 
   const fontOptions = [
     'Playfair Display', 'Cormorant Garamond', 'Crimson Text', 'Libre Baskerville',
