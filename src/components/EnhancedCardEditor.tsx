@@ -722,6 +722,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             ) : undefined}
             onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
             onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
+            canUndo={historyIndex > 0}
+            canRedo={historyIndex < history.length - 1}
+            onUndo={undo}
+            onRedo={redo}
+            onReset={reset}
           />
         </div>
       </div>
