@@ -45,7 +45,9 @@ const ObjectToolbar = ({
   onFontSizeChange,
   onFontFamilyChange
 }: ObjectToolbarProps) => {
-  if (!visible || !selectedElement) return null;
+  if (!visible) return null;
+  
+  const hasSelection = !!selectedElement;
 
   // Determine element type
   const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(selectedElement);
@@ -72,108 +74,117 @@ const ObjectToolbar = ({
       label: 'Duplicate',
       icon: Copy,
       onClick: onDuplicate,
-      disabled: isElementLocked
+      disabled: !hasSelection || isElementLocked
     },
     {
       id: 'bring-forward',
       label: 'Bring Forward',
       icon: ArrowUp,
       onClick: onBringForward,
-      disabled: isElementLocked
+      disabled: !hasSelection || isElementLocked
     },
     {
       id: 'send-backward',
       label: 'Send Backward', 
       icon: ArrowDown,
       onClick: onSendBackward,
-      disabled: isElementLocked
+      disabled: !hasSelection || isElementLocked
     },
     {
       id: 'toggle-lock',
       label: isElementLocked ? 'Unlock' : 'Lock',
       icon: isElementLocked ? Unlock : Lock,
-      onClick: onToggleLock
+      onClick: onToggleLock,
+      disabled: !hasSelection
     }
   ];
 
   // Only show delete for deletable elements
-  if (isDeletable) {
+  if (isDeletable && hasSelection) {
     actions.push({
       id: 'delete',
       label: 'Delete',
       icon: Trash2,
       onClick: onDelete,
-      disabled: isElementLocked
+      disabled: !hasSelection || isElementLocked
     });
   }
 
   return (
     <div className="bg-white border border-border rounded-lg shadow-lg min-w-max">
-      <div className="flex items-center gap-1 p-2">
-        {actions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <Button
-              key={action.id}
-              variant={action.id === 'delete' ? 'destructive' : 
-                      action.id === 'toggle-lock' && isElementLocked ? 'default' : 'ghost'}
-              size="sm"
-              onClick={action.onClick}
-              disabled={action.disabled}
-              className="h-8 w-8 p-0"
-              title={action.label}
-            >
-              <Icon className="h-4 w-4" />
-            </Button>
-          );
-        })}
-      </div>
-
-      {/* Font Controls for Text Elements */}
-      {isTextElement && !isElementLocked && fontSize && fontFamily && (
-        <div className="border-t p-2 space-y-2">
-          {/* Font Family */}
-          <div className="flex items-center gap-2">
-            <Type className="h-3 w-3 text-muted-foreground" />
-            <Select 
-              value={fontFamily} 
-              onValueChange={onFontFamilyChange}
-            >
-              <SelectTrigger className="h-7 text-xs">
-                <SelectValue />
-                <ChevronDown className="h-3 w-3" />
-              </SelectTrigger>
-              <SelectContent className="max-h-40">
-                {fontOptions.map((font) => (
-                  <SelectItem key={font} value={font} className="text-xs" style={{ fontFamily: font }}>
-                    {font}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Font Size */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Size</span>
-            <Select 
-              value={fontSize?.toString()} 
-              onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
-            >
-              <SelectTrigger className="h-7 text-xs w-16">
-                <SelectValue />
-                <ChevronDown className="h-3 w-3" />
-              </SelectTrigger>
-              <SelectContent>
-                {[12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40, 44, 48, 56, 64, 72].map((size) => (
-                  <SelectItem key={size} value={size.toString()} className="text-xs">
-                    {size}px
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {!hasSelection ? (
+        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
+          Click on an object to access tools
         </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-1 p-2">
+            {actions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Button
+                  key={action.id}
+                  variant={action.id === 'delete' ? 'destructive' : 
+                          action.id === 'toggle-lock' && isElementLocked ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  className="h-8 w-8 p-0"
+                  title={action.label}
+                >
+                  <Icon className="h-4 w-4" />
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Font Controls for Text Elements */}
+          {isTextElement && !isElementLocked && fontSize && fontFamily && (
+            <div className="border-t p-2 space-y-2">
+              {/* Font Family */}
+              <div className="flex items-center gap-2">
+                <Type className="h-3 w-3 text-muted-foreground" />
+                <Select 
+                  value={fontFamily} 
+                  onValueChange={onFontFamilyChange}
+                >
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue />
+                    <ChevronDown className="h-3 w-3" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-40">
+                    {fontOptions.map((font) => (
+                      <SelectItem key={font} value={font} className="text-xs" style={{ fontFamily: font }}>
+                        {font}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Font Size */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Size</span>
+                <Select 
+                  value={fontSize?.toString()} 
+                  onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
+                >
+                  <SelectTrigger className="h-7 text-xs w-16">
+                    <SelectValue />
+                    <ChevronDown className="h-3 w-3" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40, 44, 48, 56, 64, 72].map((size) => (
+                      <SelectItem key={size} value={size.toString()} className="text-xs">
+                        {size}px
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
