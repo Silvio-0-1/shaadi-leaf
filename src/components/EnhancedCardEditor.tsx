@@ -737,8 +737,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           const now = Date.now();
           const timeSinceSelection = now - lastSelectionTime;
           
-          // If an element was just selected (within 150ms), don't deselect it
-          if (timeSinceSelection < 150) {
+          // If an element was just selected (within 300ms), don't deselect it
+          if (timeSinceSelection < 300) {
             console.log('🔴 Preventing deselection - element was just selected:', timeSinceSelection, 'ms ago');
             return;
           }
