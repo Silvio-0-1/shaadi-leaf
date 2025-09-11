@@ -17,17 +17,8 @@ interface BasicInfoFormProps {
   validationErrors?: Record<string, string>;
 }
 
-const messagePrompts = [
-  "professional and elegant",
-  "warm and friendly", 
-  "romantic and heartfelt",
-  "modern and casual",
-  "formal and traditional"
-];
-
 const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicInfoFormProps) => {
   const [generatingMessage, setGeneratingMessage] = useState(false);
-  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const { CREDIT_COSTS } = useCredits();
 
   const handleChange = (field: keyof WeddingCardData, value: string) => {
@@ -37,31 +28,56 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
   };
 
   const generateAIMessage = async () => {
-    if (!cardData.brideName || !cardData.groomName) {
-      return;
-    }
-
     setGeneratingMessage(true);
     
     try {
-      const currentPrompt = messagePrompts[currentPromptIndex];
-      
       // Simulate AI generation - in a real app, you'd call an AI service
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const messages = {
-        "professional and elegant": `We cordially invite you to celebrate the union of ${cardData.brideName} and ${cardData.groomName} as they begin their journey together as one. Your presence would honor us on this special day.`,
-        "warm and friendly": `Hey there! ${cardData.brideName} and ${cardData.groomName} are getting married and would love for you to be part of their special day! Come celebrate with us - it's going to be amazing!`,
-        "romantic and heartfelt": `Two hearts, one love story. ${cardData.brideName} and ${cardData.groomName} have found their forever in each other, and they would be honored to share this magical moment with you.`,
-        "modern and casual": `Save the date! ${cardData.brideName} & ${cardData.groomName} are tying the knot and want you there to party with them. Let's make some memories!`,
-        "formal and traditional": `The honor of your presence is requested at the marriage ceremony of ${cardData.brideName} and ${cardData.groomName}. Together with their families, they invite you to witness their vows of love.`
-      };
+      const hasNames = cardData.brideName && cardData.groomName;
       
-      const generatedMessage = messages[currentPrompt as keyof typeof messages];
+      // Create varied messages with and without names
+      const namedMessages = [
+        `We cordially invite you to celebrate the union of ${cardData.brideName} and ${cardData.groomName} as they begin their journey together as one. Your presence would honor us on this special day.`,
+        `Hey there! ${cardData.brideName} and ${cardData.groomName} are getting married and would love for you to be part of their special day! Come celebrate with us - it's going to be amazing!`,
+        `Two hearts, one love story. ${cardData.brideName} and ${cardData.groomName} have found their forever in each other, and they would be honored to share this magical moment with you.`,
+        `Save the date! ${cardData.brideName} & ${cardData.groomName} are tying the knot and want you there to party with them. Let's make some memories!`,
+        `The honor of your presence is requested at the marriage ceremony of ${cardData.brideName} and ${cardData.groomName}. Together with their families, they invite you to witness their vows of love.`,
+        `Join us as ${cardData.brideName} and ${cardData.groomName} exchange vows and begin their happily ever after. Your love and support mean the world to us!`,
+        `Love is in the air! ${cardData.brideName} and ${cardData.groomName} are saying 'I do' and they want you by their side for this incredible celebration.`,
+        `It's official - ${cardData.brideName} and ${cardData.groomName} are getting hitched! Come witness their love story unfold in the most beautiful way.`
+      ];
+      
+      const genericMessages = [
+        `We cordially invite you to celebrate our wedding day as we begin our journey together as one. Your presence would honor us on this special day.`,
+        `Hey there! We're getting married and would love for you to be part of our special day! Come celebrate with us - it's going to be amazing!`,
+        `Two hearts, one love story. We've found our forever in each other, and we would be honored to share this magical moment with you.`,
+        `Save the date! We're tying the knot and want you there to party with us. Let's make some memories!`,
+        `The honor of your presence is requested at our marriage ceremony. Together with our families, we invite you to witness our vows of love.`,
+        `Join us as we exchange vows and begin our happily ever after. Your love and support mean the world to us!`,
+        `Love is in the air! We're saying 'I do' and we want you by our side for this incredible celebration.`,
+        `It's official - we're getting hitched! Come witness our love story unfold in the most beautiful way.`,
+        `You're invited to share in our joy as we celebrate the beginning of our forever. Let's make this day unforgettable together!`,
+        `We can't wait to say 'I do' and we want you there to celebrate with us. Join us for love, laughter, and happily ever after!`,
+        `Our hearts are full and our love is true. Please join us as we start this beautiful new chapter together.`,
+        `Together is a wonderful place to be. We invite you to witness our commitment and celebrate our love story.`
+      ];
+      
+      // Randomly mix messages from both pools if names are available
+      let availableMessages = [];
+      if (hasNames) {
+        // Mix named and generic messages randomly
+        availableMessages = [...namedMessages, ...genericMessages];
+      } else {
+        // Use only generic messages
+        availableMessages = genericMessages;
+      }
+      
+      // Randomly select a message
+      const randomIndex = Math.floor(Math.random() * availableMessages.length);
+      const generatedMessage = availableMessages[randomIndex];
+      
       handleChange('message', generatedMessage);
-      
-      // Cycle to next prompt for variety
-      setCurrentPromptIndex((prev) => (prev + 1) % messagePrompts.length);
       
     } catch (error) {
       console.error('Error generating message:', error);
@@ -181,7 +197,7 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
               actionType="ai_generate_message"
               actionName="Generate with AI"
               onAction={generateAIMessage}
-              disabled={generatingMessage || !cardData.brideName || !cardData.groomName}
+              disabled={generatingMessage}
               variant="outline"
               size="sm"
               className="text-xs"
