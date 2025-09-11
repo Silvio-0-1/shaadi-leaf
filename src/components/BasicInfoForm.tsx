@@ -204,10 +204,6 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
                 Include bride and groom names
               </Label>
             </div>
-            
-            <span className="text-xs text-muted-foreground">
-              {cardData.message.length}/250
-            </span>
           </div>
           
           <div className="flex justify-center">
@@ -219,7 +215,7 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
               disabled={generatingMessage}
               variant="outline"
               size="sm"
-              className="text-xs bg-gradient-to-r from-[#ff6b6b] via-[#feca57] via-[#48dbfb] via-[#ff9ff3] via-[#54a0ff] via-[#5f27cd] to-[#00d2d3] text-white border-0 hover:opacity-90 transition-all duration-300 animate-[gradient-shift_3s_ease_infinite] bg-[length:200%_200%]"
+              className="text-xs bg-gradient-to-r from-[#ff6b6b] via-[#feca57] via-[#48dbfb] via-[#ff9ff3] via-[#54a0ff] via-[#5f27cd] to-[#00d2d3] text-white border-0 hover:opacity-90 transition-opacity"
             >
               {generatingMessage ? (
                 <>
