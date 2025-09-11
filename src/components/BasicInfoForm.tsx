@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Heart, Calendar, MapPin, MessageCircle, Sparkles, Loader2 } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import { useState } from 'react';
@@ -19,6 +20,7 @@ interface BasicInfoFormProps {
 
 const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicInfoFormProps) => {
   const [generatingMessage, setGeneratingMessage] = useState(false);
+  const [includeNames, setIncludeNames] = useState(true);
   const { CREDIT_COSTS } = useCredits();
 
   const handleChange = (field: keyof WeddingCardData, value: string) => {
@@ -63,9 +65,9 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
         `Together is a wonderful place to be. We invite you to witness our commitment and celebrate our love story.`
       ];
       
-      // Randomly mix messages from both pools if names are available
+      // Use messages based on toggle switch and name availability
       let availableMessages = [];
-      if (hasNames) {
+      if (hasNames && includeNames) {
         // Mix named and generic messages randomly
         availableMessages = [...namedMessages, ...genericMessages];
       } else {
@@ -191,7 +193,24 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
             maxLength={250}
           />
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="include-names"
+                checked={includeNames}
+                onCheckedChange={setIncludeNames}
+              />
+              <Label htmlFor="include-names" className="text-xs text-muted-foreground">
+                Include bride and groom names
+              </Label>
+            </div>
+            
+            <span className="text-xs text-muted-foreground">
+              {cardData.message.length}/250
+            </span>
+          </div>
+          
+          <div className="flex justify-center">
             <CreditActionButton
               creditCost={CREDIT_COSTS.AI_GENERATE_MESSAGE}
               actionType="ai_generate_message"
@@ -200,7 +219,7 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
               disabled={generatingMessage}
               variant="outline"
               size="sm"
-              className="text-xs"
+              className="text-xs bg-gradient-to-r from-[#ff6b6b] via-[#feca57] via-[#48dbfb] via-[#ff9ff3] via-[#54a0ff] via-[#5f27cd] to-[#00d2d3] text-white border-0 hover:opacity-90 transition-all duration-300 animate-[gradient-shift_3s_ease_infinite] bg-[length:200%_200%]"
             >
               {generatingMessage ? (
                 <>
@@ -211,16 +230,12 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
                 <>
                   <Sparkles className="h-3 w-3 mr-1" />
                   Generate with AI
-                  <Badge variant="secondary" className="ml-2">
-                    {CREDIT_COSTS.AI_GENERATE_MESSAGE}
+                  <Badge variant="secondary" className="ml-2 bg-white/20 text-white border-white/30">
+                    {CREDIT_COSTS.AI_GENERATE_MESSAGE} credits
                   </Badge>
                 </>
               )}
             </CreditActionButton>
-            
-            <span className="text-xs text-muted-foreground">
-              {cardData.message.length}/250
-            </span>
           </div>
         </div>
       </div>

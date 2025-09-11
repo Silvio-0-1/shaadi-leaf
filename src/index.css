@@ -50,6 +50,7 @@
     --gradient-silk: linear-gradient(45deg, hsl(var(--silk-white)) 0%, hsl(var(--lavender-light)) 50%, hsl(var(--silk-white)) 100%);
     --gradient-shimmer: linear-gradient(90deg, transparent, hsl(var(--gold-light) / 0.3), transparent);
     --gradient-glass: linear-gradient(135deg, hsl(var(--glass-white) / 0.95) 0%, hsl(var(--glass-white) / 0.85) 100%);
+    --gradient-rainbow: linear-gradient(135deg, #ff6b6b 0%, #feca57 15%, #48dbfb 30%, #ff9ff3 45%, #54a0ff 60%, #5f27cd 75%, #00d2d3 90%, #ff6b6b 100%);
     
     /* Premium Shadows */
     --shadow-elegant: 0 25px 50px -12px hsl(var(--lavender-deep) / 0.25), 0 0 0 1px hsl(var(--gold-light) / 0.05);
@@ -96,6 +97,12 @@
 }
 
 @layer components {
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
