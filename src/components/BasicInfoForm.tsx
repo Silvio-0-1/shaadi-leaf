@@ -68,10 +68,10 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
       // Use messages based on toggle switch and name availability
       let availableMessages = [];
       if (hasNames && includeNames) {
-        // Mix named and generic messages randomly
-        availableMessages = [...namedMessages, ...genericMessages];
+        // Use only named messages when toggle is on and names are available
+        availableMessages = namedMessages;
       } else {
-        // Use only generic messages
+        // Use only generic messages when toggle is off or no names available
         availableMessages = genericMessages;
       }
       
@@ -193,33 +193,31 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
             maxLength={250}
           />
           
-          <div className="flex justify-center">
-            <CreditActionButton
-              creditCost={CREDIT_COSTS.AI_GENERATE_MESSAGE}
-              actionType="ai_generate_message"
-              actionName="Generate with AI"
-              onAction={generateAIMessage}
-              disabled={generatingMessage}
-              variant="outline"
-              size="sm"
-              className="text-xs bg-gradient-to-r from-[#ff6b6b] via-[#feca57] via-[#48dbfb] via-[#ff9ff3] via-[#54a0ff] via-[#5f27cd] to-[#00d2d3] text-white border-0 hover:opacity-90 transition-opacity"
-            >
-              {generatingMessage ? (
-                <>
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  Generate with AI
-                  <Badge variant="secondary" className="ml-2 bg-white/20 text-white border-white/30">
-                    {CREDIT_COSTS.AI_GENERATE_MESSAGE} credits
-                  </Badge>
-                </>
-              )}
-            </CreditActionButton>
-          </div>
+          <CreditActionButton
+            creditCost={CREDIT_COSTS.AI_GENERATE_MESSAGE}
+            actionType="ai_generate_message"
+            actionName="Generate with AI"
+            onAction={generateAIMessage}
+            disabled={generatingMessage}
+            variant="outline"
+            size="sm"
+            className="w-full text-xs bg-gradient-to-r from-[#ff6b6b] via-[#feca57] via-[#48dbfb] via-[#ff9ff3] via-[#54a0ff] via-[#5f27cd] to-[#00d2d3] text-white border-0 hover:opacity-90 transition-opacity"
+          >
+            {generatingMessage ? (
+              <>
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-3 w-3 mr-1" />
+                Generate with AI
+                <Badge variant="secondary" className="ml-2 bg-white/20 text-white border-white/30">
+                  {CREDIT_COSTS.AI_GENERATE_MESSAGE} credits
+                </Badge>
+              </>
+            )}
+          </CreditActionButton>
 
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-3 bg-muted/50 px-4 py-2 rounded-lg border">
