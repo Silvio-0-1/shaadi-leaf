@@ -57,6 +57,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   
   // Editor state
   const [showGridlines, setShowGridlines] = useState(false);
+  const [showTextGridlines, setShowTextGridlines] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
   const [gridSize] = useState(30);
@@ -694,6 +695,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onReset={reset}
             showGridlines={showGridlines}
             onToggleGridlines={() => setShowGridlines(!showGridlines)}
+            showTextGridlines={showTextGridlines}
+            onToggleTextGridlines={() => setShowTextGridlines(!showTextGridlines)}
             snapToGrid={snapToGrid}
             onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
             showAlignmentGuides={showAlignmentGuides}
