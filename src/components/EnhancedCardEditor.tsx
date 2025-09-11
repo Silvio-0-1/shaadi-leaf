@@ -70,6 +70,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     venue: 14,
     message: 16
   });
+  const [elementTextAligns, setElementTextAligns] = useState<Record<string, 'left' | 'right' | 'center'>>({
+    brideName: 'center',
+    groomName: 'center',
+    weddingDate: 'center',
+    venue: 'center',
+    message: 'left'
+  });
   const [elementSizes, setElementSizes] = useState<Record<string, { width: number; height: number }>>({});
   
   // Fetch template (static or custom)
@@ -511,6 +518,16 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     toast.success("Font family updated");
   }, [cardData.customization, onDataChange]);
 
+  const handleTextAlignToggle = useCallback((elementId: string) => {
+    setElementTextAligns(prev => {
+      const currentAlign = prev[elementId] || 'left';
+      const newAlign = currentAlign === 'left' ? 'right' : 'left';
+      
+      toast.success(`Text aligned ${newAlign}`);
+      return { ...prev, [elementId]: newAlign };
+    });
+  }, []);
+
   const getElementPosition = (elementId: string): ElementPosition => {
     if (elementId.startsWith('photo-')) {
       const photo = positions.photos?.find(p => p.id === elementId);
@@ -687,6 +704,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             ) : undefined}
             onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
             onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
+            textAlign={selectedElement ? elementTextAligns[selectedElement] || 'left' : 'left'}
+            onTextAlignToggle={() => selectedElement && handleTextAlignToggle(selectedElement)}
             canUndo={historyIndex > 0}
             canRedo={historyIndex < history.length - 1}
             onUndo={undo}

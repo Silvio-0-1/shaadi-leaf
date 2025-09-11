@@ -17,7 +17,9 @@ import {
   Grid,
   AlignCenter,
   AlignVerticalJustifyCenter,
-  Move3D
+  Move3D,
+  AlignLeft,
+  AlignRight
 } from 'lucide-react';
 
 interface ObjectToolbarProps {
@@ -35,6 +37,9 @@ interface ObjectToolbarProps {
   fontFamily?: string;
   onFontSizeChange?: (size: number) => void;
   onFontFamilyChange?: (family: string) => void;
+  // Text alignment
+  textAlign?: 'left' | 'right' | 'center';
+  onTextAlignToggle?: () => void;
   // History controls
   canUndo?: boolean;
   canRedo?: boolean;
@@ -67,6 +72,8 @@ const ObjectToolbar = ({
   fontFamily,
   onFontSizeChange,
   onFontFamilyChange,
+  textAlign = 'left',
+  onTextAlignToggle,
   canUndo = false,
   canRedo = false,
   onUndo,
@@ -285,6 +292,19 @@ const ObjectToolbar = ({
         {/* Font Controls for Text Elements */}
         {isTextElement && !isElementLocked && fontSize && fontFamily && (
           <div className="flex items-center gap-2">
+            {/* Text Alignment Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onTextAlignToggle}
+              disabled={!hasSelection}
+              className="h-9 px-3 hover:bg-accent"
+              title={`Align ${textAlign === 'left' ? 'Right' : 'Left'}`}
+            >
+              {textAlign === 'left' ? <AlignLeft className="h-4 w-4 mr-1" /> : <AlignRight className="h-4 w-4 mr-1" />}
+              <span className="text-sm font-medium">{textAlign === 'left' ? 'Left' : 'Right'}</span>
+            </Button>
+
             {/* Font Family */}
             <div className="flex items-center gap-1">
               <Type className="h-4 w-4 text-muted-foreground" />
