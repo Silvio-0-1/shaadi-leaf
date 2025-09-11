@@ -13,7 +13,11 @@ import {
   ChevronDown,
   Undo,
   Redo,
-  RotateCcw
+  RotateCcw,
+  Grid,
+  AlignCenter,
+  AlignVerticalJustifyCenter,
+  Move3D
 } from 'lucide-react';
 
 interface ObjectToolbarProps {
@@ -37,6 +41,16 @@ interface ObjectToolbarProps {
   onUndo?: () => void;
   onRedo?: () => void;
   onReset?: () => void;
+  // Grid and alignment controls
+  showGridlines?: boolean;
+  onToggleGridlines?: () => void;
+  snapToGrid?: boolean;
+  onToggleSnapToGrid?: () => void;
+  showAlignmentGuides?: boolean;
+  onToggleAlignmentGuides?: () => void;
+  onCenterHorizontally?: () => void;
+  onCenterVertically?: () => void;
+  onCenterBoth?: () => void;
 }
 
 const ObjectToolbar = ({
@@ -57,7 +71,16 @@ const ObjectToolbar = ({
   canRedo = false,
   onUndo,
   onRedo,
-  onReset
+  onReset,
+  showGridlines = false,
+  onToggleGridlines,
+  snapToGrid = false,
+  onToggleSnapToGrid,
+  showAlignmentGuides = true,
+  onToggleAlignmentGuides,
+  onCenterHorizontally,
+  onCenterVertically,
+  onCenterBoth
 }: ObjectToolbarProps) => {
   if (!visible) return null;
   
@@ -165,28 +188,78 @@ const ObjectToolbar = ({
 
   return (
     <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 space-y-3">
-      {/* Line 1: History Controls */}
-      <div className="flex items-center justify-center gap-1 pb-2 border-b border-border">
-        {historyActions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <Button
-              key={action.id}
-              variant="ghost"
-              size="sm"
-              onClick={action.onClick}
-              disabled={action.disabled}
-              className="h-9 w-9 p-0 hover:bg-accent"
-              title={action.label}
-            >
-              <Icon className="h-4 w-4" />
-            </Button>
-          );
-        })}
+      {/* Line 1: History Controls, Grid Controls, and Alignment Controls */}
+      <div className="flex items-center justify-start gap-4 pb-2 border-b border-border">
+        {/* History Controls */}
+        <div className="flex items-center gap-1">
+          {historyActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Button
+                key={action.id}
+                variant="ghost"
+                size="sm"
+                onClick={action.onClick}
+                disabled={action.disabled}
+                className="h-9 w-9 p-0 hover:bg-accent"
+                title={action.label}
+              >
+                <Icon className="h-4 w-4" />
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Grid Controls */}
+        <div className="flex items-center gap-1">
+          <Button
+            variant={showGridlines ? "default" : "ghost"}
+            size="sm"
+            onClick={onToggleGridlines}
+            className="h-9 w-9 p-0 hover:bg-accent"
+            title="Toggle Gridlines"
+          >
+            <Grid className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Alignment Controls */}
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCenterHorizontally}
+            disabled={!hasSelection || isElementLocked}
+            className="h-9 w-9 p-0 hover:bg-accent"
+            title="Center Horizontally"
+          >
+            <AlignCenter className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCenterVertically}
+            disabled={!hasSelection || isElementLocked}
+            className="h-9 w-9 p-0 hover:bg-accent"
+            title="Center Vertically"
+          >
+            <AlignVerticalJustifyCenter className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCenterBoth}
+            disabled={!hasSelection || isElementLocked}
+            className="h-9 w-9 p-0 hover:bg-accent"
+            title="Center Both Axes"
+          >
+            <Move3D className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Line 2: Element Actions & Font Controls */}
-      <div className="flex items-center justify-between gap-3 pb-2 border-b border-border">
+      <div className="flex items-center justify-start gap-4 pb-2 border-b border-border">
         {/* Element Actions */}
         <div className="flex items-center gap-1">
           {elementActions.map((action) => {
@@ -257,9 +330,10 @@ const ObjectToolbar = ({
       </div>
 
       {/* Line 3: Selection Status */}
-      <div className="flex items-center justify-center min-h-[28px]">
+      <div className="flex items-center justify-start min-h-[28px]">
         {hasSelection ? (
           <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground font-medium">Selected:</span>
             <Badge variant="secondary" className="text-sm px-3 py-1 font-medium">
               {getSelectedElementName()}
             </Badge>

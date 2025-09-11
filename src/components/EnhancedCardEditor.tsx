@@ -662,43 +662,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </Badge>
         </div>
         
-        <EditorToolbar
-          showGridlines={showGridlines}
-          onToggleGridlines={() => setShowGridlines(!showGridlines)}
-          snapToGrid={snapToGrid}
-          onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
-          showAlignmentGuides={showAlignmentGuides}
-          onToggleAlignmentGuides={() => setShowAlignmentGuides(!showAlignmentGuides)}
-          selectedElement={selectedElement}
-          canUndo={historyIndex > 0}
-          canRedo={historyIndex < history.length - 1}
-          onUndo={undo}
-          onRedo={redo}
-          onReset={reset}
-          onDeleteElement={handleDeleteElement}
-          onBringToFront={handleBringToFront}
-          onSendToBack={handleSendToBack}
-          onCenterHorizontally={handleCenterHorizontally}
-          onCenterVertically={handleCenterVertically}
-          onCenterBoth={handleCenterBoth}
-          onDuplicateElement={handleDuplicateElement}
-        />
-        
         {/* Object Toolbar - always displayed in editor section */}
         <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
-          {selectedElement && (
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-sm font-medium text-foreground">
-                Selected: {selectedElement === 'brideName' ? 'Bride Name' :
-                          selectedElement === 'groomName' ? 'Groom Name' :
-                          selectedElement === 'weddingDate' ? 'Wedding Date' :
-                          selectedElement === 'venue' ? 'Venue' :
-                          selectedElement === 'message' ? 'Personal Message' :
-                          selectedElement.startsWith('photo-') ? `Photo ${selectedElement.replace('photo-', '')}` :
-                          selectedElement}
-              </span>
-            </div>
-          )}
           <ObjectToolbar
             selectedElement={selectedElement}
             isElementLocked={elementLockStates[selectedElement] || false}
@@ -727,6 +692,15 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onUndo={undo}
             onRedo={redo}
             onReset={reset}
+            showGridlines={showGridlines}
+            onToggleGridlines={() => setShowGridlines(!showGridlines)}
+            snapToGrid={snapToGrid}
+            onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
+            showAlignmentGuides={showAlignmentGuides}
+            onToggleAlignmentGuides={() => setShowAlignmentGuides(!showAlignmentGuides)}
+            onCenterHorizontally={() => selectedElement && handleCenterHorizontally(selectedElement)}
+            onCenterVertically={() => selectedElement && handleCenterVertically(selectedElement)}
+            onCenterBoth={() => selectedElement && handleCenterBoth(selectedElement)}
           />
         </div>
       </div>
