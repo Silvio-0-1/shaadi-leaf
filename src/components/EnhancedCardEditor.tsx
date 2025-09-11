@@ -180,6 +180,21 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     onPositionsUpdate?.(positions);
   }, [positions, onPositionsUpdate]);
 
+  // Sync font sizes from customization to element font sizes
+  useEffect(() => {
+    if (cardData.customization?.fontSizes) {
+      const fontSizes = cardData.customization.fontSizes;
+      setElementFontSizes(prev => ({
+        ...prev,
+        brideName: fontSizes.headingSize || prev.brideName,
+        groomName: fontSizes.headingSize || prev.groomName,
+        weddingDate: fontSizes.dateSize || prev.weddingDate,
+        venue: fontSizes.venueSize || prev.venue,
+        message: fontSizes.messageSize || prev.message
+      }));
+    }
+  }, [cardData.customization?.fontSizes]);
+
   const addToHistory = useCallback((newPositions: CardElements) => {
     setHistory(prev => {
       const newHistory = prev.slice(0, historyIndex + 1);
@@ -367,6 +382,19 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     setSelectedElement(null);
     toast.success("Element deleted");
   }, [positions, cardData.uploadedImages, onDataChange, addToHistory]);
+
+  // Handle keyboard events for delete
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete' && selectedElement) {
+        e.preventDefault();
+        handleDeleteElement(selectedElement);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElement, handleDeleteElement]);
 
   const handleBringToFront = useCallback((elementId: string) => {
     setElementZIndices(prev => ({
@@ -656,51 +684,44 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           onDuplicateElement={handleDuplicateElement}
         />
         
-        {/* Object Toolbar - positioned near the selected element */}
+        {/* Object Toolbar - displayed in editor section */}
         {selectedElement && (
-          <div className="fixed z-[9999] pointer-events-none">
-            <div className="relative pointer-events-auto">
-              <ObjectToolbar
-                selectedElement={selectedElement}
-                isElementLocked={elementLockStates[selectedElement] || false}
-                visible={!!selectedElement}
-                position={(() => {
-                  // Calculate position relative to the card element
-                  if (cardRef.current) {
-                    const cardRect = cardRef.current.getBoundingClientRect();
-                    const elementPos = positions[selectedElement as keyof CardElements];
-                    
-                    if (elementPos && 'position' in elementPos) {
-                      // Position toolbar above the selected element
-                      return { 
-                        x: cardRect.left + elementPos.position.x, 
-                        y: cardRect.top + elementPos.position.y - 60 
-                      };
-                    }
-                  }
-                  // Fallback to center of viewport
-                  return { x: window.innerWidth / 2, y: 100 };
-                })()}
-                onDuplicate={() => handleDuplicateElement(selectedElement)}
-                onBringForward={() => handleBringToFront(selectedElement)}
-                onSendBackward={() => handleSendToBack(selectedElement)}
-                onToggleLock={() => handleToggleLock(selectedElement)}
-                onDelete={() => handleDeleteElement(selectedElement)}
-                fontSize={selectedElement ? elementFontSizes[selectedElement] || 
-                  (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
-                   selectedElement === 'weddingDate' ? 24 :
-                   selectedElement === 'venue' ? 20 :
-                   selectedElement === 'message' ? 16 : 16) : undefined}
-                fontFamily={selectedElement ? getFontFamily(
-                  selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
-                  selectedElement === 'weddingDate' ? 'date' :
-                  selectedElement === 'venue' ? 'venue' :
-                  selectedElement === 'message' ? 'message' : 'heading'
-                ) : undefined}
-                onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
-                onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
-              />
+          <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm font-medium text-foreground">
+                Selected: {selectedElement === 'brideName' ? 'Bride Name' :
+                          selectedElement === 'groomName' ? 'Groom Name' :
+                          selectedElement === 'weddingDate' ? 'Wedding Date' :
+                          selectedElement === 'venue' ? 'Venue' :
+                          selectedElement === 'message' ? 'Personal Message' :
+                          selectedElement.startsWith('photo-') ? `Photo ${selectedElement.replace('photo-', '')}` :
+                          selectedElement}
+              </span>
             </div>
+            <ObjectToolbar
+              selectedElement={selectedElement}
+              isElementLocked={elementLockStates[selectedElement] || false}
+              visible={!!selectedElement}
+              position={{ x: 0, y: 0 }} // Not used in this context
+              onDuplicate={() => handleDuplicateElement(selectedElement)}
+              onBringForward={() => handleBringToFront(selectedElement)}
+              onSendBackward={() => handleSendToBack(selectedElement)}
+              onToggleLock={() => handleToggleLock(selectedElement)}
+              onDelete={() => handleDeleteElement(selectedElement)}
+              fontSize={selectedElement ? elementFontSizes[selectedElement] || 
+                (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
+                 selectedElement === 'weddingDate' ? 24 :
+                 selectedElement === 'venue' ? 20 :
+                 selectedElement === 'message' ? 16 : 16) : undefined}
+              fontFamily={selectedElement ? getFontFamily(
+                selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
+                selectedElement === 'weddingDate' ? 'date' :
+                selectedElement === 'venue' ? 'venue' :
+                selectedElement === 'message' ? 'message' : 'heading'
+              ) : undefined}
+              onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
+              onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
+            />
           </div>
         )}
       </div>

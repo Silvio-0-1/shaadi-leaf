@@ -108,14 +108,7 @@ const ObjectToolbar = ({
   }
 
   return (
-    <div 
-      className="absolute z-50 bg-white border border-border rounded-lg shadow-lg min-w-max"
-      style={{ 
-        left: position.x, 
-        top: position.y - 50,
-        transform: 'translateX(-50%)'
-      }}
-    >
+    <div className="bg-white border border-border rounded-lg shadow-lg min-w-max">
       <div className="flex items-center gap-1 p-2">
         {actions.map((action) => {
           const Icon = action.icon;
