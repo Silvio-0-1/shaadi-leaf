@@ -193,19 +193,6 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
             maxLength={250}
           />
           
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="include-names"
-                checked={includeNames}
-                onCheckedChange={setIncludeNames}
-              />
-              <Label htmlFor="include-names" className="text-xs text-muted-foreground">
-                Include bride and groom names
-              </Label>
-            </div>
-          </div>
-          
           <div className="flex justify-center">
             <CreditActionButton
               creditCost={CREDIT_COSTS.AI_GENERATE_MESSAGE}
@@ -232,6 +219,19 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
                 </>
               )}
             </CreditActionButton>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <div className="flex items-center space-x-3 bg-muted/50 px-4 py-2 rounded-lg border">
+              <Switch
+                id="include-names"
+                checked={includeNames}
+                onCheckedChange={setIncludeNames}
+              />
+              <Label htmlFor="include-names" className="text-sm font-medium text-foreground cursor-pointer">
+                Include bride and groom names in message
+              </Label>
+            </div>
           </div>
         </div>
       </div>
