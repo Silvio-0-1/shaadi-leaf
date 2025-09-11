@@ -418,21 +418,31 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   }, []);
 
   const handleCenterHorizontally = useCallback((elementId: string) => {
+    console.log('Center horizontally called for:', elementId);
+    const currentPosition = getElementPosition(elementId);
+    console.log('Current position:', currentPosition);
     handleElementMove(elementId, { 
-      ...getElementPosition(elementId), 
+      ...currentPosition, 
       x: 0 
     });
+    toast.success('Element centered horizontally');
   }, [handleElementMove]);
 
   const handleCenterVertically = useCallback((elementId: string) => {
+    console.log('Center vertically called for:', elementId);
+    const currentPosition = getElementPosition(elementId);
+    console.log('Current position:', currentPosition);
     handleElementMove(elementId, { 
-      ...getElementPosition(elementId), 
+      ...currentPosition, 
       y: 0 
     });
+    toast.success('Element centered vertically');
   }, [handleElementMove]);
 
   const handleCenterBoth = useCallback((elementId: string) => {
+    console.log('Center both axes called for:', elementId);
     handleElementMove(elementId, { x: 0, y: 0 });
+    toast.success('Element centered on both axes');
   }, [handleElementMove]);
 
   const handleDuplicateElement = useCallback((elementId: string) => {
