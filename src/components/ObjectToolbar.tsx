@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Copy, 
@@ -211,17 +212,13 @@ const ObjectToolbar = ({
         </div>
 
         {/* Grid Controls */}
-        <div className="flex items-center gap-1">
-          <Button
-            variant={showGridlines ? "default" : "ghost"}
-            size="sm"
-            onClick={onToggleGridlines}
-            className="h-9 px-3 hover:bg-accent"
-            title="Toggle Gridlines"
-          >
-            <Grid className="h-4 w-4 mr-2" />
-            <span className="text-sm font-medium">Grid Lines</span>
-          </Button>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground font-medium">Grid Lines</span>
+          <Switch
+            checked={showGridlines}
+            onCheckedChange={onToggleGridlines}
+            className="data-[state=checked]:bg-primary"
+          />
         </div>
 
         {/* Alignment Controls */}
