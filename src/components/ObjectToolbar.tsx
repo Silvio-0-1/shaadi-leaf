@@ -17,8 +17,7 @@ import {
   Grid,
   AlignCenter,
   AlignVerticalJustifyCenter,
-  Move3D,
-  AlignJustify
+  Move3D
 } from 'lucide-react';
 
 interface ObjectToolbarProps {
@@ -45,8 +44,6 @@ interface ObjectToolbarProps {
   // Grid and alignment controls
   showGridlines?: boolean;
   onToggleGridlines?: () => void;
-  showTextGridlines?: boolean;
-  onToggleTextGridlines?: () => void;
   snapToGrid?: boolean;
   onToggleSnapToGrid?: () => void;
   showAlignmentGuides?: boolean;
@@ -77,8 +74,6 @@ const ObjectToolbar = ({
   onReset,
   showGridlines = false,
   onToggleGridlines,
-  showTextGridlines = false,
-  onToggleTextGridlines,
   snapToGrid = false,
   onToggleSnapToGrid,
   showAlignmentGuides = true,
@@ -221,21 +216,10 @@ const ObjectToolbar = ({
             variant={showGridlines ? "default" : "ghost"}
             size="sm"
             onClick={onToggleGridlines}
-            className="h-9 px-3 hover:bg-accent"
+            className="h-9 w-9 p-0 hover:bg-accent"
             title="Toggle Gridlines"
           >
-            <Grid className="h-4 w-4 mr-1" />
-            <span className="text-sm font-medium">Grid</span>
-          </Button>
-          <Button
-            variant={showTextGridlines ? "default" : "ghost"}
-            size="sm"
-            onClick={onToggleTextGridlines}
-            className="h-9 px-3 hover:bg-accent"
-            title="Toggle Text Gridlines"
-          >
-            <AlignJustify className="h-4 w-4 mr-1" />
-            <span className="text-sm font-medium">Text Grid</span>
+            <Grid className="h-4 w-4" />
           </Button>
         </div>
 
