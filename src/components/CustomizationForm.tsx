@@ -18,6 +18,10 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('basic');
 
+  const handleValidationChange = (errors: Record<string, string>) => {
+    setValidationErrors(errors);
+  };
+
   const handleImagesChange = (images: string[]) => {
     onDataChange({ uploadedImages: images });
   };
@@ -79,6 +83,7 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
             cardData={cardData}
             onDataChange={onDataChange}
             validationErrors={validationErrors}
+            onValidationChange={handleValidationChange}
           />
         </TabsContent>
 

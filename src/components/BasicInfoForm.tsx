@@ -16,9 +16,10 @@ interface BasicInfoFormProps {
   cardData: WeddingCardData;
   onDataChange: (data: Partial<WeddingCardData>) => void;
   validationErrors?: Record<string, string>;
+  onValidationChange?: (errors: Record<string, string>) => void;
 }
 
-const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicInfoFormProps) => {
+const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {}, onValidationChange }: BasicInfoFormProps) => {
   const [generatingMessage, setGeneratingMessage] = useState(false);
   const [includeNames, setIncludeNames] = useState(true);
   const { CREDIT_COSTS } = useCredits();
@@ -26,6 +27,55 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {} }: BasicI
   const handleChange = (field: keyof WeddingCardData, value: string) => {
     // Sanitize input to prevent XSS attacks
     const sanitizedValue = sanitizeInput(value);
+    
+    // Validate the field and update validation errors
+    const newErrors = { ...validationErrors };
+    
+    switch (field) {
+      case 'brideName':
+      case 'groomName':
+        const nameValidation = validateName(sanitizedValue);
+        if (!nameValidation.isValid) {
+          newErrors[field] = nameValidation.error!;
+        } else {
+          delete newErrors[field];
+        }
+        break;
+      case 'venue':
+        const venueValidation = validateVenue(sanitizedValue);
+        if (!venueValidation.isValid) {
+          newErrors[field] = venueValidation.error!;
+        } else {
+          delete newErrors[field];
+        }
+        break;
+      case 'message':
+        if (sanitizedValue) {
+          const messageValidation = validateMessage(sanitizedValue);
+          if (!messageValidation.isValid) {
+            newErrors[field] = messageValidation.error!;
+          } else {
+            delete newErrors[field];
+          }
+        } else {
+          delete newErrors[field];
+        }
+        break;
+      case 'weddingDate':
+        const dateValidation = validateWeddingDate(sanitizedValue);
+        if (!dateValidation.isValid) {
+          newErrors[field] = dateValidation.error!;
+        } else {
+          delete newErrors[field];
+        }
+        break;
+    }
+    
+    // Update validation errors if callback provided
+    if (onValidationChange) {
+      onValidationChange(newErrors);
+    }
+    
     onDataChange({ [field]: sanitizedValue });
   };
 

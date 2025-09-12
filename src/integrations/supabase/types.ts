@@ -490,6 +490,20 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
+      validate_credit_operation: {
+        Args: { p_amount: number; p_operation_type: string; p_user_id?: string }
+        Returns: boolean
+      }
+      validate_wedding_card_data: {
+        Args: {
+          p_bride_name: string
+          p_groom_name: string
+          p_message?: string
+          p_venue: string
+          p_wedding_date: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"

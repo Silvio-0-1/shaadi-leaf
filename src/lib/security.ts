@@ -1,6 +1,6 @@
 // Security utilities for input validation and sanitization
 
-// Input sanitization function to prevent XSS attacks
+// Enhanced input sanitization function to prevent XSS attacks
 export const sanitizeInput = (input: string): string => {
   if (!input) return '';
   
@@ -10,6 +10,28 @@ export const sanitizeInput = (input: string): string => {
     .replace(/javascript:/gi, '') // Remove javascript: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers like onclick=
     .replace(/data:/gi, '') // Remove data: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .replace(/script:/gi, '') // Remove script: protocol
+    .replace(/&lt;script/gi, '') // Remove encoded script tags
+    .replace(/&gt;/gi, '') // Remove encoded > characters
+    .trim();
+};
+
+// Enhanced HTML sanitization for rich text content
+export const sanitizeHtml = (html: string): string => {
+  if (!html) return '';
+  
+  // More comprehensive HTML sanitization
+  return html
+    .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags and content
+    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframe tags
+    .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
+    .replace(/<embed[^>]*>/gi, '') // Remove embed tags
+    .replace(/<link[^>]*>/gi, '') // Remove link tags
+    .replace(/<meta[^>]*>/gi, '') // Remove meta tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
     .trim();
 };
 

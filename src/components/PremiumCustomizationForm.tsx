@@ -21,6 +21,10 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('basic');
 
+  const handleValidationChange = (errors: Record<string, string>) => {
+    setValidationErrors(errors);
+  };
+
   const handleImagesChange = (images: string[]) => {
     onDataChange({ uploadedImages: images });
   };
@@ -154,6 +158,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
               cardData={cardData}
               onDataChange={onDataChange}
               validationErrors={validationErrors}
+              onValidationChange={handleValidationChange}
             />
           </TabsContent>
 
