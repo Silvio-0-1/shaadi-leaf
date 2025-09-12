@@ -594,11 +594,16 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
           )}
 
           {/* Bride's Name */}
-          <PremiumDraggableElement
+          <TextDraggableElement
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
+            onFontSizeChange={handleFontSizeChange}
             containerRef={cardRef}
+            resizable={true}
+            fontSize={getFontSize('brideName')}
+            minFontSize={12}
+            maxFontSize={48}
             isSelected={selectedElement === 'brideName'}
             onSelect={setSelectedElement}
           >
@@ -608,27 +613,27 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                   value={cardData.brideName || 'Bride\'s Name'}
                   onChange={(value) => handleTextChange('brideName', value)}
                   onComplete={() => setEditingElement(null)}
-                  className="text-4xl font-bold text-center"
+                  className="font-bold text-center"
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: `${getFontSize('brideName')}px`
                   }}
                 />
               ) : (
                 <h1 
-                  className={`text-4xl font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
-                    selectedElement === 'brideName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
-                  }`}
+                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer whitespace-nowrap"
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: `${getFontSize('brideName')}px`
                   }}
                 >
                   {cardData.brideName || 'Bride\'s Name'}
                 </h1>
               )}
             </div>
-          </PremiumDraggableElement>
+          </TextDraggableElement>
 
           {/* Heart Icon */}
           <PremiumDraggableElement
@@ -657,11 +662,16 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
           </PremiumDraggableElement>
 
           {/* Groom's Name */}
-          <PremiumDraggableElement
+          <TextDraggableElement
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
+            onFontSizeChange={handleFontSizeChange}
             containerRef={cardRef}
+            resizable={true}
+            fontSize={getFontSize('groomName')}
+            minFontSize={12}
+            maxFontSize={48}
             isSelected={selectedElement === 'groomName'}
             onSelect={setSelectedElement}
           >
@@ -671,27 +681,27 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                   value={cardData.groomName || 'Groom\'s Name'}
                   onChange={(value) => handleTextChange('groomName', value)}
                   onComplete={() => setEditingElement(null)}
-                  className="text-4xl font-bold text-center"
+                  className="font-bold text-center"
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: `${getFontSize('groomName')}px`
                   }}
                 />
               ) : (
                 <h1 
-                  className={`text-4xl font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
-                    selectedElement === 'groomName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
-                  }`}
+                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer whitespace-nowrap"
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: `${getFontSize('groomName')}px`
                   }}
                 >
                   {cardData.groomName || 'Groom\'s Name'}
                 </h1>
               )}
             </div>
-          </PremiumDraggableElement>
+          </TextDraggableElement>
           {/* Wedding Date */}
           {cardData.weddingDate && (
             <TextDraggableElement

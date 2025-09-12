@@ -44,15 +44,43 @@ const TextDraggableElement = ({
   // Real-time scaling state for smooth preview
   const [currentScale, setCurrentScale] = useState(1);
   const [previewFontSize, setPreviewFontSize] = useState(fontSize);
+  const [elementDimensions, setElementDimensions] = useState({ width: 'auto', height: 'auto' });
   
   const elementRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
   // Update preview font size when fontSize prop changes
   useEffect(() => {
     setPreviewFontSize(fontSize);
   }, [fontSize]);
+
+  // Measure and update element dimensions based on content
+  const measureContent = useCallback(() => {
+    if (!measureRef.current || !contentRef.current) return;
+    
+    // Clone the content to measure it without affecting layout
+    const content = contentRef.current.cloneNode(true) as HTMLElement;
+    measureRef.current.innerHTML = '';
+    measureRef.current.appendChild(content);
+    
+    // Get the natural dimensions of the content
+    const rect = measureRef.current.getBoundingClientRect();
+    const width = Math.ceil(rect.width);
+    const height = Math.ceil(rect.height);
+    
+    setElementDimensions({
+      width: `${Math.max(width, 50)}px`,
+      height: `${Math.max(height, 20)}px`
+    });
+  }, []);
+
+  // Update dimensions when font size or content changes
+  useEffect(() => {
+    const timer = setTimeout(measureContent, 0);
+    return () => clearTimeout(timer);
+  }, [fontSize, previewFontSize, measureContent]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
@@ -180,7 +208,13 @@ const TextDraggableElement = ({
       
       // Calculate preview font size for visual feedback
       const newFontSize = Math.round(startFontSize * scale);
-      setPreviewFontSize(Math.max(minFontSize, Math.min(maxFontSize, newFontSize)));
+      const constrainedSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
+      setPreviewFontSize(constrainedSize);
+      
+      // Update dimensions immediately for real-time border feedback
+      requestAnimationFrame(() => {
+        measureContent();
+      });
     }
   }, [
     isDragging, isResizing, dragStart, startPosition, 
@@ -258,64 +292,79 @@ const TextDraggableElement = ({
   ];
 
   return (
-    <div
-      ref={elementRef}
-      className={`absolute select-none transition-all duration-200 ${
-        isDragging || isResizing ? 'z-50 scale-105' : isSelected ? 'z-40' : 'z-10'
-      } ${!isResizing ? 'cursor-move' : ''} group`}
-      style={{
-        transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-        left: '50%',
-        top: '50%',
-        touchAction: 'none',
-      }}
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
-      onClick={handleClick}
-    >
-      <div 
-        ref={contentRef}
-        className={`relative transition-all duration-200 ${
-          isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-        } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-white/50' : ''} rounded-sm`}
+    <>
+      {/* Hidden element for measuring text dimensions */}
+      <div
+        ref={measureRef}
+        className="fixed -left-[9999px] -top-[9999px] opacity-0 pointer-events-none whitespace-nowrap"
         style={{
-          // Apply real-time scaling during resize for smooth feedback
-          transform: isResizing ? `scale(${currentScale})` : 'scale(1)',
-          transformOrigin: 'center',
-          // Prevent scale from affecting layout during resize
-          willChange: isResizing ? 'transform' : 'auto',
+          fontSize: `${previewFontSize}px`,
+          fontFamily: 'inherit',
+          fontWeight: 'inherit',
         }}
+      />
+      
+      <div
+        ref={elementRef}
+        className={`absolute select-none transition-all duration-200 ${
+          isDragging || isResizing ? 'z-50' : isSelected ? 'z-40' : 'z-10'
+        } ${!isResizing ? 'cursor-move' : ''} group`}
+        style={{
+          transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
+          left: '50%',
+          top: '50%',
+          touchAction: 'none',
+          // Dynamic sizing based on content - this makes the border adapt!
+          width: elementDimensions.width,
+          height: elementDimensions.height,
+          minWidth: '50px',
+          minHeight: '20px',
+        }}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onClick={handleClick}
       >
-        {children}
-        
-        {/* Selection Indicator */}
-        {isSelected && (
-          <div className="absolute -inset-2 border-2 border-primary/40 rounded-md bg-primary/5 pointer-events-none animate-pulse" />
-        )}
-        
-        {/* Font Size Indicator */}
-        {isSelected && resizable && (
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs bg-black/80 text-white px-2 py-1 rounded font-mono whitespace-nowrap pointer-events-none">
-            {Math.round(previewFontSize)}px
-          </div>
-        )}
-        
-        {/* Resize handles */}
-        {resizable && isSelected && (
-          <>
-            {resizeHandles.map((handle) => (
-              <div
-                key={handle.direction}
-                className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-white border-2 border-primary rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-110 transition-all duration-150 ${handle.position}`}
-                style={{ cursor: handle.cursor }}
-                onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
-                onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
-              />
-            ))}
-          </>
-        )}
+        <div 
+          ref={contentRef}
+          className={`relative w-full h-full flex items-center justify-center transition-all duration-200 ${
+            isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
+          } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''} rounded-sm`}
+          style={{
+            // Remove scale transform to prevent layout issues
+            fontSize: `${previewFontSize}px`,
+          }}
+        >
+          {children}
+          
+          {/* Selection Indicator with dynamic sizing */}
+          {isSelected && (
+            <div className="absolute inset-0 border-2 border-dashed border-primary/40 rounded bg-primary/5 pointer-events-none animate-pulse" />
+          )}
+          
+          {/* Font Size Indicator */}
+          {isSelected && resizable && (
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs bg-black/80 text-white px-2 py-1 rounded font-mono whitespace-nowrap pointer-events-none">
+              {Math.round(previewFontSize)}px
+            </div>
+          )}
+          
+          {/* Resize handles */}
+          {resizable && isSelected && (
+            <>
+              {resizeHandles.map((handle) => (
+                <div
+                  key={handle.direction}
+                  className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-white border-2 border-primary rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-110 transition-all duration-150 ${handle.position}`}
+                  style={{ cursor: handle.cursor }}
+                  onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
+                  onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
+                />
+              ))}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
