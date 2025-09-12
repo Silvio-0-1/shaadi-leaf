@@ -11,6 +11,7 @@ import { WeddingCardData, CardElements, ElementPosition, Template, IndividualPho
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
 import AdvancedDraggableElement from './AdvancedDraggableElement';
+import TextDraggableElement from './TextDraggableElement';
 import InlineTextEditor from './InlineTextEditor';
 import EditorToolbar from './EditorToolbar';
 import GridOverlay from './GridOverlay';
@@ -989,24 +990,18 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           )}
 
           {/* Bride's Name */}
-          <AdvancedDraggableElement
+          <TextDraggableElement
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
+            onFontSizeChange={handleFontSizeChange}
             containerRef={cardRef}
             resizable={true}
-            size={{ width: 200, height: 50 }}
-            onResize={handleElementResize}
+            fontSize={elementFontSizes.brideName || 36}
+            minFontSize={12}
+            maxFontSize={48}
             isSelected={selectedElement === 'brideName'}
-            isLocked={elementLockStates.brideName || false}
             onSelect={handleElementSelect}
-            rotation={elementRotations.brideName || 0}
-            onRotate={handleElementRotate}
-            gridSize={gridSize}
-            snapToGrid={snapToGrid}
-            showAlignmentGuides={showAlignmentGuides}
-            otherElements={getAllElements()}
-            zIndex={elementZIndices.brideName || 30}
           >
             <div 
               onDoubleClick={() => handleDoubleClick('brideName')} 
@@ -1039,7 +1034,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </AdvancedDraggableElement>
+          </TextDraggableElement>
 
           {/* Heart Icon */}
           <AdvancedDraggableElement
@@ -1079,24 +1074,18 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </AdvancedDraggableElement>
 
           {/* Groom's Name */}
-          <AdvancedDraggableElement
+          <TextDraggableElement
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
+            onFontSizeChange={handleFontSizeChange}
             containerRef={cardRef}
             resizable={true}
-            size={{ width: 200, height: 50 }}
-            onResize={handleElementResize}
+            fontSize={elementFontSizes.groomName || 36}
+            minFontSize={12}
+            maxFontSize={48}
             isSelected={selectedElement === 'groomName'}
-            isLocked={elementLockStates.groomName || false}
             onSelect={handleElementSelect}
-            rotation={elementRotations.groomName || 0}
-            onRotate={handleElementRotate}
-            gridSize={gridSize}
-            snapToGrid={snapToGrid}
-            showAlignmentGuides={showAlignmentGuides}
-            otherElements={getAllElements()}
-            zIndex={elementZIndices.groomName || 30}
           >
             <div 
               onDoubleClick={() => handleDoubleClick('groomName')} 
@@ -1129,28 +1118,22 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </AdvancedDraggableElement>
+          </TextDraggableElement>
 
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <AdvancedDraggableElement
+            <TextDraggableElement
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
+              onFontSizeChange={handleFontSizeChange}
               containerRef={cardRef}
               resizable={true}
-              size={{ width: 180, height: 40 }}
-              onResize={handleElementResize}
+              fontSize={elementFontSizes.weddingDate || 14}
+              minFontSize={10}
+              maxFontSize={24}
               isSelected={selectedElement === 'weddingDate'}
-              isLocked={elementLockStates.weddingDate || false}
               onSelect={handleElementSelect}
-              rotation={elementRotations.weddingDate || 0}
-              onRotate={handleElementRotate}
-              gridSize={gridSize}
-              snapToGrid={snapToGrid}
-              showAlignmentGuides={showAlignmentGuides}
-              otherElements={getAllElements()}
-              zIndex={elementZIndices.weddingDate || 25}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1168,7 +1151,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </AdvancedDraggableElement>
+            </TextDraggableElement>
           )}
 
           {/* Venue */}
@@ -1231,24 +1214,18 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
 
           {/* Message */}
           {cardData.message && (
-            <AdvancedDraggableElement
+            <TextDraggableElement
               id="message"
               position={positions.message}
               onMove={handleElementMove}
+              onFontSizeChange={handleFontSizeChange}
               containerRef={cardRef}
               resizable={true}
-              size={{ width: 220, height: 60 }}
-              onResize={handleElementResize}
+              fontSize={elementFontSizes.message || 16}
+              minFontSize={8}
+              maxFontSize={20}
               isSelected={selectedElement === 'message'}
-              isLocked={elementLockStates.message || false}
               onSelect={handleElementSelect}
-              rotation={elementRotations.message || 0}
-              onRotate={handleElementRotate}
-              gridSize={gridSize}
-              snapToGrid={snapToGrid}
-              showAlignmentGuides={showAlignmentGuides}
-              otherElements={getAllElements()}
-              zIndex={elementZIndices.message || 25}
             >
               <div 
                 onDoubleClick={() => handleDoubleClick('message')} 
@@ -1280,7 +1257,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </p>
                 )}
               </div>
-            </AdvancedDraggableElement>
+            </TextDraggableElement>
           )}
         </div>
       </Card>
