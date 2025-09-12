@@ -33,6 +33,7 @@ const TextDraggableElement = ({
   isSelected = false,
   onSelect
 }: TextDraggableElementProps) => {
+  console.log('🟢 TextDraggableElement rendering:', id, { fontSize, isSelected });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -83,6 +84,7 @@ const TextDraggableElement = ({
   }, [fontSize, previewFontSize, measureContent]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    console.log('🟠 TextDraggableElement handleClick:', id, 'isSelected:', isSelected);
     e.stopPropagation();
     onSelect?.(id);
   };
@@ -116,6 +118,7 @@ const TextDraggableElement = ({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    console.log('🟠 TextDraggableElement handleMouseDown:', id, 'isSelected:', isSelected);
     if (!containerRef.current || isResizing) return;
     
     setIsDragging(true);
