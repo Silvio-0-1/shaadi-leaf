@@ -21,6 +21,7 @@ import { WeddingCardData, CardElements, ElementPosition, Template } from '@/type
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
 import PremiumDraggableElement from './PremiumDraggableElement';
+import TextDraggableElement from './TextDraggableElement';
 import InlineTextEditor from './InlineTextEditor';
 
 interface PremiumCardEditorProps {
@@ -297,6 +298,29 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
     });
   }, [addToHistory]);
 
+  const handleFontSizeChange = useCallback((elementId: string, newFontSize: number) => {
+    const fontSizeMap: { [key: string]: keyof NonNullable<typeof cardData.customization>['fontSizes'] } = {
+      'brideName': 'headingSize',
+      'groomName': 'headingSize',
+      'weddingDate': 'dateSize',
+      'venue': 'venueSize',
+      'message': 'messageSize'
+    };
+
+    const fontSizeKey = fontSizeMap[elementId];
+    if (!fontSizeKey) return;
+
+    const updatedCustomization = {
+      ...cardData.customization,
+      fontSizes: {
+        ...cardData.customization?.fontSizes,
+        [fontSizeKey]: newFontSize
+      }
+    };
+
+    onDataChange?.({ customization: updatedCustomization });
+  }, [cardData.customization, onDataChange]);
+
   const reset = () => {
     const defaultPos = template?.defaultPositions ? {
       ...template.defaultPositions,
@@ -381,6 +405,17 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
       default:
         return template?.fonts?.heading || 'Playfair Display';
     }
+  };
+
+  const getFontSize = (element: 'brideName' | 'groomName' | 'weddingDate' | 'venue' | 'message') => {
+    const fontSizeMap = {
+      'brideName': cardData.customization?.fontSizes?.headingSize || 24,
+      'groomName': cardData.customization?.fontSizes?.headingSize || 24,
+      'weddingDate': cardData.customization?.fontSizes?.dateSize || 14,
+      'venue': cardData.customization?.fontSizes?.venueSize || 14,
+      'message': cardData.customization?.fontSizes?.messageSize || 12
+    };
+    return fontSizeMap[element];
   };
 
   const getBackgroundStyle = () => {
@@ -659,11 +694,16 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
           </PremiumDraggableElement>
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <PremiumDraggableElement
+            <TextDraggableElement
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
+              onFontSizeChange={handleFontSizeChange}
               containerRef={cardRef}
+              resizable={true}
+              fontSize={getFontSize('weddingDate')}
+              minFontSize={10}
+              maxFontSize={24}
               isSelected={selectedElement === 'weddingDate'}
               onSelect={setSelectedElement}
             >
@@ -673,22 +713,30 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
               >
                 <Calendar className="h-4 w-4 mr-2 opacity-70" />
                 <span 
-                  className="font-medium text-sm"
-                  style={{ fontFamily: getFontFamily('date') }}
+                  className="font-medium"
+                  style={{ 
+                    fontFamily: getFontFamily('date'),
+                    fontSize: `${getFontSize('weddingDate')}px`
+                  }}
                 >
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </PremiumDraggableElement>
+            </TextDraggableElement>
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <PremiumDraggableElement
+            <TextDraggableElement
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
+              onFontSizeChange={handleFontSizeChange}
               containerRef={cardRef}
+              resizable={true}
+              fontSize={getFontSize('venue')}
+              minFontSize={10}
+              maxFontSize={24}
               isSelected={selectedElement === 'venue'}
               onSelect={setSelectedElement}
             >
@@ -698,10 +746,11 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                     value={cardData.venue}
                     onChange={(value) => handleTextChange('venue', value)}
                     onComplete={() => setEditingElement(null)}
-                    className="text-sm font-medium text-center"
+                    className="font-medium text-center"
                     style={{ 
                       color: colors.text,
-                      fontFamily: getFontFamily('venue')
+                      fontFamily: getFontFamily('venue'),
+                      fontSize: `${getFontSize('venue')}px`
                     }}
                   />
                 ) : (
@@ -711,23 +760,31 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                   >
                     <MapPin className="h-4 w-4 mr-2 opacity-70" />
                     <span 
-                      className="font-medium text-sm"
-                      style={{ fontFamily: getFontFamily('venue') }}
+                      className="font-medium"
+                      style={{ 
+                        fontFamily: getFontFamily('venue'),
+                        fontSize: `${getFontSize('venue')}px`
+                      }}
                     >
                       {cardData.venue}
                     </span>
                   </div>
                 )}
               </div>
-            </PremiumDraggableElement>
+            </TextDraggableElement>
           )}
           {/* Message */}
           {cardData.message && (
-            <PremiumDraggableElement
+            <TextDraggableElement
               id="message"
               position={positions.message}
               onMove={handleElementMove}
+              onFontSizeChange={handleFontSizeChange}
               containerRef={cardRef}
+              resizable={true}
+              fontSize={getFontSize('message')}
+              minFontSize={8}
+              maxFontSize={20}
               isSelected={selectedElement === 'message'}
               onSelect={setSelectedElement}
             >
@@ -738,25 +795,27 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                     onChange={(value) => handleTextChange('message', value)}
                     onComplete={() => setEditingElement(null)}
                     isMultiline={true}
-                    className="text-sm italic text-center max-w-xs"
+                    className="italic text-center max-w-xs"
                     style={{ 
                       color: colors.text,
-                      fontFamily: getFontFamily('message')
+                      fontFamily: getFontFamily('message'),
+                      fontSize: `${getFontSize('message')}px`
                     }}
                   />
                 ) : (
                   <p 
-                    className="text-center text-sm italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
+                    className="text-center italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
                     style={{ 
                       color: colors.text,
-                      fontFamily: getFontFamily('message')
+                      fontFamily: getFontFamily('message'),
+                      fontSize: `${getFontSize('message')}px`
                     }}
                   >
                     {cardData.message}
                   </p>
                 )}
               </div>
-            </PremiumDraggableElement>
+            </TextDraggableElement>
           )}
         </div>
       </Card>
