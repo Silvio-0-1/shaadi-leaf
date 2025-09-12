@@ -1007,6 +1007,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             showAlignmentGuides={showAlignmentGuides}
             otherElements={getAllElements()}
             zIndex={elementZIndices.brideName || 30}
+            customization={cardData.customization}
           >
             <div 
               onDoubleClick={() => handleDoubleClick('brideName')} 
@@ -1100,6 +1101,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             showAlignmentGuides={showAlignmentGuides}
             otherElements={getAllElements()}
             zIndex={elementZIndices.groomName || 30}
+            customization={cardData.customization}
           >
             <div 
               onDoubleClick={() => handleDoubleClick('groomName')} 
@@ -1194,6 +1196,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
               zIndex={elementZIndices.venue || 25}
+              customization={cardData.customization}
             >
               <div 
                 onDoubleClick={() => handleDoubleClick('venue')} 
@@ -1252,6 +1255,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
               zIndex={elementZIndices.message || 25}
+              customization={cardData.customization}
             >
               <div 
                 onDoubleClick={() => handleDoubleClick('message')} 

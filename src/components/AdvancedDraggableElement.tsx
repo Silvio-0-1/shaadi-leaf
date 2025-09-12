@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ElementPosition } from '@/types';
+import { ElementPosition, TemplateCustomization } from '@/types';
 import { ResizeHandle } from '@/types/editor';
 import { RotateCw } from 'lucide-react';
 
@@ -27,6 +27,7 @@ interface AdvancedDraggableElementProps {
   showAlignmentGuides?: boolean;
   alignmentThreshold?: number;
   otherElements?: Array<{ id: string; position: ElementPosition; size?: { width: number; height: number } }>;
+  customization?: TemplateCustomization;
 }
 
 const AdvancedDraggableElement = ({ 
@@ -51,7 +52,8 @@ const AdvancedDraggableElement = ({
   zIndex = 10,
   showAlignmentGuides = false,
   alignmentThreshold = 5,
-  otherElements = []
+  otherElements = [],
+  customization
 }: AdvancedDraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -72,6 +74,50 @@ const AdvancedDraggableElement = ({
   const currentPositionRef = useRef(position);
   const throttleRef = useRef<number>(0);
   const isMobile = useIsMobile();
+
+  // Generate text border classes and styles for text elements
+  const getTextBorderStyles = useCallback(() => {
+    // Only apply text borders to text elements
+    const textElements = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'];
+    if (!textElements.includes(id) || !customization?.textBorder?.enabled) {
+      return { classes: '', styles: {} };
+    }
+    
+    const textBorder = customization.textBorder;
+    let borderClasses = '';
+    
+    // Border width and style
+    const borderWidth = textBorder.width || 2;
+    borderClasses += `border-${borderWidth} `;
+    
+    // Shape classes
+    switch (textBorder.shape) {
+      case 'square':
+        borderClasses += 'rounded-none ';
+        break;
+      case 'pill':
+        borderClasses += 'rounded-full ';
+        break;
+      case 'rounded':
+      default:
+        borderClasses += 'rounded-lg ';
+        break;
+    }
+    
+    // Shadow
+    if (textBorder.shadow) {
+      borderClasses += 'shadow-lg ';
+    }
+    
+    const borderStyles = {
+      borderColor: textBorder.color || '#ffffff',
+      borderStyle: textBorder.style || 'solid',
+    };
+    
+    return { classes: borderClasses.trim(), styles: borderStyles };
+  }, [id, customization]);
+
+  const { classes: textBorderClasses, styles: textBorderStyles } = getTextBorderStyles();
 
   // Update position ref when prop changes
   useEffect(() => {

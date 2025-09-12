@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ElementPosition } from '@/types';
+import { ElementPosition, TemplateCustomization } from '@/types';
 
 interface DynamicTextElementProps {
   id: string;
@@ -18,6 +18,7 @@ interface DynamicTextElementProps {
   fontFamily?: string;
   fontWeight?: string;
   textAlign?: 'left' | 'center' | 'right';
+  customization?: TemplateCustomization;
 }
 
 const DynamicTextElement = ({
@@ -35,7 +36,8 @@ const DynamicTextElement = ({
   color = '#000000',
   fontFamily = 'Arial, sans-serif',
   fontWeight = 'normal',
-  textAlign = 'center'
+  textAlign = 'center',
+  customization
 }: DynamicTextElementProps) => {
   const [currentText, setCurrentText] = useState(text);
   const [dimensions, setDimensions] = useState({ width: 100, height: 20 });
@@ -121,6 +123,46 @@ const DynamicTextElement = ({
     }
   };
 
+  // Generate text border classes and styles
+  const getTextBorderStyles = () => {
+    const textBorder = customization?.textBorder;
+    if (!textBorder?.enabled) return { classes: '', styles: {} };
+    
+    let borderClasses = '';
+    
+    // Border width and style
+    const borderWidth = textBorder.width || 2;
+    borderClasses += `border-${borderWidth} `;
+    
+    // Shape classes
+    switch (textBorder.shape) {
+      case 'square':
+        borderClasses += 'rounded-none ';
+        break;
+      case 'pill':
+        borderClasses += 'rounded-full ';
+        break;
+      case 'rounded':
+      default:
+        borderClasses += 'rounded-lg ';
+        break;
+    }
+    
+    // Shadow
+    if (textBorder.shadow) {
+      borderClasses += 'shadow-lg ';
+    }
+    
+    const borderStyles = {
+      borderColor: textBorder.color || '#ffffff',
+      borderStyle: textBorder.style || 'solid',
+    };
+    
+    return { classes: borderClasses.trim(), styles: borderStyles };
+  };
+
+  const { classes: borderClasses, styles: borderStyles } = getTextBorderStyles();
+
   return (
     <>
       {/* Hidden element for text measurement */}
@@ -141,24 +183,27 @@ const DynamicTextElement = ({
         ref={textRef}
         className={`relative inline-block select-none ${
           isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''
-        } ${isEditing ? 'bg-white/90 backdrop-blur-sm shadow-lg' : ''} transition-all duration-150 ease-out`}
+        } ${isEditing ? 'bg-white/90 backdrop-blur-sm shadow-lg' : ''} ${borderClasses} transition-all duration-150 ease-out`}
         style={{
           width: `${dimensions.width}px`,
           height: `${dimensions.height}px`,
           minWidth: '80px',
           minHeight: '24px',
           padding: '8px 12px',
-          borderRadius: isEditing ? '6px' : '2px',
+          borderRadius: isEditing ? '6px' : borderClasses.includes('rounded') ? undefined : '2px',
           border: isEditing 
             ? '2px solid hsl(var(--primary))' 
             : isSelected 
               ? '1px dashed hsl(var(--primary) / 0.4)' 
-              : 'none',
+              : borderClasses
+                ? undefined // Let border classes handle it
+                : 'none',
           cursor: isEditing ? 'text' : 'move',
           overflow: 'visible',
           // Smooth resizing performance
           willChange: isEditing ? 'width, height' : 'auto',
-          backfaceVisibility: 'hidden' // Prevent flickering
+          backfaceVisibility: 'hidden', // Prevent flickering
+          ...borderStyles,
         }}
         onClick={(e) => {
           console.log('🟠 DynamicTextElement onClick:', id);

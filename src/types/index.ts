@@ -39,6 +39,14 @@ export interface TemplateCustomization {
   backgroundPattern?: string;
   layout?: string;
   photoShape?: 'square' | 'circle' | 'rounded';
+  textBorder?: {
+    enabled?: boolean;
+    style?: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
+    width?: number;
+    color?: string;
+    shape?: 'square' | 'rounded' | 'pill';
+    shadow?: boolean;
+  };
 }
 
 export interface ElementPosition {
