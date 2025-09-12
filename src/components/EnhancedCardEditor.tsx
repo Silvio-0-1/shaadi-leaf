@@ -996,13 +996,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             resizable={true}
             size={{ width: 200, height: 50 }}
-            onResize={(id, newSize) => {
-              handleElementResize(id, newSize);
-              // Convert resize to font size for text elements
-              const scaleFactor = Math.max(newSize.width / 200, newSize.height / 50);
-              const newFontSize = Math.round((elementFontSizes.brideName || 36) * scaleFactor);
-              handleFontSizeChange(id, Math.max(12, Math.min(48, newFontSize)));
-            }}
+            onResize={handleElementResize}
             isSelected={selectedElement === 'brideName'}
             isLocked={elementLockStates.brideName || false}
             onSelect={handleElementSelect}
@@ -1016,29 +1010,32 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           >
             <div 
               onDoubleClick={() => handleDoubleClick('brideName')} 
-              className="w-full h-full flex items-center justify-center"
+              className="w-full h-full flex items-center justify-center p-2"
               data-draggable-element="brideName"
+              style={{
+                fontSize: 'clamp(12px, 4vw, 48px)', // Responsive font size that scales with container
+                minHeight: '100%',
+              }}
             >
               {editingElement === 'brideName' ? (
                 <InlineTextEditor
                   value={cardData.brideName || 'Bride\'s Name'}
                   onChange={(value) => handleTextChange('brideName', value)}
                   onComplete={() => setEditingElement(null)}
-                  className="text-4xl font-bold text-center"
+                  className="text-center font-bold w-full"
                   style={{ 
                     color: colors.primary,
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: 'inherit'
                   }}
                 />
               ) : (
                 <h1 
-                  className={`font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
-                    selectedElement === 'brideName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
-                  }`}
+                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer w-full"
                   style={{ 
                     color: colors.primary,
                     fontFamily: getFontFamily('heading'),
-                    fontSize: `${elementFontSizes.brideName || 36}px`
+                    fontSize: `max(16px, min(48px, ${Math.round((elementFontSizes.brideName || 36) + ((elementSizes?.brideName?.width || 200) - 200) * 0.2)}px))`
                   }}
                 >
                   {cardData.brideName || 'Bride\'s Name'}
@@ -1092,13 +1089,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             resizable={true}
             size={{ width: 200, height: 50 }}
-            onResize={(id, newSize) => {
-              handleElementResize(id, newSize);
-              // Convert resize to font size for text elements
-              const scaleFactor = Math.max(newSize.width / 200, newSize.height / 50);
-              const newFontSize = Math.round((elementFontSizes.groomName || 36) * scaleFactor);
-              handleFontSizeChange(id, Math.max(12, Math.min(48, newFontSize)));
-            }}
+            onResize={handleElementResize}
             isSelected={selectedElement === 'groomName'}
             isLocked={elementLockStates.groomName || false}
             onSelect={handleElementSelect}
@@ -1152,13 +1143,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               resizable={true}
               size={{ width: 180, height: 40 }}
-              onResize={(id, newSize) => {
-                handleElementResize(id, newSize);
-                // Convert resize to font size for text elements
-                const scaleFactor = Math.max(newSize.width / 180, newSize.height / 40);
-                const newFontSize = Math.round((elementFontSizes.weddingDate || 14) * scaleFactor);
-                handleFontSizeChange(id, Math.max(10, Math.min(24, newFontSize)));
-              }}
+              onResize={handleElementResize}
               isSelected={selectedElement === 'weddingDate'}
               isLocked={elementLockStates.weddingDate || false}
               onSelect={handleElementSelect}
@@ -1198,13 +1183,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               resizable={true}
               size={{ width: 160, height: 40 }}
-              onResize={(id, newSize) => {
-                handleElementResize(id, newSize);
-                // Convert resize to font size for text elements  
-                const scaleFactor = Math.max(newSize.width / 160, newSize.height / 40);
-                const newFontSize = Math.round((elementFontSizes.venue || 14) * scaleFactor);
-                handleFontSizeChange(id, Math.max(10, Math.min(24, newFontSize)));
-              }}
+              onResize={handleElementResize}
               isSelected={selectedElement === 'venue'}
               isLocked={elementLockStates.venue || false}
               onSelect={handleElementSelect}
@@ -1262,13 +1241,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               containerRef={cardRef}
               resizable={true}
               size={{ width: 220, height: 60 }}
-              onResize={(id, newSize) => {
-                handleElementResize(id, newSize);
-                // Convert resize to font size for text elements
-                const scaleFactor = Math.max(newSize.width / 220, newSize.height / 60);
-                const newFontSize = Math.round((elementFontSizes.message || 16) * scaleFactor);
-                handleFontSizeChange(id, Math.max(8, Math.min(20, newFontSize)));
-              }}
+              onResize={handleElementResize}
               isSelected={selectedElement === 'message'}
               isLocked={elementLockStates.message || false}
               onSelect={handleElementSelect}
