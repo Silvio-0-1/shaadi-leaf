@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { validateCreditOperation, validateRateLimit } from '@/lib/security';
 
 export interface CreditPackage {
   id: string;
@@ -104,7 +105,7 @@ export const useCredits = () => {
     enabled: !!user,
   });
 
-  // Deduct credits mutation
+  // Enhanced deduct credits mutation with security validation
   const deductCreditsMutation = useMutation({
     mutationFn: async ({ 
       amount, 
@@ -118,6 +119,18 @@ export const useCredits = () => {
       referenceId?: string;
     }) => {
       if (!user) throw new Error('User not authenticated');
+
+      // Client-side validation and rate limiting
+      const creditValidation = validateCreditOperation(amount, actionType);
+      if (!creditValidation.isValid) {
+        throw new Error(creditValidation.error);
+      }
+
+      // Additional rate limiting for credit operations
+      const rateLimitCheck = validateRateLimit(`credit_${actionType}`, 30, 60);
+      if (!rateLimitCheck.isValid) {
+        throw new Error(rateLimitCheck.error);
+      }
 
       const { data, error } = await supabase.rpc('deduct_credits', {
         p_user_id: user.id,
@@ -139,9 +152,19 @@ export const useCredits = () => {
         toast.error('Insufficient credits for this action');
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error deducting credits:', error);
-      toast.error('Failed to deduct credits');
+      const errorMessage = error.message || 'Failed to deduct credits';
+      
+      if (errorMessage.includes('Rate limit exceeded')) {
+        toast.error('Please wait before performing more actions');
+      } else if (errorMessage.includes('Insufficient credits')) {
+        toast.error('Insufficient credits for this action');
+      } else if (errorMessage.includes('Invalid credit amount')) {
+        toast.error('Invalid credit amount specified');
+      } else {
+        toast.error(errorMessage);
+      }
     },
   });
 

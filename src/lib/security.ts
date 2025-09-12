@@ -17,22 +17,58 @@ export const sanitizeInput = (input: string): string => {
     .trim();
 };
 
-// Enhanced HTML sanitization for rich text content
-export const sanitizeHtml = (html: string): string => {
-  if (!html) return '';
+// Enhanced sanitization for rich text content
+export const sanitizeRichText = (input: string): string => {
+  if (!input) return '';
   
-  // More comprehensive HTML sanitization
-  return html
-    .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags and content
-    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframe tags
-    .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
-    .replace(/<embed[^>]*>/gi, '') // Remove embed tags
-    .replace(/<link[^>]*>/gi, '') // Remove link tags
-    .replace(/<meta[^>]*>/gi, '') // Remove meta tags
+  // More aggressive sanitization for rich text areas
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '') // Remove iframe tags
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '') // Remove object tags
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '') // Remove embed tags
+    .replace(/on\w+\s*=\s*"[^"]*"/gi, '') // Remove event handlers
+    .replace(/on\w+\s*=\s*'[^']*'/gi, '') // Remove event handlers with single quotes
     .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
-    .replace(/on\w+\s*=/gi, '') // Remove event handlers
     .trim();
+};
+
+// Rate limiting validation
+export const validateRateLimit = (
+  operationType: string,
+  maxOperations: number = 10,
+  timeWindowMinutes: number = 60
+): { isValid: boolean; error?: string } => {
+  const storageKey = `rate_limit_${operationType}`;
+  const now = Date.now();
+  const timeWindow = timeWindowMinutes * 60 * 1000; // Convert to milliseconds
+  
+  try {
+    const storedData = localStorage.getItem(storageKey);
+    const operations = storedData ? JSON.parse(storedData) : [];
+    
+    // Filter out operations outside the time window
+    const recentOperations = operations.filter((timestamp: number) => 
+      now - timestamp < timeWindow
+    );
+    
+    if (recentOperations.length >= maxOperations) {
+      return {
+        isValid: false,
+        error: `Too many ${operationType} operations. Please wait before trying again.`
+      };
+    }
+    
+    // Add current operation and store
+    recentOperations.push(now);
+    localStorage.setItem(storageKey, JSON.stringify(recentOperations));
+    
+    return { isValid: true };
+  } catch (error) {
+    // If localStorage fails, allow the operation but log the error
+    console.warn('Rate limiting storage failed:', error);
+    return { isValid: true };
+  }
 };
 
 // Validate text content with length limits
@@ -139,4 +175,69 @@ export const validateFileUpload = (file: File): { isValid: boolean; error?: stri
 // Secure display function to safely render user content
 export const secureDisplay = (content: string): string => {
   return sanitizeInput(content);
+};
+
+// Comprehensive form validation with security checks
+export const validateFormData = (data: Record<string, any>): { 
+  isValid: boolean; 
+  errors: Record<string, string>; 
+  sanitizedData: Record<string, any> 
+} => {
+  const errors: Record<string, string> = {};
+  const sanitizedData: Record<string, any> = {};
+  
+  Object.keys(data).forEach(key => {
+    const value = data[key];
+    
+    if (typeof value === 'string') {
+      // Apply appropriate sanitization based on field type
+      if (key.includes('message') || key.includes('description')) {
+        sanitizedData[key] = sanitizeRichText(value);
+      } else {
+        sanitizedData[key] = sanitizeInput(value);
+      }
+      
+      // Check for suspicious patterns
+      if (value.match(/<script|javascript:|vbscript:|data:|file:/i)) {
+        errors[key] = `${key} contains potentially harmful content`;
+      }
+      
+      // Check for excessive length (basic DoS prevention)
+      if (value.length > 10000) {
+        errors[key] = `${key} is too long (maximum 10,000 characters)`;
+      }
+    } else {
+      sanitizedData[key] = value;
+    }
+  });
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    sanitizedData
+  };
+};
+
+// Enhanced credit operation validation
+export const validateCreditOperation = (
+  amount: number,
+  operationType: string
+): { isValid: boolean; error?: string } => {
+  // Validate amount
+  if (!Number.isInteger(amount) || amount <= 0) {
+    return {
+      isValid: false,
+      error: 'Credit amount must be a positive integer'
+    };
+  }
+  
+  if (amount > 1000) {
+    return {
+      isValid: false,
+      error: 'Credit amount cannot exceed 1000 per operation'
+    };
+  }
+  
+  // Rate limiting for credit operations
+  return validateRateLimit(`credit_${operationType}`, 20, 60);
 };

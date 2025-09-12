@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Minus, User, Coins } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { validateCreditOperation, sanitizeInput } from '@/lib/security';
 
 interface UserCredit {
   id: string;
@@ -95,12 +96,28 @@ export const UserCreditsManager = ({ onUserSelect }: CreditManagementProps) => {
       return;
     }
 
+    // Enhanced validation with security checks
+    const amount = parseInt(creditAmount);
+    const sanitizedDescription = sanitizeInput(description.trim());
+    
+    // Validate credit operation
+    const validation = validateCreditOperation(amount, `admin_${operation}`);
+    if (!validation.isValid) {
+      toast.error(validation.error);
+      return;
+    }
+
+    if (sanitizedDescription.length < 5) {
+      toast.error('Description must be at least 5 characters long');
+      return;
+    }
+
     try {
       const { data, error } = await supabase.rpc('admin_manage_credits', {
         p_target_user_id: selectedUser.user_id,
-        p_amount: parseInt(creditAmount),
+        p_amount: amount,
         p_operation: operation,
-        p_description: description.trim()
+        p_description: sanitizedDescription
       });
 
       if (error) throw error;
