@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,7 +7,9 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Type, Sparkles, Palette } from 'lucide-react';
-import { TemplateCustomization } from '@/types';
+import { TemplateCustomization, Template } from '@/types';
+import { templates } from '@/data/templates';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TemplateEditorProps {
   customization: TemplateCustomization;
@@ -17,6 +19,57 @@ interface TemplateEditorProps {
 
 const TemplateEditor = ({ customization, onCustomizationChange, templateId }: TemplateEditorProps) => {
   const [activeTab, setActiveTab] = useState('fonts');
+  const [template, setTemplate] = useState<Template | null>(null);
+
+  // Fetch template data to get default colors
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      if (!templateId) return;
+
+      // First check static templates
+      const staticTemplate = templates.find(t => t.id === templateId);
+      if (staticTemplate) {
+        setTemplate(staticTemplate);
+        return;
+      }
+
+      // Then check custom templates
+      try {
+        const { data, error } = await supabase
+          .from('custom_templates')
+          .select('*')
+          .eq('id', templateId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching custom template:', error);
+          setTemplate(null);
+        } else {
+          const customTemplate: Template = {
+            id: data.id,
+            name: data.name,
+            category: 'custom' as const,
+            thumbnail: data.background_image || '/placeholder.svg',
+            isPremium: data.is_premium,
+            colors: data.colors as any,
+            fonts: data.fonts as any,
+            layouts: ['custom'],
+            supportsMultiPhoto: true,
+            supportsVideo: false,
+            backgroundImage: data.background_image,
+            defaultPositions: data.default_positions as any,
+            tags: data.tags || []
+          };
+          setTemplate(customTemplate);
+        }
+      } catch (error) {
+        console.error('Error fetching custom template:', error);
+        setTemplate(null);
+      }
+    };
+
+    fetchTemplate();
+  }, [templateId]);
 
   const fontOptions = [
     // Classic Wedding Fonts
@@ -120,6 +173,19 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
       }
     };
     onCustomizationChange(updatedCustomization);
+  };
+
+  // Get effective color (custom color or template default)
+  const getEffectiveColor = (textType: string) => {
+    const customColor = customization.textColors?.[textType as keyof typeof customization.textColors];
+    if (customColor) return customColor;
+
+    // Return template defaults based on text type
+    if (textType === 'brideName' || textType === 'groomName') {
+      return template?.colors?.primary || '#8B5A3C';
+    } else {
+      return template?.colors?.secondary || '#2C1810';
+    }
   };
 
   const resetToDefaults = () => {
@@ -308,12 +374,12 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
-                    value={customization.textColors?.brideName || '#000000'}
+                    value={getEffectiveColor('brideName')}
                     onChange={(e) => updateTextColor('brideName', e.target.value)}
                     className="w-12 h-8 rounded border border-input cursor-pointer"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {customization.textColors?.brideName || '#000000'}
+                    {getEffectiveColor('brideName')}
                   </span>
                 </div>
               </div>
@@ -324,12 +390,12 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
-                    value={customization.textColors?.groomName || '#000000'}
+                    value={getEffectiveColor('groomName')}
                     onChange={(e) => updateTextColor('groomName', e.target.value)}
                     className="w-12 h-8 rounded border border-input cursor-pointer"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {customization.textColors?.groomName || '#000000'}
+                    {getEffectiveColor('groomName')}
                   </span>
                 </div>
               </div>
@@ -340,12 +406,12 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
-                    value={customization.textColors?.date || '#000000'}
+                    value={getEffectiveColor('date')}
                     onChange={(e) => updateTextColor('date', e.target.value)}
                     className="w-12 h-8 rounded border border-input cursor-pointer"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {customization.textColors?.date || '#000000'}
+                    {getEffectiveColor('date')}
                   </span>
                 </div>
               </div>
@@ -356,12 +422,12 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
-                    value={customization.textColors?.venue || '#000000'}
+                    value={getEffectiveColor('venue')}
                     onChange={(e) => updateTextColor('venue', e.target.value)}
                     className="w-12 h-8 rounded border border-input cursor-pointer"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {customization.textColors?.venue || '#000000'}
+                    {getEffectiveColor('venue')}
                   </span>
                 </div>
               </div>
@@ -372,12 +438,12 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
-                    value={customization.textColors?.message || '#000000'}
+                    value={getEffectiveColor('message')}
                     onChange={(e) => updateTextColor('message', e.target.value)}
                     className="w-12 h-8 rounded border border-input cursor-pointer"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {customization.textColors?.message || '#000000'}
+                    {getEffectiveColor('message')}
                   </span>
                 </div>
               </div>
