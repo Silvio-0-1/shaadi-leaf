@@ -744,6 +744,18 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     }
   };
 
+  // Get text color from customization or default to template colors
+  const getTextColor = (textType: string) => {
+    const colorMapping = {
+      'brideName': cardData.customization?.textColors?.brideName || colors.primary,
+      'groomName': cardData.customization?.textColors?.groomName || colors.primary,
+      'date': cardData.customization?.textColors?.date || colors.text,
+      'venue': cardData.customization?.textColors?.venue || colors.text,
+      'message': cardData.customization?.textColors?.message || colors.text
+    };
+    return colorMapping[textType as keyof typeof colorMapping];
+  };
+
   const getBackgroundStyle = () => {
     if (template?.backgroundImage) {
       return {
@@ -1025,7 +1037,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   onComplete={() => setEditingElement(null)}
                   className="text-center font-bold w-full"
                   style={{ 
-                    color: colors.primary,
+                    color: getTextColor('brideName'),
                     fontFamily: getFontFamily('heading'),
                     fontSize: 'inherit'
                   }}
@@ -1034,7 +1046,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 <h1 
                   className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer w-full"
                   style={{ 
-                    color: colors.primary,
+                    color: getTextColor('brideName'),
                     fontFamily: getFontFamily('heading'),
                     fontSize: `max(16px, min(48px, ${Math.round((elementFontSizes.brideName || 36) + ((elementSizes?.brideName?.width || 200) - 200) * 0.2)}px))`
                   }}
@@ -1115,7 +1127,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   onComplete={() => setEditingElement(null)}
                   className="text-4xl font-bold text-center"
                   style={{ 
-                    color: colors.primary,
+                    color: getTextColor('groomName'),
                     fontFamily: getFontFamily('heading')
                   }}
                 />
@@ -1125,7 +1137,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                     selectedElement === 'groomName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
                   }`}
                   style={{ 
-                    color: colors.primary,
+                    color: getTextColor('groomName'),
                     fontFamily: getFontFamily('heading'),
                     fontSize: `${elementFontSizes.groomName || 36}px`
                   }}
@@ -1159,7 +1171,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
-                style={{ color: colors.text }}
+                style={{ color: getTextColor('date') }}
                 data-draggable-element="weddingDate"
               >
                 <Calendar className="h-4 w-4 mr-2 opacity-70" />
@@ -1210,14 +1222,14 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                     onComplete={() => setEditingElement(null)}
                     className="text-sm font-medium text-center"
                     style={{ 
-                      color: colors.text,
+                      color: getTextColor('venue'),
                       fontFamily: getFontFamily('venue')
                     }}
                   />
                 ) : (
                   <div 
                     className="flex items-center justify-center transition-all duration-200 cursor-pointer" 
-                    style={{ color: colors.text }}
+                    style={{ color: getTextColor('venue') }}
                   >
                     <MapPin className="h-4 w-4 mr-2 opacity-70" />
                     <span 
@@ -1270,7 +1282,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                     isMultiline={true}
                     className="text-sm italic text-center max-w-xs"
                     style={{ 
-                      color: colors.text,
+                      color: getTextColor('message'),
                       fontFamily: getFontFamily('message')
                     }}
                   />
@@ -1278,7 +1290,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   <p 
                     className="text-center italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
                     style={{ 
-                      color: colors.text,
+                      color: getTextColor('message'),
                       fontFamily: getFontFamily('message'),
                       fontSize: `${elementFontSizes.message || 16}px`
                     }}

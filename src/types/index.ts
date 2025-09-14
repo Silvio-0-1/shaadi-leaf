@@ -36,17 +36,16 @@ export interface TemplateCustomization {
     venueSize?: number;
     messageSize?: number;
   };
+  textColors?: {
+    brideName?: string;
+    groomName?: string;
+    date?: string;
+    venue?: string;
+    message?: string;
+  };
   backgroundPattern?: string;
   layout?: string;
   photoShape?: 'square' | 'circle' | 'rounded';
-  textBorder?: {
-    enabled?: boolean;
-    style?: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
-    width?: number;
-    color?: string;
-    shape?: 'square' | 'rounded' | 'pill';
-    shadow?: boolean;
-  };
 }
 
 export interface ElementPosition {

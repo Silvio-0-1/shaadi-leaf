@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Type, Sparkles, Frame, Palette } from 'lucide-react';
+import { Type, Sparkles, Palette } from 'lucide-react';
 import { TemplateCustomization } from '@/types';
 
 interface TemplateEditorProps {
@@ -111,16 +111,12 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
     onCustomizationChange(updatedCustomization);
   };
 
-  // Text border update functions
-  const updateTextBorder = <K extends keyof NonNullable<TemplateCustomization['textBorder']>>(
-    key: K,
-    value: NonNullable<TemplateCustomization['textBorder']>[K]
-  ) => {
+  const updateTextColor = (colorKey: string, value: string) => {
     const updatedCustomization = {
       ...customization,
-      textBorder: {
-        ...customization.textBorder,
-        [key]: value
+      textColors: {
+        ...customization.textColors,
+        [colorKey]: value
       }
     };
     onCustomizationChange(updatedCustomization);
@@ -130,7 +126,7 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
     onCustomizationChange({ 
       fonts: {},
       fontSizes: {},
-      textBorder: { enabled: false }
+      textColors: {}
     });
   };
 
@@ -142,7 +138,7 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
           Font & Text Styling
         </h2>
         <p className="text-muted-foreground text-sm">
-          Customize fonts, sizes, and text borders for your wedding card
+          Customize fonts, sizes, and colors for your wedding card
         </p>
       </div>
 
@@ -152,9 +148,9 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
             <Type className="h-4 w-4" />
             Fonts & Sizes
           </TabsTrigger>
-          <TabsTrigger value="borders" className="flex items-center gap-2">
-            <Frame className="h-4 w-4" />
-            Text Borders
+          <TabsTrigger value="colors" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Text Colors
           </TabsTrigger>
         </TabsList>
 
@@ -298,108 +294,94 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
           </div>
         </TabsContent>
 
-        <TabsContent value="borders" className="space-y-6">
-          {/* Text Border Controls */}
+        <TabsContent value="colors" className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Frame className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium">Text Border Settings</h3>
+              <Palette className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium">Text Color Settings</h3>
             </div>
             
-            {/* Enable Text Borders */}
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">Enable Text Borders</Label>
-                <p className="text-xs text-muted-foreground">Add decorative borders around text elements</p>
+            <div className="space-y-4">
+              {/* Bride Name Color */}
+              <div className="space-y-2">
+                <Label>Bride Name Color</Label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={customization.textColors?.brideName || '#000000'}
+                    onChange={(e) => updateTextColor('brideName', e.target.value)}
+                    className="w-12 h-8 rounded border border-input cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {customization.textColors?.brideName || '#000000'}
+                  </span>
+                </div>
               </div>
-              <Switch
-                checked={customization.textBorder?.enabled || false}
-                onCheckedChange={(checked) => updateTextBorder('enabled', checked)}
-              />
+
+              {/* Groom Name Color */}
+              <div className="space-y-2">
+                <Label>Groom Name Color</Label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={customization.textColors?.groomName || '#000000'}
+                    onChange={(e) => updateTextColor('groomName', e.target.value)}
+                    className="w-12 h-8 rounded border border-input cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {customization.textColors?.groomName || '#000000'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Date Color */}
+              <div className="space-y-2">
+                <Label>Wedding Date Color</Label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={customization.textColors?.date || '#000000'}
+                    onChange={(e) => updateTextColor('date', e.target.value)}
+                    className="w-12 h-8 rounded border border-input cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {customization.textColors?.date || '#000000'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Venue Color */}
+              <div className="space-y-2">
+                <Label>Venue Color</Label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={customization.textColors?.venue || '#000000'}
+                    onChange={(e) => updateTextColor('venue', e.target.value)}
+                    className="w-12 h-8 rounded border border-input cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {customization.textColors?.venue || '#000000'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Message Color */}
+              <div className="space-y-2">
+                <Label>Personal Message Color</Label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={customization.textColors?.message || '#000000'}
+                    onChange={(e) => updateTextColor('message', e.target.value)}
+                    className="w-12 h-8 rounded border border-input cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {customization.textColors?.message || '#000000'}
+                  </span>
+                </div>
+              </div>
             </div>
-
-            {/* Border Settings - Only show if enabled */}
-            {customization.textBorder?.enabled && (
-              <div className="space-y-4 p-4 bg-muted/20 rounded-lg border">
-                {/* Border Style */}
-                <div className="space-y-2">
-                  <Label>Border Style</Label>
-                  <Select
-                    value={customization.textBorder?.style || 'solid'}
-                    onValueChange={(value) => updateTextBorder('style', value as any)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select border style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="solid">Solid</SelectItem>
-                      <SelectItem value="dashed">Dashed</SelectItem>
-                      <SelectItem value="dotted">Dotted</SelectItem>
-                      <SelectItem value="double">Double</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Border Width */}
-                <div className="space-y-2">
-                  <Label>Border Width: {customization.textBorder?.width || 2}px</Label>
-                  <Slider
-                    value={[customization.textBorder?.width || 2]}
-                    onValueChange={(value) => updateTextBorder('width', value[0])}
-                    max={8}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
-                </div>
-
-                {/* Border Shape */}
-                <div className="space-y-2">
-                  <Label>Border Shape</Label>
-                  <Select
-                    value={customization.textBorder?.shape || 'rounded'}
-                    onValueChange={(value) => updateTextBorder('shape', value as any)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select border shape" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="square">Square</SelectItem>
-                      <SelectItem value="rounded">Rounded</SelectItem>
-                      <SelectItem value="pill">Pill</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Border Color */}
-                <div className="space-y-2">
-                  <Label>Border Color</Label>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="color"
-                      value={customization.textBorder?.color || '#ffffff'}
-                      onChange={(e) => updateTextBorder('color', e.target.value)}
-                      className="w-12 h-8 rounded border border-input cursor-pointer"
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      {customization.textBorder?.color || '#ffffff'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Shadow Effect */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium">Shadow Effect</Label>
-                    <p className="text-xs text-muted-foreground">Add a subtle shadow to text borders</p>
-                  </div>
-                  <Switch
-                    checked={customization.textBorder?.shadow || false}
-                    onCheckedChange={(checked) => updateTextBorder('shadow', checked)}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </TabsContent>
       </Tabs>

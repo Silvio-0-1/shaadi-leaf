@@ -75,49 +75,26 @@ const AdvancedDraggableElement = ({
   const throttleRef = useRef<number>(0);
   const isMobile = useIsMobile();
 
-  // Generate text border classes and styles for text elements
-  const getTextBorderStyles = useCallback(() => {
-    // Only apply text borders to text elements
+  // Text elements no longer use borders - use text colors instead
+  const getTextColorStyles = useCallback(() => {
     const textElements = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'];
-    if (!textElements.includes(id) || !customization?.textBorder?.enabled) {
-      return { classes: '', styles: {} };
+    if (!textElements.includes(id) || !customization?.textColors) {
+      return {};
     }
     
-    const textBorder = customization.textBorder;
-    let borderClasses = '';
+    const colorKey = id === 'brideName' ? 'brideName' 
+                   : id === 'groomName' ? 'groomName'
+                   : id === 'weddingDate' ? 'date'
+                   : id === 'venue' ? 'venue'
+                   : id === 'message' ? 'message'
+                   : null;
     
-    // Border width and style
-    const borderWidth = textBorder.width || 2;
-    borderClasses += `border-${borderWidth} `;
-    
-    // Shape classes
-    switch (textBorder.shape) {
-      case 'square':
-        borderClasses += 'rounded-none ';
-        break;
-      case 'pill':
-        borderClasses += 'rounded-full ';
-        break;
-      case 'rounded':
-      default:
-        borderClasses += 'rounded-lg ';
-        break;
-    }
-    
-    // Shadow
-    if (textBorder.shadow) {
-      borderClasses += 'shadow-lg ';
-    }
-    
-    const borderStyles = {
-      borderColor: textBorder.color || '#ffffff',
-      borderStyle: textBorder.style || 'solid',
-    };
-    
-    return { classes: borderClasses.trim(), styles: borderStyles };
+    return colorKey && customization.textColors[colorKey] 
+      ? { color: customization.textColors[colorKey] }
+      : {};
   }, [id, customization]);
 
-  const { classes: textBorderClasses, styles: textBorderStyles } = getTextBorderStyles();
+  const textColorStyles = getTextColorStyles();
 
   // Update position ref when prop changes
   useEffect(() => {

@@ -296,56 +296,23 @@ const TextDraggableElement = ({
     { direction: 'sw', cursor: 'sw-resize', position: 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2' },
   ];
 
-  // Generate text border classes based on customization
-  const getTextBorderClasses = useCallback(() => {
-    const textBorder = customization?.textBorder;
-    if (!textBorder?.enabled) return '';
+  // Generate text color styles based on text type
+  const getTextColorStyles = useCallback(() => {
+    if (!customization?.textColors) return {};
     
-    let classes = '';
+    const colorKey = id === 'brideName' ? 'brideName' 
+                   : id === 'groomName' ? 'groomName'
+                   : id === 'weddingDate' ? 'date'
+                   : id === 'venue' ? 'venue'
+                   : id === 'message' ? 'message'
+                   : null;
     
-    // Border style and width
-    const borderWidth = textBorder.width || 2;
-    const borderColor = textBorder.color || '#ffffff';
-    const borderStyle = textBorder.style || 'solid';
-    
-    // Base border classes
-    classes += `border-${borderWidth} `;
-    
-    // Shape classes
-    switch (textBorder.shape) {
-      case 'square':
-        classes += 'rounded-none ';
-        break;
-      case 'pill':
-        classes += 'rounded-full ';
-        break;
-      case 'rounded':
-      default:
-        classes += 'rounded-lg ';
-        break;
-    }
-    
-    // Shadow
-    if (textBorder.shadow) {
-      classes += 'shadow-lg ';
-    }
-    
-    return classes.trim();
-  }, [customization]);
+    return colorKey && customization.textColors[colorKey] 
+      ? { color: customization.textColors[colorKey] }
+      : {};
+  }, [id, customization]);
 
-  // Generate text border inline styles
-  const getTextBorderStyles = useCallback(() => {
-    const textBorder = customization?.textBorder;
-    if (!textBorder?.enabled) return {};
-    
-    return {
-      borderColor: textBorder.color || '#ffffff',
-      borderStyle: textBorder.style || 'solid',
-    };
-  }, [customization]);
-
-  const borderClasses = getTextBorderClasses();
-  const borderStyles = getTextBorderStyles();
+  const textColorStyles = getTextColorStyles();
 
   return (
     <>
@@ -384,11 +351,11 @@ const TextDraggableElement = ({
           ref={contentRef}
           className={`relative w-full h-full flex items-center justify-center transition-all duration-200 ${
             isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-          } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''} ${borderClasses}`}
+          } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''}`}
           style={{
             // Remove scale transform to prevent layout issues
             fontSize: `${previewFontSize}px`,
-            ...borderStyles,
+            ...textColorStyles,
           }}
         >
           {children}
