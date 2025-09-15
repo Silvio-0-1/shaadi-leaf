@@ -152,7 +152,7 @@ const TextDraggableElement = ({
     
     let scaleChange = 0;
     
-    // Calculate scale change based on resize direction
+    // Only allow corner resize directions
     switch (resizeDirection) {
       case 'se':
       case 'nw':
@@ -164,14 +164,9 @@ const TextDraggableElement = ({
         // Use diagonal distance but consider direction
         scaleChange = (deltaX - deltaY) / 2;
         break;
-      case 'e':
-      case 'w':
-        scaleChange = Math.abs(deltaX);
-        break;
-      case 'n':
-      case 's':
-        scaleChange = Math.abs(deltaY);
-        break;
+      default:
+        // No edge resizing allowed
+        return 1;
     }
     
     // Convert pixel change to scale factor (more sensitive for text)
