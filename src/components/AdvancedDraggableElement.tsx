@@ -28,6 +28,8 @@ interface AdvancedDraggableElementProps {
   alignmentThreshold?: number;
   otherElements?: Array<{ id: string; position: ElementPosition; size?: { width: number; height: number } }>;
   customization?: TemplateCustomization;
+  fontSize?: number;
+  onFontSizeChange?: (elementId: string, fontSize: number) => void;
 }
 
 const AdvancedDraggableElement = ({ 
@@ -53,7 +55,9 @@ const AdvancedDraggableElement = ({
   showAlignmentGuides = false,
   alignmentThreshold = 5,
   otherElements = [],
-  customization
+  customization,
+  fontSize = 16,
+  onFontSizeChange
 }: AdvancedDraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -63,6 +67,7 @@ const AdvancedDraggableElement = ({
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0 });
   const [rotationStart, setRotationStart] = useState({ x: 0, y: 0, angle: 0 });
   const [startSize, setStartSize] = useState({ width: 0, height: 0 });
+  const [startFontSize, setStartFontSize] = useState(16);
   const [resizeDirection, setResizeDirection] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<number>(1);
   const [alignmentGuides, setAlignmentGuides] = useState<Array<{ type: 'horizontal' | 'vertical'; position: number }>>([]);
@@ -93,6 +98,12 @@ const AdvancedDraggableElement = ({
       ? { color: customization.textColors[colorKey] }
       : {};
   }, [id, customization]);
+
+  // Helper function to check if element is a text element
+  const isTextElement = useCallback(() => {
+    const textElements = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'];
+    return textElements.includes(id);
+  }, [id]);
 
   const textColorStyles = getTextColorStyles();
 
@@ -243,67 +254,89 @@ const AdvancedDraggableElement = ({
         setAlignmentGuides(guides);
         
         onMove(id, newPosition);
-      } else if (isResizing && !isLocked && onResize) {
+      } else if (isResizing && !isLocked) {
         const deltaX = clientX - resizeStart.x;
         const deltaY = clientY - resizeStart.y;
         
-        let newWidth = startSize.width;
-        let newHeight = startSize.height;
-        
-        const handle = resizeHandles.find(h => h.direction === resizeDirection);
-        
-        if (handle) {
-          switch (resizeDirection) {
-            case 'n':
-              newHeight = Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
-              break;
-            case 's':
-              newHeight = Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
-              break;
-            case 'e':
-              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
-              break;
-            case 'w':
-              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
-              break;
-            case 'ne':
-              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
-              newHeight = handle.proportional && maintainAspectRatio 
-                ? newWidth / aspectRatio 
-                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
-              break;
-            case 'nw':
-              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
-              newHeight = handle.proportional && maintainAspectRatio 
-                ? newWidth / aspectRatio 
-                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
-              break;
-            case 'se':
-              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
-              newHeight = handle.proportional && maintainAspectRatio 
-                ? newWidth / aspectRatio 
-                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
-              break;
-            case 'sw':
-              newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
-              newHeight = handle.proportional && maintainAspectRatio 
-                ? newWidth / aspectRatio 
-                : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
-              break;
+        // Check if this is a text element
+        if (isTextElement() && onFontSizeChange) {
+          // For text elements, resize affects font size
+          const handle = resizeHandles.find(h => h.direction === resizeDirection);
+          
+          if (handle && handle.proportional) { // Only for corner handles
+            // Use the diagonal distance for more intuitive resizing
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            const direction = deltaX + deltaY > 0 ? 1 : -1;
+            
+            // Scale factor based on distance moved
+            const scaleFactor = direction * distance * 0.1; // Adjust sensitivity
+            let newFontSize = startFontSize + scaleFactor;
+            
+            // Apply font size constraints
+            newFontSize = Math.max(8, Math.min(72, newFontSize));
+            
+            onFontSizeChange(id, newFontSize);
           }
+        } else if (onResize) {
+          // For photo elements, resize affects width/height
+          let newWidth = startSize.width;
+          let newHeight = startSize.height;
+          
+          const handle = resizeHandles.find(h => h.direction === resizeDirection);
+          
+          if (handle) {
+            switch (resizeDirection) {
+              case 'n':
+                newHeight = Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
+                break;
+              case 's':
+                newHeight = Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
+                break;
+              case 'e':
+                newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
+                break;
+              case 'w':
+                newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
+                break;
+              case 'ne':
+                newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
+                newHeight = handle.proportional && maintainAspectRatio 
+                  ? newWidth / aspectRatio 
+                  : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
+                break;
+              case 'nw':
+                newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
+                newHeight = handle.proportional && maintainAspectRatio 
+                  ? newWidth / aspectRatio 
+                  : Math.max(minSize.height, Math.min(maxSize.height, startSize.height - deltaY));
+                break;
+              case 'se':
+                newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width + deltaX));
+                newHeight = handle.proportional && maintainAspectRatio 
+                  ? newWidth / aspectRatio 
+                  : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
+                break;
+              case 'sw':
+                newWidth = Math.max(minSize.width, Math.min(maxSize.width, startSize.width - deltaX));
+                newHeight = handle.proportional && maintainAspectRatio 
+                  ? newWidth / aspectRatio 
+                  : Math.max(minSize.height, Math.min(maxSize.height, startSize.height + deltaY));
+                break;
+            }
+          }
+          
+          // Snap resize to grid
+          if (snapToGrid) {
+            newWidth = snapToGridValue(newWidth);
+            newHeight = snapToGridValue(newHeight);
+          }
+          
+          // Apply final constraints
+          newWidth = Math.max(minSize.width, Math.min(maxSize.width, newWidth));
+          newHeight = Math.max(minSize.height, Math.min(maxSize.height, newHeight));
+          
+          onResize(id, { width: newWidth, height: newHeight });
         }
-        
-        // Snap resize to grid
-        if (snapToGrid) {
-          newWidth = snapToGridValue(newWidth);
-          newHeight = snapToGridValue(newHeight);
-        }
-        
-        // Apply final constraints
-        newWidth = Math.max(minSize.width, Math.min(maxSize.width, newWidth));
-        newHeight = Math.max(minSize.height, Math.min(maxSize.height, newHeight));
-        
-        onResize(id, { width: newWidth, height: newHeight });
       } else if (isRotating && !isLocked && onRotate) {
         const newRotation = calculateRotation(clientX, clientY);
         setRotationDegrees(newRotation);
@@ -313,9 +346,10 @@ const AdvancedDraggableElement = ({
     });
   }, [
     isDragging, isResizing, isRotating, isLocked, dragStart, startPosition, 
-    resizeStart, startSize, resizeDirection, aspectRatio, snapToGrid, 
+    resizeStart, startSize, startFontSize, resizeDirection, aspectRatio, snapToGrid, 
     snapToGridValue, showAlignmentGuides, alignmentThreshold, otherElements, 
-    id, onMove, onResize, onRotate, calculateAlignmentGuides, calculateRotation
+    id, onMove, onResize, onRotate, onFontSizeChange, calculateAlignmentGuides, 
+    calculateRotation, isTextElement, fontSize
   ]);
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -364,6 +398,7 @@ const AdvancedDraggableElement = ({
     setResizeDirection(direction);
     setResizeStart({ x: e.clientX, y: e.clientY });
     setStartSize(size);
+    setStartFontSize(fontSize); // Store starting font size for text elements
     onSelect?.(id);
     
     e.preventDefault();
@@ -378,6 +413,7 @@ const AdvancedDraggableElement = ({
     setResizeDirection(direction);
     setResizeStart({ x: touch.clientX, y: touch.clientY });
     setStartSize(size);
+    setStartFontSize(fontSize); // Store starting font size for text elements
     onSelect?.(id);
     
     e.preventDefault();
