@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
 import AuthRequiredModal from './AuthRequiredModal';
 import InteractiveCardPreview from './InteractiveCardPreview';
+import { PrivacyToggle } from './PrivacyToggle';
 import { toast } from 'sonner';
 
 interface CardPreviewProps {
@@ -37,6 +38,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showShareMessage, setShowShareMessage] = useState(false);
+  const [isSharePublic, setIsSharePublic] = useState(false);
   
   const template = templates.find(t => t.id === cardData.templateId);
 
@@ -173,7 +175,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
         customization: cardData.customization || {},
         element_positions: savedPositions || null,
         user_id: user.id,
-        is_public: true
+        is_public: isSharePublic // User explicitly chooses privacy level
       } as any;
 
       console.log('DEBUG SAVE (CardPreview): Prepared shareableCardData:', shareableCardData);
@@ -632,6 +634,12 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               {loadingStates.video ? 'Creating...' : 'Video (50 Credits)'}
             </Button>
           </div>
+          
+          <PrivacyToggle
+            isPublic={isSharePublic}
+            onToggle={setIsSharePublic}
+            disabled={loadingStates.share}
+          />
           
           <Button 
             onClick={generateShareableLink}

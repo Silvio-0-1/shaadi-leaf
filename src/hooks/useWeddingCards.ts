@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { WeddingCardData } from '@/types';
 import { toast } from 'sonner';
+import { validateFormData, validateName, validateVenue, validateMessage, validateWeddingDate } from '@/lib/security';
 
 export const useWeddingCards = () => {
   const [saving, setSaving] = useState(false);
@@ -15,12 +16,46 @@ export const useWeddingCards = () => {
         throw new Error('User not authenticated');
       }
 
+      // SECURITY FIX: Enhanced validation with sanitization
+      const brideValidation = validateName(cardData.brideName || '');
+      if (!brideValidation.isValid) {
+        toast.error(brideValidation.error);
+        return { success: false, error: brideValidation.error };
+      }
+
+      const groomValidation = validateName(cardData.groomName || '');
+      if (!groomValidation.isValid) {
+        toast.error(groomValidation.error);
+        return { success: false, error: groomValidation.error };
+      }
+
+      const venueValidation = validateVenue(cardData.venue || '');
+      if (!venueValidation.isValid) {
+        toast.error(venueValidation.error);
+        return { success: false, error: venueValidation.error };
+      }
+
+      const dateValidation = validateWeddingDate(cardData.weddingDate || '');
+      if (!dateValidation.isValid) {
+        toast.error(dateValidation.error);
+        return { success: false, error: dateValidation.error };
+      }
+
+      if (cardData.message) {
+        const messageValidation = validateMessage(cardData.message);
+        if (!messageValidation.isValid) {
+          toast.error(messageValidation.error);
+          return { success: false, error: messageValidation.error };
+        }
+      }
+
+      // Use sanitized values from validation
       const cardToSave = {
-        bride_name: cardData.brideName,
-        groom_name: cardData.groomName,
+        bride_name: brideValidation.sanitized,
+        groom_name: groomValidation.sanitized,
         wedding_date: cardData.weddingDate,
-        venue: cardData.venue,
-        message: cardData.message || '',
+        venue: venueValidation.sanitized,
+        message: cardData.message ? validateMessage(cardData.message).sanitized : '',
         template_id: cardData.templateId,
         uploaded_images: JSON.stringify(cardData.uploadedImages || []),
         logo_image: cardData.logoImage || null,

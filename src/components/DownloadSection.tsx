@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Download, Image, FileText, Share2, Link, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CreditActionButton from './CreditActionButton';
+import { PrivacyToggle } from './PrivacyToggle';
 import { useCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
@@ -23,6 +23,7 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
   const [copied, setCopied] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
   const [showShareMessage, setShowShareMessage] = useState(false);
+  const [isSharePublic, setIsSharePublic] = useState(false);
 
   const handleDownloadImage = async () => {
     await downloadAsImage(cardId, 'wedding-card', 'high');
@@ -63,7 +64,7 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
         customization: cardData.customization || {},
         element_positions: null,
         user_id: user.id,
-        is_public: true
+        is_public: isSharePublic // User explicitly chooses privacy level
       };
 
       console.log('DEBUG SAVE: Prepared shareableCardData:', shareableCardData);
@@ -187,33 +188,41 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
           </div>
 
           {/* Create Magic Link */}
-          <div className="p-4 border rounded-xl bg-gradient-to-r from-purple-50/50 to-purple-100/30 hover:shadow-sm transition-all">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="flex items-center gap-3 flex-1">
-                <div className="p-2.5 bg-purple-100 rounded-lg shrink-0">
-                  <Share2 className="h-5 w-5 text-purple-600" />
+          <div className="space-y-3">
+            <PrivacyToggle
+              isPublic={isSharePublic}
+              onToggle={setIsSharePublic}
+              disabled={shareLoading}
+            />
+            
+            <div className="p-4 border rounded-xl bg-gradient-to-r from-purple-50/50 to-purple-100/30 hover:shadow-sm transition-all">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="p-2.5 bg-purple-100 rounded-lg shrink-0">
+                    <Share2 className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-sm text-purple-900">Magic Link</h4>
+                    <p className="text-xs text-purple-700/80">Share instantly with anyone</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h4 className="font-semibold text-sm text-purple-900">Magic Link</h4>
-                  <p className="text-xs text-purple-700/80">Share instantly with anyone</p>
+                <div className="flex items-center gap-2 sm:ml-auto">
+                  <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
+                    {CREDIT_COSTS.SHARE_MAGIC_LINK} credits
+                  </Badge>
+                  <CreditActionButton
+                    creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
+                    actionType="share_magic_link"
+                    actionName="Create Magic Link"
+                    onAction={handleShareableLink}
+                    variant="outline"
+                    size="sm"
+                    disabled={shareLoading}
+                    className="bg-white border-purple-200 text-purple-700 hover:bg-purple-50"
+                  >
+                    {shareLoading ? 'Creating...' : 'Create'}
+                  </CreditActionButton>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 sm:ml-auto">
-                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
-                  {CREDIT_COSTS.SHARE_MAGIC_LINK} credits
-                </Badge>
-                <CreditActionButton
-                  creditCost={CREDIT_COSTS.SHARE_MAGIC_LINK}
-                  actionType="share_magic_link"
-                  actionName="Create Magic Link"
-                  onAction={handleShareableLink}
-                  variant="outline"
-                  size="sm"
-                  disabled={shareLoading}
-                  className="bg-white border-purple-200 text-purple-700 hover:bg-purple-50"
-                >
-                  {shareLoading ? 'Creating...' : 'Create'}
-                </CreditActionButton>
               </div>
             </div>
           </div>

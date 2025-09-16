@@ -185,6 +185,7 @@ export type Database = {
           created_at: string
           customization: Json | null
           element_positions: Json | null
+          expires_at: string | null
           groom_name: string
           id: string
           is_public: boolean | null
@@ -203,6 +204,7 @@ export type Database = {
           created_at?: string
           customization?: Json | null
           element_positions?: Json | null
+          expires_at?: string | null
           groom_name: string
           id?: string
           is_public?: boolean | null
@@ -221,6 +223,7 @@ export type Database = {
           created_at?: string
           customization?: Json | null
           element_positions?: Json | null
+          expires_at?: string | null
           groom_name?: string
           id?: string
           is_public?: boolean | null
