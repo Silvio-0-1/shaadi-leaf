@@ -119,3 +119,12 @@ export interface User {
   cardsCreated: number;
   maxCards: number;
 }
+
+export type { ResizeHandle } from './editor';
+export type { 
+  TextBorderStyle, 
+  TextBorderConfiguration, 
+  TextBorderPreset,
+  TextBorderGradient,
+  TextBorderShadow 
+} from './textBorder';

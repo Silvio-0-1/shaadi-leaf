@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ElementPosition, TemplateCustomization } from '@/types';
+import { ElementPosition, TemplateCustomization, TextBorderConfiguration } from '@/types';
 import { ResizeHandle } from '@/types/editor';
 import { RotateCw } from 'lucide-react';
+import { TextElementBorder } from './TextElementBorder';
 
 interface AdvancedDraggableElementProps {
   id: string;
@@ -30,6 +31,7 @@ interface AdvancedDraggableElementProps {
   customization?: TemplateCustomization;
   fontSize?: number;
   onFontSizeChange?: (elementId: string, fontSize: number) => void;
+  textBorderConfig?: TextBorderConfiguration;
 }
 
 const AdvancedDraggableElement = ({ 
@@ -57,7 +59,8 @@ const AdvancedDraggableElement = ({
   otherElements = [],
   customization,
   fontSize = 16,
-  onFontSizeChange
+  onFontSizeChange,
+  textBorderConfig
 }: AdvancedDraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -579,20 +582,37 @@ const AdvancedDraggableElement = ({
       >
         <div 
           className={`relative w-full h-full transition-all duration-100 ${
-            isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-          } ${isSelected && !isLocked ? 'ring-2 ring-primary/50 ring-offset-1 ring-offset-white/50' : ''} ${
-            isLocked ? 'ring-2 ring-yellow-500/50 ring-offset-1 ring-offset-white/50' : ''
+            // Only apply photo element styles for non-text elements
+            !isTextElement() ? (
+              `${isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''} ${
+                isSelected && !isLocked ? 'ring-2 ring-primary/50 ring-offset-1 ring-offset-white/50' : ''
+              } ${isLocked ? 'ring-2 ring-yellow-500/50 ring-offset-1 ring-offset-white/50' : ''}`
+            ) : ''
           } rounded-sm overflow-visible`}
         >
-          {children}
+          {/* Apply text border framework for text elements, regular content for others */}
+          {isTextElement() ? (
+            <TextElementBorder
+              isSelected={isSelected}
+              isLocked={isLocked}
+              isDragging={isDragging}
+              isResizing={isResizing}
+              isRotating={isRotating}
+              borderConfig={textBorderConfig}
+            >
+              {children}
+            </TextElementBorder>
+          ) : (
+            children
+          )}
           
-          {/* Selection Indicator */}
-          {isSelected && !isLocked && (
+          {/* Selection Indicator - Only for photo elements (text elements have their own in TextElementBorder) */}
+          {isSelected && !isLocked && !isTextElement() && (
             <div className="absolute -inset-2 border-2 border-primary/40 rounded-md bg-primary/5 pointer-events-none animate-pulse" />
           )}
           
-          {/* Lock Indicator */}
-          {isLocked && (
+          {/* Lock Indicator - Only for photo elements (text elements have their own in TextElementBorder) */}
+          {isLocked && !isTextElement() && (
             <div className="absolute -inset-2 border-2 border-yellow-500/40 rounded-md bg-yellow-500/5 pointer-events-none" />
           )}
           
