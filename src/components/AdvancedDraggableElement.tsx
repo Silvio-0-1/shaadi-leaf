@@ -402,22 +402,42 @@ const AdvancedDraggableElement = ({
     e.stopPropagation(); // Prevent card onClick from firing
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
-    // Handle double-click for text elements
+    // Handle double-click for text elements - only trigger on actual double click
     const currentTime = Date.now();
-    if (isTextElement() && onDoubleClick && currentTime - lastClickTime < 300) {
+    const timeDiff = currentTime - lastClickTime;
+    
+    if (isTextElement() && onDoubleClick && timeDiff < 300 && timeDiff > 50) {
       console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id);
       onDoubleClick(id);
       setLastClickTime(0); // Reset to prevent triple-clicks
       return;
     }
-    setLastClickTime(currentTime);
     
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setStartPosition(position);
-    if (!isSelected) {
-      console.log('🟢 AdvancedDraggableElement calling onSelect from mousedown:', id);
-      onSelect?.(id);
+    // For text elements, delay the drag start to allow for potential double-click
+    if (isTextElement()) {
+      setTimeout(() => {
+        if (Date.now() - currentTime >= 300) {
+          // No double-click happened, proceed with single click behavior
+          setLastClickTime(currentTime);
+          setIsDragging(true);
+          setDragStart({ x: e.clientX, y: e.clientY });
+          setStartPosition(position);
+          if (!isSelected) {
+            console.log('🟢 AdvancedDraggableElement calling onSelect from delayed single click:', id);
+            onSelect?.(id);
+          }
+        }
+      }, 300);
+    } else {
+      // Non-text elements behave normally
+      setLastClickTime(currentTime);
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      setStartPosition(position);
+      if (!isSelected) {
+        console.log('🟢 AdvancedDraggableElement calling onSelect from mousedown:', id);
+        onSelect?.(id);
+      }
     }
     
     e.preventDefault();
@@ -427,21 +447,39 @@ const AdvancedDraggableElement = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
-    // Handle double-tap for text elements
+    // Handle double-tap for text elements - only trigger on actual double tap
     const currentTime = Date.now();
-    if (isTextElement() && onDoubleClick && currentTime - lastClickTime < 300) {
+    const timeDiff = currentTime - lastClickTime;
+    
+    if (isTextElement() && onDoubleClick && timeDiff < 300 && timeDiff > 50) {
       console.log('🟢 AdvancedDraggableElement double-tap detected for text element:', id);
       onDoubleClick(id);
       setLastClickTime(0); // Reset to prevent triple-taps
       return;
     }
-    setLastClickTime(currentTime);
     
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setDragStart({ x: touch.clientX, y: touch.clientY });
-    setStartPosition(position);
-    onSelect?.(id);
+    // For text elements, delay the drag start to allow for potential double-tap
+    if (isTextElement()) {
+      setTimeout(() => {
+        if (Date.now() - currentTime >= 300) {
+          // No double-tap happened, proceed with single tap behavior
+          setLastClickTime(currentTime);
+          const touch = e.touches[0];
+          setIsDragging(true);
+          setDragStart({ x: touch.clientX, y: touch.clientY });
+          setStartPosition(position);
+          onSelect?.(id);
+        }
+      }, 300);
+    } else {
+      // Non-text elements behave normally
+      setLastClickTime(currentTime);
+      const touch = e.touches[0];
+      setIsDragging(true);
+      setDragStart({ x: touch.clientX, y: touch.clientY });
+      setStartPosition(position);
+      onSelect?.(id);
+    }
     
     e.preventDefault();
     e.stopPropagation();
