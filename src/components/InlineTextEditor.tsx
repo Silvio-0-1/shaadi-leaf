@@ -23,8 +23,10 @@ const InlineTextEditor = ({
 }: InlineTextEditorProps) => {
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const mountTimeRef = useRef<number>(0);
 
   useEffect(() => {
+    mountTimeRef.current = Date.now();
     console.log('🟢 InlineTextEditor mounting and focusing input');
     if (inputRef.current) {
       inputRef.current.focus();
@@ -54,6 +56,12 @@ const InlineTextEditor = ({
   };
 
   const handleBlur = () => {
+    // Prevent immediate blur after mounting
+    const timeSinceMount = Date.now() - mountTimeRef.current;
+    if (timeSinceMount < 100) {
+      console.log('🟡 InlineTextEditor handleBlur ignored - too soon after mount');
+      return;
+    }
     console.log('🔴 InlineTextEditor handleBlur called - this will reset editingElement to null');
     handleSubmit();
   };
