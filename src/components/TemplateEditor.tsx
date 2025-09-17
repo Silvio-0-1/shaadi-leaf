@@ -190,9 +190,9 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
 
   const resetToDefaults = () => {
     onCustomizationChange({ 
+      ...customization,
       fonts: {},
-      fontSizes: {},
-      textColors: {}
+      fontSizes: {}
     });
   };
 
@@ -201,10 +201,10 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
       <div className="text-center mb-6">
         <h2 className="font-serif text-xl font-semibold text-foreground mb-2 flex items-center justify-center gap-2">
           <Type className="h-5 w-5" />
-          Font & Text Styling
+          Font & Size Settings
         </h2>
         <p className="text-muted-foreground text-sm">
-          Customize fonts, sizes, and colors for your wedding card
+          Customize fonts and sizes for your wedding card elements
         </p>
       </div>
 
