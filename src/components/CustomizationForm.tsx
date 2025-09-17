@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Image, Crown, Settings, Video, Type } from 'lucide-react';
-import { WeddingCardData, VideoCardData } from '@/types';
+import { Heart, Image, Crown, Type, Palette } from 'lucide-react';
+import { WeddingCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
 import TemplateEditor from './TemplateEditor';
-import VideoCardCreator from './VideoCardCreator';
+import TextColorEditor from './TextColorEditor';
 import BasicInfoForm from './BasicInfoForm';
 
 interface CustomizationFormProps {
@@ -72,9 +72,9 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
             <Type className="h-4 w-4" />
             <span className="text-xs">Fonts</span>
           </TabsTrigger>
-          <TabsTrigger value="video" className="flex flex-col items-center space-y-1 h-full">
-            <Video className="h-4 w-4" />
-            <span className="text-xs">Video</span>
+          <TabsTrigger value="colors" className="flex flex-col items-center space-y-1 h-full">
+            <Palette className="h-4 w-4" />
+            <span className="text-xs">Colors</span>
           </TabsTrigger>
         </TabsList>
 
@@ -112,10 +112,11 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
           />
         </TabsContent>
 
-        <TabsContent value="video" className="space-y-6">
-          <VideoCardCreator
-            cardData={cardData as VideoCardData}
-            onDataChange={onDataChange}
+        <TabsContent value="colors" className="space-y-6">
+          <TextColorEditor
+            customization={cardData.customization || {}}
+            onCustomizationChange={handleCustomizationChange}
+            templateId={cardData.templateId}
           />
         </TabsContent>
       </Tabs>

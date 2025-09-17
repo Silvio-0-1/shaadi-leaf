@@ -137,7 +137,7 @@ const ObjectToolbar = ({
     },
     {
       id: 'reset',
-      label: 'Reset',
+      label: 'Reset Positions',
       icon: RotateCcw,
       onClick: onReset,
       disabled: false
@@ -146,27 +146,6 @@ const ObjectToolbar = ({
 
   // Element actions
   const elementActions = [
-    {
-      id: 'duplicate',
-      label: 'Copy',
-      icon: Copy,
-      onClick: onDuplicate,
-      disabled: !hasSelection || isElementLocked
-    },
-    {
-      id: 'bring-forward',
-      label: 'Bring Forward',
-      icon: ArrowUp,
-      onClick: onBringForward,
-      disabled: !hasSelection || isElementLocked
-    },
-    {
-      id: 'send-backward',
-      label: 'Send Backward', 
-      icon: ArrowDown,
-      onClick: onSendBackward,
-      disabled: !hasSelection || isElementLocked
-    },
     {
       id: 'toggle-lock',
       label: isElementLocked ? 'Unlock' : 'Lock',
@@ -280,51 +259,49 @@ const ObjectToolbar = ({
         </div>
 
         {/* Font Controls for Text Elements */}
-        {isTextElement && !isElementLocked && fontSize && fontFamily && (
-          <div className="flex items-center gap-2">
-            {/* Font Family */}
-            <div className="flex items-center gap-1">
-              <Type className="h-4 w-4 text-muted-foreground" />
-              <Select 
-                value={fontFamily} 
-                onValueChange={onFontFamilyChange}
-                disabled={!hasSelection}
-              >
-                <SelectTrigger className="h-9 text-sm w-36 bg-background hover:bg-accent">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="max-h-40 bg-background border border-border">
-                  {fontOptions.map((font) => (
-                    <SelectItem key={font} value={font} className="text-sm" style={{ fontFamily: font }}>
-                      {font}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Font Size */}
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-muted-foreground font-medium">Size</span>
-              <Select 
-                value={fontSize?.toString()} 
-                onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
-                disabled={!hasSelection}
-              >
-                <SelectTrigger className="h-9 text-sm w-20 bg-background hover:bg-accent">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-border">
-                  {[10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 64, 68, 72, 80, 88, 96].map((size) => (
-                    <SelectItem key={size} value={size.toString()} className="text-sm">
-                      {size}px
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex items-center gap-2">
+          {/* Font Family */}
+          <div className="flex items-center gap-1">
+            <Type className="h-4 w-4 text-muted-foreground" />
+            <Select 
+              value={fontFamily || 'Playfair Display'} 
+              onValueChange={onFontFamilyChange}
+              disabled={!hasSelection || !isTextElement || isElementLocked}
+            >
+              <SelectTrigger className="h-9 text-sm w-36 bg-background hover:bg-accent">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="max-h-40 bg-background border border-border">
+                {fontOptions.map((font) => (
+                  <SelectItem key={font} value={font} className="text-sm" style={{ fontFamily: font }}>
+                    {font}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
+
+          {/* Font Size */}
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-muted-foreground font-medium">Size</span>
+            <Select 
+              value={fontSize?.toString() || '16'} 
+              onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
+              disabled={!hasSelection || !isTextElement || isElementLocked}
+            >
+              <SelectTrigger className="h-9 text-sm w-20 bg-background hover:bg-accent">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-background border border-border">
+                {[10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 64, 68, 72, 80, 88, 96].map((size) => (
+                  <SelectItem key={size} value={size.toString()} className="text-sm">
+                    {size}px
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       {/* Line 3: Selection Status */}

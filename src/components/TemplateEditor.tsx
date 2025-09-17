@@ -208,249 +208,281 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="fonts" className="flex items-center gap-2">
-            <Type className="h-4 w-4" />
-            Fonts & Sizes
-          </TabsTrigger>
-          <TabsTrigger value="colors" className="flex items-center gap-2">
-            <Palette className="h-4 w-4" />
-            Text Colors
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="fonts" className="space-y-6">
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <Label>Bride & Groom Names</Label>
-              <div className="space-y-2">
-                <Select 
-                  value={customization.fonts?.heading || 'Playfair Display'} 
-                  onValueChange={(value) => updateFonts('heading', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select font for names" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {fontOptions.map((font) => (
-                      <SelectItem key={font} value={font} style={{ fontFamily: font }}>
-                        {font}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Font Size</span>
-                    <span>{customization.fontSizes?.headingSize || 32}px</span>
-                  </div>
-                  <Slider
-                    value={[customization.fontSizes?.headingSize || 32]}
-                    onValueChange={(value) => updateFontSize('headingSize', value[0])}
-                    min={16}
-                    max={72}
-                    step={2}
-                  />
+      <div className="space-y-6">
+          <div className="space-y-3">
+            <Label>Bride & Groom Names</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.heading || 'Playfair Display'} 
+                onValueChange={(value) => updateFonts('heading', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for names" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.headingSize || 32}px</span>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Wedding Date</Label>
-              <div className="space-y-2">
-                <Select 
-                  value={customization.fonts?.date || customization.fonts?.body || 'Inter'} 
-                  onValueChange={(value) => updateFonts('date', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select font for date" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {fontOptions.map((font) => (
-                      <SelectItem key={font} value={font} style={{ fontFamily: font }}>
-                        {font}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Font Size</span>
-                    <span>{customization.fontSizes?.dateSize || 24}px</span>
-                  </div>
-                  <Slider
-                    value={[customization.fontSizes?.dateSize || 24]}
-                    onValueChange={(value) => updateFontSize('dateSize', value[0])}
-                    min={12}
-                    max={48}
-                    step={2}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Venue</Label>
-              <div className="space-y-2">
-                <Select 
-                  value={customization.fonts?.venue || customization.fonts?.body || 'Inter'} 
-                  onValueChange={(value) => updateFonts('venue', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select font for venue" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {fontOptions.map((font) => (
-                      <SelectItem key={font} value={font} style={{ fontFamily: font }}>
-                        {font}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Font Size</span>
-                    <span>{customization.fontSizes?.venueSize || 20}px</span>
-                  </div>
-                  <Slider
-                    value={[customization.fontSizes?.venueSize || 20]}
-                    onValueChange={(value) => updateFontSize('venueSize', value[0])}
-                    min={12}
-                    max={40}
-                    step={2}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Personal Message</Label>
-              <div className="space-y-2">
-                <Select 
-                  value={customization.fonts?.message || customization.fonts?.body || 'Inter'} 
-                  onValueChange={(value) => updateFonts('message', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select font for message" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {fontOptions.map((font) => (
-                      <SelectItem key={font} value={font} style={{ fontFamily: font }}>
-                        {font}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Font Size</span>
-                    <span>{customization.fontSizes?.messageSize || 16}px</span>
-                  </div>
-                  <Slider
-                    value={[customization.fontSizes?.messageSize || 16]}
-                    onValueChange={(value) => updateFontSize('messageSize', value[0])}
-                    min={12}
-                    max={32}
-                    step={1}
-                  />
-                </div>
+                <Slider
+                  value={[customization.fontSizes?.headingSize || 32]}
+                  onValueChange={(value) => updateFontSize('headingSize', value[0])}
+                  min={16}
+                  max={72}
+                  step={2}
+                />
               </div>
             </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="colors" className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Palette className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium">Text Color Settings</h3>
-            </div>
-            
-            <div className="space-y-4">
-              {/* Bride Name Color */}
-              <div className="space-y-2">
-                <Label>Bride Name Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={getEffectiveColor('brideName')}
-                    onChange={(e) => updateTextColor('brideName', e.target.value)}
-                    className="w-12 h-8 rounded border border-input cursor-pointer"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {getEffectiveColor('brideName')}
-                  </span>
+          <div className="space-y-3">
+            <Label>Wedding Date</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.date || customization.fonts?.body || 'Inter'} 
+                onValueChange={(value) => updateFonts('date', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for date" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.dateSize || 24}px</span>
                 </div>
-              </div>
-
-              {/* Groom Name Color */}
-              <div className="space-y-2">
-                <Label>Groom Name Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={getEffectiveColor('groomName')}
-                    onChange={(e) => updateTextColor('groomName', e.target.value)}
-                    className="w-12 h-8 rounded border border-input cursor-pointer"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {getEffectiveColor('groomName')}
-                  </span>
-                </div>
-              </div>
-
-              {/* Date Color */}
-              <div className="space-y-2">
-                <Label>Wedding Date Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={getEffectiveColor('date')}
-                    onChange={(e) => updateTextColor('date', e.target.value)}
-                    className="w-12 h-8 rounded border border-input cursor-pointer"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {getEffectiveColor('date')}
-                  </span>
-                </div>
-              </div>
-
-              {/* Venue Color */}
-              <div className="space-y-2">
-                <Label>Venue Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={getEffectiveColor('venue')}
-                    onChange={(e) => updateTextColor('venue', e.target.value)}
-                    className="w-12 h-8 rounded border border-input cursor-pointer"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {getEffectiveColor('venue')}
-                  </span>
-                </div>
-              </div>
-
-              {/* Message Color */}
-              <div className="space-y-2">
-                <Label>Personal Message Color</Label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={getEffectiveColor('message')}
-                    onChange={(e) => updateTextColor('message', e.target.value)}
-                    className="w-12 h-8 rounded border border-input cursor-pointer"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {getEffectiveColor('message')}
-                  </span>
-                </div>
+                <Slider
+                  value={[customization.fontSizes?.dateSize || 24]}
+                  onValueChange={(value) => updateFontSize('dateSize', value[0])}
+                  min={12}
+                  max={48}
+                  step={2}
+                />
               </div>
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+
+          <div className="space-y-3">
+            <Label>Venue</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.venue || customization.fonts?.body || 'Inter'} 
+                onValueChange={(value) => updateFonts('venue', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for venue" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.venueSize || 20}px</span>
+                </div>
+                <Slider
+                  value={[customization.fontSizes?.venueSize || 20]}
+                  onValueChange={(value) => updateFontSize('venueSize', value[0])}
+                  min={12}
+                  max={40}
+                  step={2}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Personal Message</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.message || customization.fonts?.body || 'Inter'} 
+                onValueChange={(value) => updateFonts('message', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for message" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.messageSize || 16}px</span>
+                </div>
+                <Slider
+                  value={[customization.fontSizes?.messageSize || 16]}
+                  onValueChange={(value) => updateFontSize('messageSize', value[0])}
+                  min={12}
+                  max={32}
+                  step={1}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Label>Bride & Groom Names</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.heading || 'Playfair Display'} 
+                onValueChange={(value) => updateFonts('heading', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for names" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.headingSize || 32}px</span>
+                </div>
+                <Slider
+                  value={[customization.fontSizes?.headingSize || 32]}
+                  onValueChange={(value) => updateFontSize('headingSize', value[0])}
+                  min={16}
+                  max={72}
+                  step={2}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Wedding Date</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.date || customization.fonts?.body || 'Inter'} 
+                onValueChange={(value) => updateFonts('date', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for date" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.dateSize || 24}px</span>
+                </div>
+                <Slider
+                  value={[customization.fontSizes?.dateSize || 24]}
+                  onValueChange={(value) => updateFontSize('dateSize', value[0])}
+                  min={12}
+                  max={48}
+                  step={2}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Venue</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.venue || customization.fonts?.body || 'Inter'} 
+                onValueChange={(value) => updateFonts('venue', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for venue" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.venueSize || 20}px</span>
+                </div>
+                <Slider
+                  value={[customization.fontSizes?.venueSize || 20]}
+                  onValueChange={(value) => updateFontSize('venueSize', value[0])}
+                  min={12}
+                  max={40}
+                  step={2}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Personal Message</Label>
+            <div className="space-y-2">
+              <Select 
+                value={customization.fonts?.message || customization.fonts?.body || 'Inter'} 
+                onValueChange={(value) => updateFonts('message', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select font for message" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {fontOptions.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Font Size</span>
+                  <span>{customization.fontSizes?.messageSize || 16}px</span>
+                </div>
+                <Slider
+                  value={[customization.fontSizes?.messageSize || 16]}
+                  onValueChange={(value) => updateFontSize('messageSize', value[0])}
+                  min={12}
+                  max={32}
+                  step={1}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
       {/* Reset Button */}
       <div className="mt-6 pt-4 border-t">
