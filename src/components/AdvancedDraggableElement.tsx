@@ -377,26 +377,6 @@ const AdvancedDraggableElement = ({
     calculateRotation, isTextElement, fontSize
   ]);
 
-  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
-    console.log('🟡 AdvancedDraggableElement handleClick:', id, 'isSelected:', isSelected);
-    e.stopPropagation(); // Prevent card onClick from firing
-    
-    // Handle double-click for text elements
-    const currentTime = Date.now();
-    if (isTextElement() && onDoubleClick && currentTime - lastClickTime < 300) {
-      console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id);
-      onDoubleClick(id);
-      setLastClickTime(0); // Reset to prevent triple-clicks
-      return;
-    }
-    setLastClickTime(currentTime);
-    
-    if (!isSelected) {
-      console.log('🟢 AdvancedDraggableElement calling onSelect for:', id);
-      onSelect?.(id);
-    }
-  };
-
   const handleMouseDown = (e: React.MouseEvent) => {
     console.log('🟠 AdvancedDraggableElement handleMouseDown:', id, 'isSelected:', isSelected);
     e.stopPropagation(); // Prevent card onClick from firing
@@ -668,7 +648,6 @@ const AdvancedDraggableElement = ({
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
-        onClick={handleClick}
         data-draggable-element={id}
       >
         <div 
