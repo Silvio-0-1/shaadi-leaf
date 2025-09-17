@@ -233,10 +233,7 @@ export const TextElementBorder = ({
         {isSelected && !isLocked && (
           <div className="absolute -inset-1 pointer-events-none">
             <div className="absolute inset-0 border-2 border-blue-400/60 rounded animate-pulse" />
-            <div className="absolute -top-2 -left-2 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow-lg" />
-            <div className="absolute -top-2 -right-2 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow-lg" />
-            <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow-lg" />
-            <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow-lg" />
+            {/* Visual corners only - actual resize handles are in AdvancedDraggableElement */}
           </div>
         )}
 
