@@ -815,7 +815,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             canRedo={historyIndex < history.length - 1}
             onUndo={undo}
             onRedo={redo}
-            onReset={reset}
+            onReset={reset positions}
             showGridlines={showGridlines}
             onToggleGridlines={() => setShowGridlines(!showGridlines)}
             snapToGrid={snapToGrid}
