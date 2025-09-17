@@ -198,16 +198,6 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
 
   return (
     <Card className="p-6">
-      <div className="text-center mb-6">
-        <h2 className="font-serif text-xl font-semibold text-foreground mb-2 flex items-center justify-center gap-2">
-          <Type className="h-5 w-5" />
-          Font & Size Settings
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          Customize fonts and sizes for your wedding card elements
-        </p>
-      </div>
-
       <div className="space-y-6">
         <div className="space-y-3">
           <Label>Bride & Groom Names</Label>
