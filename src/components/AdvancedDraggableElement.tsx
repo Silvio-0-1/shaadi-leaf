@@ -394,12 +394,12 @@ const AdvancedDraggableElement = ({
     e.stopPropagation(); // Prevent card onClick from firing
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
-    // Handle double-click for text elements - only trigger on actual double click
+    // Handle double-click for text elements
     const currentTime = Date.now();
     const timeDiff = currentTime - lastClickTime;
     
-    if (isTextElement() && onDoubleClick && timeDiff < 300 && timeDiff > 50) {
-      console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id);
+    if (isTextElement() && onDoubleClick && lastClickTime > 0 && timeDiff < 300) {
+      console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id, 'timeDiff:', timeDiff);
       onDoubleClick(id);
       setLastClickTime(0); // Reset to prevent triple-clicks
       return;
@@ -434,12 +434,12 @@ const AdvancedDraggableElement = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
-    // Handle double-tap for text elements - only trigger on actual double tap
+    // Handle double-tap for text elements
     const currentTime = Date.now();
     const timeDiff = currentTime - lastClickTime;
     
-    if (isTextElement() && onDoubleClick && timeDiff < 300 && timeDiff > 50) {
-      console.log('🟢 AdvancedDraggableElement double-tap detected for text element:', id);
+    if (isTextElement() && onDoubleClick && lastClickTime > 0 && timeDiff < 300) {
+      console.log('🟢 AdvancedDraggableElement double-tap detected for text element:', id, 'timeDiff:', timeDiff);
       onDoubleClick(id);
       setLastClickTime(0); // Reset to prevent triple-taps
       return;
