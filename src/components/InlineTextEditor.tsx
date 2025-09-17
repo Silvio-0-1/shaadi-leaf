@@ -28,10 +28,16 @@ const InlineTextEditor = ({
   useEffect(() => {
     mountTimeRef.current = Date.now();
     console.log('🟢 InlineTextEditor mounting and focusing input');
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
+    // Use setTimeout to ensure the DOM is fully rendered before focusing
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+        console.log('🟢 InlineTextEditor input focused successfully');
+      }
+    }, 50);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = useCallback(() => {
@@ -55,21 +61,32 @@ const InlineTextEditor = ({
     }
   };
 
-  const handleBlur = () => {
-    // Prevent immediate blur after mounting
+  const handleBlur = (e: React.FocusEvent) => {
+    // Prevent immediate blur after mounting, but allow normal blur after user interaction
     const timeSinceMount = Date.now() - mountTimeRef.current;
-    if (timeSinceMount < 100) {
+    if (timeSinceMount < 200) {
       console.log('🟡 InlineTextEditor handleBlur ignored - too soon after mount');
+      // Re-focus the input if it lost focus too early
+      if (inputRef.current) {
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.focus();
+          }
+        }, 10);
+      }
       return;
     }
-    console.log('🔴 InlineTextEditor handleBlur called - this will reset editingElement to null');
+    console.log('🔴 InlineTextEditor handleBlur called - submitting and closing editor');
     handleSubmit();
   };
 
   const commonProps = {
     ref: inputRef as any,
     value: editValue,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setEditValue(e.target.value),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      console.log('🟢 InlineTextEditor onChange:', e.target.value);
+      setEditValue(e.target.value);
+    },
     onKeyDown: handleKeyDown,
     onBlur: handleBlur,
     className: `border-2 border-primary bg-white/95 backdrop-blur-sm ${className}`,
@@ -81,8 +98,10 @@ const InlineTextEditor = ({
       color: 'inherit',
       textAlign: 'inherit' as any,
       lineHeight: 'inherit',
+      zIndex: 9999, // Ensure it's on top
     },
-    placeholder: placeholder || value
+    placeholder: placeholder || value,
+    autoFocus: true
   };
 
   if (isMultiline) {
