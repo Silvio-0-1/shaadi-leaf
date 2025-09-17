@@ -1027,12 +1027,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onDoubleClick={handleDoubleClick}
           >
             <div 
-              className="w-full h-full flex items-center justify-center p-2"
+              className="w-full h-full flex items-center justify-center"
               data-draggable-element="brideName"
-              style={{
-                fontSize: 'clamp(12px, 4vw, 48px)', // Responsive font size that scales with container
-                minHeight: '100%',
-              }}
             >
               {editingElement === 'brideName' ? (
                 <InlineTextEditor
@@ -1048,11 +1044,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 />
               ) : (
                 <h1 
-                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer w-full"
+                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer"
                   style={{ 
                     color: getTextColor('brideName'),
                     fontFamily: getFontFamily('heading'),
-                    fontSize: `max(16px, min(48px, ${Math.round((elementFontSizes.brideName || 36) + ((elementSizes?.brideName?.width || 200) - 200) * 0.2)}px))`
+                    fontSize: `${elementFontSizes.brideName || 36}px`
                   }}
                 >
                   {cardData.brideName || 'Bride\'s Name'}
