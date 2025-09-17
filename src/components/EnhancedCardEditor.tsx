@@ -1124,7 +1124,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               className="w-full h-full flex items-center justify-center"
               data-draggable-element="groomName"
             >
-              {editingElement === 'groomName' ? (
+              {(() => {
+                console.log('🔍 Rendering groomName - editingElement:', editingElement, 'condition result:', editingElement === 'groomName');
+                return editingElement === 'groomName';
+              })() ? (
                 <InlineTextEditor
                   value={cardData.groomName || 'Groom\'s Name'}
                   onChange={(value) => handleTextChange('groomName', value)}
