@@ -392,7 +392,16 @@ const AdvancedDraggableElement = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     console.log('🟠 AdvancedDraggableElement handleMouseDown:', id, 'isSelected:', isSelected);
     e.stopPropagation(); // Prevent card onClick from firing
-    if (!containerRef.current || isResizing || isRotating || isLocked) return;
+    if (!containerRef.current || isResizing || isRotating) return;
+    
+    // Allow selection even when locked so users can access the unlock button
+    if (isLocked) {
+      if (!isSelected) {
+        console.log('🟢 AdvancedDraggableElement calling onSelect for locked element:', id);
+        onSelect?.(id);
+      }
+      return;
+    }
     
     // Handle double-click for text elements
     const currentTime = Date.now();
@@ -433,7 +442,16 @@ const AdvancedDraggableElement = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!containerRef.current || isResizing || isRotating || isLocked) return;
+    if (!containerRef.current || isResizing || isRotating) return;
+    
+    // Allow selection even when locked so users can access the unlock button
+    if (isLocked) {
+      if (!isSelected) {
+        console.log('🟢 AdvancedDraggableElement calling onSelect for locked element (touch):', id);
+        onSelect?.(id);
+      }
+      return;
+    }
     
     // Handle double-tap for text elements
     const currentTime = Date.now();
