@@ -260,6 +260,27 @@ export const TextElementBorder = ({
                   onMouseDown={(e) => onResizeMouseDown(e, 'se')}
                   onTouchStart={(e) => onResizeTouchStart(e, 'se')}
                 />
+                {/* Side resize handles */}
+                <div 
+                  className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-n-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'n')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'n')}
+                />
+                <div 
+                  className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-s-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 's')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 's')}
+                />
+                <div 
+                  className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-w-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'w')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'w')}
+                />
+                <div 
+                  className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-e-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'e')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'e')}
+                />
               </>
             )}
           </div>

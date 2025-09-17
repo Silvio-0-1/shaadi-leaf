@@ -266,13 +266,32 @@ const AdvancedDraggableElement = ({
           // For text elements, resize affects font size
           const handle = resizeHandles.find(h => h.direction === resizeDirection);
           
-          if (handle && handle.proportional) { // Only for corner handles
-            // Use the diagonal distance for more intuitive resizing
-            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            const direction = deltaX + deltaY > 0 ? 1 : -1;
+          if (handle) {
+            let scaleFactor = 0;
             
-            // Scale factor based on distance moved
-            const scaleFactor = direction * distance * 0.1; // Adjust sensitivity
+            if (handle.proportional) {
+              // Corner handles - use diagonal distance for more intuitive resizing
+              const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+              const direction = deltaX + deltaY > 0 ? 1 : -1;
+              scaleFactor = direction * distance * 0.1; // Adjust sensitivity
+            } else {
+              // Side handles - use direction-specific resizing
+              switch (resizeDirection) {
+                case 'e':
+                  scaleFactor = deltaX * 0.15; // Right side - positive deltaX increases size
+                  break;
+                case 'w':
+                  scaleFactor = -deltaX * 0.15; // Left side - negative deltaX increases size  
+                  break;
+                case 's':
+                  scaleFactor = deltaY * 0.15; // Bottom side - positive deltaY increases size
+                  break;
+                case 'n':
+                  scaleFactor = -deltaY * 0.15; // Top side - negative deltaY increases size
+                  break;
+              }
+            }
+            
             let newFontSize = startFontSize + scaleFactor;
             
             // Apply font size constraints
