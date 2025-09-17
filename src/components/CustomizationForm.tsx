@@ -55,26 +55,22 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 h-12">
+        <TabsList className="grid w-full grid-cols-4 h-12">
           <TabsTrigger value="basic" className="flex flex-col items-center space-y-1 h-full">
             <Heart className="h-4 w-4" />
-            <span className="text-xs">Basic</span>
+            <span className="text-xs">Basic Info</span>
           </TabsTrigger>
           <TabsTrigger value="photos" className="flex flex-col items-center space-y-1 h-full">
             <Image className="h-4 w-4" />
             <span className="text-xs">Photos</span>
           </TabsTrigger>
-          <TabsTrigger value="logo" className="flex flex-col items-center space-y-1 h-full">
-            <Crown className="h-4 w-4" />
-            <span className="text-xs">Logo</span>
-          </TabsTrigger>
           <TabsTrigger value="design" className="flex flex-col items-center space-y-1 h-full">
             <Type className="h-4 w-4" />
-            <span className="text-xs">Fonts</span>
+            <span className="text-xs">Text Fonts</span>
           </TabsTrigger>
           <TabsTrigger value="colors" className="flex flex-col items-center space-y-1 h-full">
             <Palette className="h-4 w-4" />
-            <span className="text-xs">Colors</span>
+            <span className="text-xs">Text Colors</span>
           </TabsTrigger>
         </TabsList>
 
@@ -95,13 +91,14 @@ const CustomizationForm = ({ cardData, onDataChange }: CustomizationFormProps) =
             photoShape={cardData.customization?.photoShape || 'rounded'}
             onPhotoShapeChange={handlePhotoShapeChange}
           />
-        </TabsContent>
-
-        <TabsContent value="logo" className="space-y-6">
-          <LogoUpload
-            logo={cardData.logoImage}
-            onLogoChange={handleLogoChange}
-          />
+          
+          {/* Logo Upload Section */}
+          <div className="border-t pt-6">
+            <LogoUpload
+              logo={cardData.logoImage}
+              onLogoChange={handleLogoChange}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="design" className="space-y-6">
