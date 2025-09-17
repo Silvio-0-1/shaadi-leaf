@@ -10,6 +10,8 @@ interface TextElementBorderProps {
   isRotating: boolean;
   borderConfig?: TextBorderConfiguration;
   className?: string;
+  onResizeMouseDown?: (e: React.MouseEvent, direction: string) => void;
+  onResizeTouchStart?: (e: React.TouchEvent, direction: string) => void;
 }
 
 export const TextElementBorder = ({
@@ -20,7 +22,9 @@ export const TextElementBorder = ({
   isResizing,
   isRotating,
   borderConfig,
-  className = ''
+  className = '',
+  onResizeMouseDown,
+  onResizeTouchStart
 }: TextElementBorderProps) => {
   
   // Generate CSS styles for the text border
@@ -229,11 +233,35 @@ export const TextElementBorder = ({
         
         {children}
         
-        {/* Enhanced selection indicator for text */}
+        {/* Enhanced selection indicator for text with interactive corners */}
         {isSelected && !isLocked && (
-          <div className="absolute -inset-1 pointer-events-none">
-            <div className="absolute inset-0 border-2 border-blue-400/60 rounded animate-pulse" />
-            {/* Visual corners only - actual resize handles are in AdvancedDraggableElement */}
+          <div className="absolute -inset-1">
+            <div className="absolute inset-0 border-2 border-blue-400/60 rounded animate-pulse pointer-events-none" />
+            {/* Interactive corner resize handles */}
+            {onResizeMouseDown && onResizeTouchStart && (
+              <>
+                <div 
+                  className="absolute -top-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-nw-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'nw')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'nw')}
+                />
+                <div 
+                  className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-ne-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'ne')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'ne')}
+                />
+                <div 
+                  className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-sw-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'sw')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'sw')}
+                />
+                <div 
+                  className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-se-resize hover:scale-125 transition-all duration-200 z-50"
+                  onMouseDown={(e) => onResizeMouseDown(e, 'se')}
+                  onTouchStart={(e) => onResizeTouchStart(e, 'se')}
+                />
+              </>
+            )}
           </div>
         )}
 

@@ -599,6 +599,8 @@ const AdvancedDraggableElement = ({
               isResizing={isResizing}
               isRotating={isRotating}
               borderConfig={textBorderConfig}
+              onResizeMouseDown={handleResizeMouseDown}
+              onResizeTouchStart={handleResizeTouchStart}
             >
               {children}
             </TextElementBorder>
@@ -628,35 +630,26 @@ const AdvancedDraggableElement = ({
             </div>
           )}
           
-          {/* Resize Handles */}
-          {resizable && isSelected && !isLocked && (
+          {/* Resize Handles - only for photo elements (text elements use TextElementBorder) */}
+          {resizable && isSelected && !isLocked && !isTextElement() && (
             <>
-              {resizeHandles
-                .filter((handle) => {
-                  // Text elements: only show corner handles
-                  if (isTextElement()) {
-                    return handle.proportional; // Only corner handles for text
-                  }
-                  // Photo elements: show all handles
-                  return true;
-                })
-                .map((handle) => (
-                  <div
-                    key={handle.direction}
-                    className={`absolute ${
-                      handle.proportional 
-                        ? `${isMobile ? 'w-5 h-5' : 'w-4 h-4'} bg-primary border-2 border-white rounded-full` 
-                        : `${isMobile ? 'w-4 h-3' : 'w-3 h-2'} bg-primary border border-white rounded-sm`
-                    } shadow-lg opacity-100 hover:scale-125 transition-all duration-200 flex items-center justify-center z-50 ${handle.position}`}
-                    style={{ cursor: handle.cursor, touchAction: 'none' }}
-                    onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
-                    onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
-                  >
-                    {handle.proportional && (
-                      <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                    )}
-                  </div>
-                ))}
+              {resizeHandles.map((handle) => (
+                <div
+                  key={handle.direction}
+                  className={`absolute ${
+                    handle.proportional 
+                      ? `${isMobile ? 'w-5 h-5' : 'w-4 h-4'} bg-primary border-2 border-white rounded-full` 
+                      : `${isMobile ? 'w-4 h-3' : 'w-3 h-2'} bg-primary border border-white rounded-sm`
+                  } shadow-lg opacity-100 hover:scale-125 transition-all duration-200 flex items-center justify-center z-50 ${handle.position}`}
+                  style={{ cursor: handle.cursor, touchAction: 'none' }}
+                  onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
+                  onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
+                >
+                  {handle.proportional && (
+                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                  )}
+                </div>
+              ))}
             </>
           )}
         </div>
