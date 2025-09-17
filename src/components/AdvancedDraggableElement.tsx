@@ -210,6 +210,18 @@ const AdvancedDraggableElement = ({
     }
 
     animationFrameRef.current = requestAnimationFrame(() => {
+      // For text elements, only start dragging if there's significant movement
+      if (!isDragging && isTextElement() && dragStart.x !== 0 && dragStart.y !== 0) {
+        const deltaX = clientX - dragStart.x;
+        const deltaY = clientY - dragStart.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Start dragging if moved more than 5 pixels
+        if (distance > 5) {
+          setIsDragging(true);
+        }
+      }
+      
       if (isDragging && !isLocked) {
         const containerRect = containerRef.current!.getBoundingClientRect();
         const deltaX = clientX - dragStart.x;
@@ -393,24 +405,19 @@ const AdvancedDraggableElement = ({
       return;
     }
     
-    // For text elements, delay the drag start to allow for potential double-click
+    setLastClickTime(currentTime);
+    
+    // For text elements, just select on single click - don't start dragging
     if (isTextElement()) {
-      setTimeout(() => {
-        if (Date.now() - currentTime >= 300) {
-          // No double-click happened, proceed with single click behavior
-          setLastClickTime(currentTime);
-          setIsDragging(true);
-          setDragStart({ x: e.clientX, y: e.clientY });
-          setStartPosition(position);
-          if (!isSelected) {
-            console.log('🟢 AdvancedDraggableElement calling onSelect from delayed single click:', id);
-            onSelect?.(id);
-          }
-        }
-      }, 300);
+      if (!isSelected) {
+        console.log('🟢 AdvancedDraggableElement calling onSelect for text element:', id);
+        onSelect?.(id);
+      }
+      // Store drag start info but don't set dragging state yet
+      setDragStart({ x: e.clientX, y: e.clientY });
+      setStartPosition(position);
     } else {
       // Non-text elements behave normally
-      setLastClickTime(currentTime);
       setIsDragging(true);
       setDragStart({ x: e.clientX, y: e.clientY });
       setStartPosition(position);
@@ -438,22 +445,16 @@ const AdvancedDraggableElement = ({
       return;
     }
     
-    // For text elements, delay the drag start to allow for potential double-tap
+    setLastClickTime(currentTime);
+    
+    // For text elements, just select on single tap - don't start dragging
     if (isTextElement()) {
-      setTimeout(() => {
-        if (Date.now() - currentTime >= 300) {
-          // No double-tap happened, proceed with single tap behavior
-          setLastClickTime(currentTime);
-          const touch = e.touches[0];
-          setIsDragging(true);
-          setDragStart({ x: touch.clientX, y: touch.clientY });
-          setStartPosition(position);
-          onSelect?.(id);
-        }
-      }, 300);
+      onSelect?.(id);
+      const touch = e.touches[0];
+      setDragStart({ x: touch.clientX, y: touch.clientY });
+      setStartPosition(position);
     } else {
       // Non-text elements behave normally
-      setLastClickTime(currentTime);
       const touch = e.touches[0];
       setIsDragging(true);
       setDragStart({ x: touch.clientX, y: touch.clientY });
@@ -536,6 +537,8 @@ const AdvancedDraggableElement = ({
     setResizeDirection('');
     setAlignmentGuides([]);
     setShowRotationIndicator(false);
+    // Reset drag start for text elements
+    setDragStart({ x: 0, y: 0 });
     
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -543,9 +546,9 @@ const AdvancedDraggableElement = ({
     }
   };
 
-  // Global event listeners
+  // Global event listeners - also listen for text element movement detection
   useEffect(() => {
-    if (isDragging || isResizing || isRotating) {
+    if (isDragging || isResizing || isRotating || (isTextElement() && dragStart.x !== 0 && dragStart.y !== 0)) {
       const handleGlobalMouseMove = (e: MouseEvent) => handleMouseMove(e);
       const handleGlobalTouchMove = (e: TouchEvent) => handleTouchMove(e);
       const handleGlobalMouseUp = () => handleMouseUp();
@@ -562,7 +565,7 @@ const AdvancedDraggableElement = ({
         document.removeEventListener('touchend', handleGlobalMouseUp);
       };
     }
-  }, [isDragging, isResizing, isRotating]);
+  }, [isDragging, isResizing, isRotating, dragStart.x, dragStart.y, isTextElement]);
 
   // Cleanup animation frame on unmount
   useEffect(() => {
