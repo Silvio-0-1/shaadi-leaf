@@ -25,6 +25,7 @@ const InlineTextEditor = ({
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    console.log('🟢 InlineTextEditor mounting and focusing input');
     if (inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
@@ -53,6 +54,7 @@ const InlineTextEditor = ({
   };
 
   const handleBlur = () => {
+    console.log('🔴 InlineTextEditor handleBlur called - this will reset editingElement to null');
     handleSubmit();
   };
 
