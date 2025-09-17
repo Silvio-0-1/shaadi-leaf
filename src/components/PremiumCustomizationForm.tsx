@@ -4,12 +4,12 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Heart, Image, Crown, Palette, Video, Sparkles, Settings } from 'lucide-react';
-import { WeddingCardData, VideoCardData } from '@/types';
+import { Heart, Image, Palette, Type, Sparkles, Settings } from 'lucide-react';
+import { WeddingCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
 import TemplateEditor from './TemplateEditor';
-import VideoCardCreator from './VideoCardCreator';
+import TextColorEditor from './TextColorEditor';
 import BasicInfoForm from './BasicInfoForm';
 
 interface PremiumCustomizationFormProps {
@@ -63,16 +63,16 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
     },
     {
       id: 'design',
-      label: 'Fonts',
-      icon: Palette,
-      description: 'Fonts & styling',
+      label: 'Text Fonts',
+      icon: Type,
+      description: 'Fonts & sizing',
       color: 'bg-purple-500/10 text-purple-600 border-purple-200'
     },
     {
-      id: 'video',
-      label: 'Video',
-      icon: Video,
-      description: 'Coming soon',
+      id: 'colors',
+      label: 'Text Colors',
+      icon: Palette,
+      description: 'Text colors',
       color: 'bg-green-500/10 text-green-600 border-green-200'
     }
   ];
@@ -83,6 +83,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
     if (cardData.uploadedImages?.length) count++;
     if (cardData.logoImage) count++;
     if (cardData.customization?.fonts) count++;
+    if (cardData.customization?.textColors) count++;
     return count;
   };
 
@@ -125,24 +126,19 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
               const Icon = tab.icon;
               const isCompleted = 
                 (tab.id === 'basic' && (cardData.brideName || cardData.groomName)) ||
-                (tab.id === 'photos' && cardData.uploadedImages?.length) ||
+                (tab.id === 'photos' && (cardData.uploadedImages?.length || cardData.logoImage)) ||
                 (tab.id === 'design' && cardData.customization?.fonts) ||
-                (tab.id === 'video' && false);
-
-              const isVideoTab = tab.id === 'video';
+                (tab.id === 'colors' && cardData.customization?.textColors);
 
               return (
                 <TabsTrigger 
                   key={tab.id}
                   value={tab.id} 
-                  disabled={isVideoTab}
-                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 ${
-                    isVideoTab ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
+                  className="flex flex-col items-center justify-center gap-1 px-2 py-2"
                 >
                   <Icon className="h-4 w-4" />
                   <span className="text-xs font-medium">{tab.label}</span>
-                  {isCompleted && !isVideoTab && (
+                  {isCompleted && (
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                   )}
                 </TabsTrigger>
@@ -163,7 +159,7 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
           </TabsContent>
 
           <TabsContent value="photos" className="space-y-0 mt-0">
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center gap-2 mb-3">
                 <Image className="h-4 w-4 text-blue-500" />
                 <h3 className="font-medium">Photo Gallery</h3>
@@ -176,6 +172,14 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
                 photoShape={cardData.customization?.photoShape || 'rounded'}
                 onPhotoShapeChange={handlePhotoShapeChange}
               />
+              
+              {/* Logo Upload Section */}
+              <div className="border-t pt-6">
+                <LogoUpload
+                  logo={cardData.logoImage}
+                  onLogoChange={handleLogoChange}
+                />
+              </div>
             </div>
           </TabsContent>
 
@@ -183,8 +187,8 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
           <TabsContent value="design" className="space-y-0 mt-0">
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
-                <Palette className="h-4 w-4 text-purple-500" />
-                <h3 className="font-medium">Fonts Customization</h3>
+                <Type className="h-4 w-4 text-purple-500" />
+                <h3 className="font-medium">Text Fonts</h3>
               </div>
               
               <TemplateEditor
@@ -195,27 +199,18 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
             </div>
           </TabsContent>
 
-          <TabsContent value="video" className="space-y-0 mt-0">
-            <div className="space-y-4 relative">
+          <TabsContent value="colors" className="space-y-0 mt-0">
+            <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
-                <Video className="h-4 w-4 text-green-500" />
-                <h3 className="font-medium">Video Features</h3>
-                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
+                <Palette className="h-4 w-4 text-green-500" />
+                <h3 className="font-medium">Text Colors</h3>
               </div>
               
-              <div className="relative">
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/70 z-10 rounded-lg flex items-center justify-center">
-                  <div className="text-center space-y-2 p-6">
-                    <Video className="h-8 w-8 text-muted-foreground mx-auto" />
-                    <h4 className="font-medium">Video Features Coming Soon</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Animated cards and video backgrounds are on the way!
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="blur-sm pointer-events-none h-32 bg-muted/20 rounded-lg"></div>
-              </div>
+              <TextColorEditor
+                customization={cardData.customization || {}}
+                onCustomizationChange={handleCustomizationChange}
+                templateId={cardData.templateId}
+              />
             </div>
           </TabsContent>
         </div>
