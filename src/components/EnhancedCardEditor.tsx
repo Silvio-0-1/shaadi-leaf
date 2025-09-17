@@ -1023,7 +1023,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onDoubleClick={handleDoubleClick}
           >
             <div 
-              onDoubleClick={() => handleDoubleClick('brideName')} 
               className="w-full h-full flex items-center justify-center p-2"
               data-draggable-element="brideName"
               style={{
@@ -1118,7 +1117,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onDoubleClick={handleDoubleClick}
           >
             <div 
-              onDoubleClick={() => handleDoubleClick('groomName')} 
               className="w-full h-full flex items-center justify-center"
               data-draggable-element="groomName"
             >
@@ -1173,7 +1171,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDoubleClick={handleDoubleClick}
             >
               <div 
-                onDoubleClick={() => handleDoubleClick('weddingDate')}
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
                 style={{ color: getTextColor('date') }}
                 data-draggable-element="weddingDate"
@@ -1216,7 +1213,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDoubleClick={handleDoubleClick}
             >
               <div 
-                onDoubleClick={() => handleDoubleClick('venue')} 
                 className="w-full h-full flex items-center justify-center"
                 data-draggable-element="venue"
               >
@@ -1276,7 +1272,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDoubleClick={handleDoubleClick}
             >
               <div 
-                onDoubleClick={() => handleDoubleClick('message')} 
                 className="w-full h-full flex items-center justify-center"
                 data-draggable-element="message"
               >
