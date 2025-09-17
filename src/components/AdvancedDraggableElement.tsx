@@ -32,6 +32,7 @@ interface AdvancedDraggableElementProps {
   fontSize?: number;
   onFontSizeChange?: (elementId: string, fontSize: number) => void;
   textBorderConfig?: TextBorderConfiguration;
+  onDoubleClick?: (elementId: string) => void;
 }
 
 const AdvancedDraggableElement = ({ 
@@ -60,7 +61,8 @@ const AdvancedDraggableElement = ({
   customization,
   fontSize = 16,
   onFontSizeChange,
-  textBorderConfig
+  textBorderConfig,
+  onDoubleClick
 }: AdvancedDraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -76,6 +78,7 @@ const AdvancedDraggableElement = ({
   const [alignmentGuides, setAlignmentGuides] = useState<Array<{ type: 'horizontal' | 'vertical'; position: number }>>([]);
   const [showRotationIndicator, setShowRotationIndicator] = useState(false);
   const [rotationDegrees, setRotationDegrees] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
   
   const elementRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -377,6 +380,17 @@ const AdvancedDraggableElement = ({
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
     console.log('🟡 AdvancedDraggableElement handleClick:', id, 'isSelected:', isSelected);
     e.stopPropagation(); // Prevent card onClick from firing
+    
+    // Handle double-click for text elements
+    const currentTime = Date.now();
+    if (isTextElement() && onDoubleClick && currentTime - lastClickTime < 300) {
+      console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id);
+      onDoubleClick(id);
+      setLastClickTime(0); // Reset to prevent triple-clicks
+      return;
+    }
+    setLastClickTime(currentTime);
+    
     if (!isSelected) {
       console.log('🟢 AdvancedDraggableElement calling onSelect for:', id);
       onSelect?.(id);
@@ -387,6 +401,16 @@ const AdvancedDraggableElement = ({
     console.log('🟠 AdvancedDraggableElement handleMouseDown:', id, 'isSelected:', isSelected);
     e.stopPropagation(); // Prevent card onClick from firing
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
+    
+    // Handle double-click for text elements
+    const currentTime = Date.now();
+    if (isTextElement() && onDoubleClick && currentTime - lastClickTime < 300) {
+      console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id);
+      onDoubleClick(id);
+      setLastClickTime(0); // Reset to prevent triple-clicks
+      return;
+    }
+    setLastClickTime(currentTime);
     
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -402,6 +426,16 @@ const AdvancedDraggableElement = ({
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!containerRef.current || isResizing || isRotating || isLocked) return;
+    
+    // Handle double-tap for text elements
+    const currentTime = Date.now();
+    if (isTextElement() && onDoubleClick && currentTime - lastClickTime < 300) {
+      console.log('🟢 AdvancedDraggableElement double-tap detected for text element:', id);
+      onDoubleClick(id);
+      setLastClickTime(0); // Reset to prevent triple-taps
+      return;
+    }
+    setLastClickTime(currentTime);
     
     const touch = e.touches[0];
     setIsDragging(true);

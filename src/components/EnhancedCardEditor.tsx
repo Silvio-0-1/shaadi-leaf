@@ -1020,6 +1020,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             otherElements={getAllElements()}
             zIndex={elementZIndices.brideName || 30}
             customization={cardData.customization}
+            onDoubleClick={handleDoubleClick}
           >
             <div 
               onDoubleClick={() => handleDoubleClick('brideName')} 
@@ -1114,6 +1115,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             otherElements={getAllElements()}
             zIndex={elementZIndices.groomName || 30}
             customization={cardData.customization}
+            onDoubleClick={handleDoubleClick}
           >
             <div 
               onDoubleClick={() => handleDoubleClick('groomName')} 
@@ -1168,8 +1170,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
               zIndex={elementZIndices.weddingDate || 25}
+              onDoubleClick={handleDoubleClick}
             >
               <div 
+                onDoubleClick={() => handleDoubleClick('weddingDate')}
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
                 style={{ color: getTextColor('date') }}
                 data-draggable-element="weddingDate"
@@ -1209,6 +1213,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               otherElements={getAllElements()}
               zIndex={elementZIndices.venue || 25}
               customization={cardData.customization}
+              onDoubleClick={handleDoubleClick}
             >
               <div 
                 onDoubleClick={() => handleDoubleClick('venue')} 
@@ -1268,6 +1273,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               otherElements={getAllElements()}
               zIndex={elementZIndices.message || 25}
               customization={cardData.customization}
+              onDoubleClick={handleDoubleClick}
             >
               <div 
                 onDoubleClick={() => handleDoubleClick('message')} 
