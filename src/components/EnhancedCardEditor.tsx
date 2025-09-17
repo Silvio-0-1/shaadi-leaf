@@ -308,10 +308,14 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   }, [onDataChange]);
 
   const handleDoubleClick = useCallback((elementId: string) => {
+    console.log('🟡 EnhancedCardEditor handleDoubleClick called for:', elementId, 'current editingElement:', editingElement);
     if (editingElement && editingElement !== elementId) {
+      console.log('🔴 Blocking double-click because another element is being edited');
       return;
     }
-    setEditingElement(editingElement === elementId ? null : elementId);
+    const newEditingElement = editingElement === elementId ? null : elementId;
+    console.log('🟢 Setting editingElement to:', newEditingElement);
+    setEditingElement(newEditingElement);
   }, [editingElement]);
 
   const undo = useCallback(() => {

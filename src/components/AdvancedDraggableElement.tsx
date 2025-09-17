@@ -400,6 +400,7 @@ const AdvancedDraggableElement = ({
     
     if (isTextElement() && onDoubleClick && lastClickTime > 0 && timeDiff < 300) {
       console.log('🟢 AdvancedDraggableElement double-click detected for text element:', id, 'timeDiff:', timeDiff);
+      console.log('🔍 onDoubleClick prop exists:', !!onDoubleClick, 'calling with id:', id);
       onDoubleClick(id);
       setLastClickTime(0); // Reset to prevent triple-clicks
       return;
