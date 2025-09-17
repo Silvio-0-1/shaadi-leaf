@@ -1132,10 +1132,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   value={cardData.groomName || 'Groom\'s Name'}
                   onChange={(value) => handleTextChange('groomName', value)}
                   onComplete={() => setEditingElement(null)}
-                  className="text-4xl font-bold text-center"
+                  className="text-center font-bold w-full"
                   style={{ 
                     color: getTextColor('groomName'),
-                    fontFamily: getFontFamily('heading')
+                    fontFamily: getFontFamily('heading'),
+                    fontSize: 'inherit'
                   }}
                 />
               ) : (
