@@ -95,16 +95,7 @@ const TextColorEditor = ({ customization, onCustomizationChange, templateId }: T
 
   return (
     <Card className="p-6">
-      <div className="text-center mb-6">
-        <h2 className="font-serif text-xl font-semibold text-foreground mb-2 flex items-center justify-center gap-2">
-          <Palette className="h-5 w-5" />
-          Text Colors
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          Customize the colors of your text elements
-        </p>
-      </div>
-
+      
       <div className="space-y-4">
         {/* Bride Name Color */}
         <div className="space-y-2">
