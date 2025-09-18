@@ -21,7 +21,7 @@ import { WeddingCardData, CardElements, ElementPosition, Template } from '@/type
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
 import PremiumDraggableElement from './PremiumDraggableElement';
-import TextDraggableElement from './TextDraggableElement';
+import ResizableTextBox from './ResizableTextBox';
 import InlineTextEditor from './InlineTextEditor';
 
 interface PremiumCardEditorProps {
@@ -111,6 +111,15 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
   const [positions, setPositions] = useState<CardElements>(() => {
     if (initialPositions) return initialPositions;
     return defaultPositions;
+  });
+
+  // State for text element sizes
+  const [textSizes, setTextSizes] = useState<Record<string, { width: number; height: number }>>({
+    brideName: { width: 200, height: 60 },
+    groomName: { width: 200, height: 60 },
+    weddingDate: { width: 180, height: 40 },
+    venue: { width: 220, height: 50 },
+    message: { width: 300, height: 80 }
   });
 
   // Update positions when template loads and has default positions
@@ -225,6 +234,13 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
       return newPositions;
     });
   }, [addToHistory]);
+
+  const handleTextResize = useCallback((elementId: string, size: { width: number; height: number }) => {
+    setTextSizes(prev => ({
+      ...prev,
+      [elementId]: size
+    }));
+  }, []);
 
   const handleTextChange = useCallback((field: keyof WeddingCardData, value: string) => {
     onDataChange?.({ [field]: value });
@@ -594,18 +610,21 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
           )}
 
           {/* Bride's Name */}
-          <TextDraggableElement
+          <ResizableTextBox
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
-            onFontSizeChange={handleFontSizeChange}
+            onResize={handleTextResize}
             containerRef={cardRef}
-            resizable={true}
-            fontSize={getFontSize('brideName')}
-            minFontSize={12}
-            maxFontSize={48}
+            width={textSizes.brideName.width}
+            height={textSizes.brideName.height}
+            minWidth={100}
+            maxWidth={400}
+            minHeight={30}
+            maxHeight={120}
             isSelected={selectedElement === 'brideName'}
             onSelect={setSelectedElement}
+            customization={cardData.customization}
           >
             <div onDoubleClick={() => handleDoubleClick('brideName')}>
               {editingElement === 'brideName' ? (
@@ -622,7 +641,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                 />
               ) : (
                 <h1 
-                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer whitespace-nowrap"
+                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer"
                   style={{ 
                     color: colors.primary,
                     fontFamily: getFontFamily('heading'),
@@ -633,7 +652,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                 </h1>
               )}
             </div>
-          </TextDraggableElement>
+          </ResizableTextBox>
 
           {/* Heart Icon */}
           <PremiumDraggableElement
@@ -662,18 +681,21 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
           </PremiumDraggableElement>
 
           {/* Groom's Name */}
-          <TextDraggableElement
+          <ResizableTextBox
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
-            onFontSizeChange={handleFontSizeChange}
+            onResize={handleTextResize}
             containerRef={cardRef}
-            resizable={true}
-            fontSize={getFontSize('groomName')}
-            minFontSize={12}
-            maxFontSize={48}
+            width={textSizes.groomName.width}
+            height={textSizes.groomName.height}
+            minWidth={100}
+            maxWidth={400}
+            minHeight={30}
+            maxHeight={120}
             isSelected={selectedElement === 'groomName'}
             onSelect={setSelectedElement}
+            customization={cardData.customization}
           >
             <div onDoubleClick={() => handleDoubleClick('groomName')}>
               {editingElement === 'groomName' ? (
@@ -690,7 +712,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                 />
               ) : (
                 <h1 
-                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer whitespace-nowrap"
+                  className="font-bold leading-tight text-center transition-all duration-200 cursor-pointer"
                   style={{ 
                     color: colors.primary,
                     fontFamily: getFontFamily('heading'),
@@ -701,21 +723,24 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                 </h1>
               )}
             </div>
-          </TextDraggableElement>
+          </ResizableTextBox>
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <TextDraggableElement
+            <ResizableTextBox
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
-              onFontSizeChange={handleFontSizeChange}
+              onResize={handleTextResize}
               containerRef={cardRef}
-              resizable={true}
-              fontSize={getFontSize('weddingDate')}
-              minFontSize={10}
-              maxFontSize={24}
+              width={textSizes.weddingDate.width}
+              height={textSizes.weddingDate.height}
+              minWidth={80}
+              maxWidth={300}
+              minHeight={25}
+              maxHeight={80}
               isSelected={selectedElement === 'weddingDate'}
               onSelect={setSelectedElement}
+              customization={cardData.customization}
             >
               <div 
                 className="flex items-center justify-center transition-all duration-200" 
@@ -732,23 +757,26 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </TextDraggableElement>
+            </ResizableTextBox>
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <TextDraggableElement
+            <ResizableTextBox
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
-              onFontSizeChange={handleFontSizeChange}
+              onResize={handleTextResize}
               containerRef={cardRef}
-              resizable={true}
-              fontSize={getFontSize('venue')}
-              minFontSize={10}
-              maxFontSize={24}
+              width={textSizes.venue.width}
+              height={textSizes.venue.height}
+              minWidth={100}
+              maxWidth={350}
+              minHeight={30}
+              maxHeight={100}
               isSelected={selectedElement === 'venue'}
               onSelect={setSelectedElement}
+              customization={cardData.customization}
             >
               <div onDoubleClick={() => handleDoubleClick('venue')}>
                 {editingElement === 'venue' ? (
@@ -781,22 +809,25 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                   </div>
                 )}
               </div>
-            </TextDraggableElement>
+            </ResizableTextBox>
           )}
           {/* Message */}
           {cardData.message && (
-            <TextDraggableElement
+            <ResizableTextBox
               id="message"
               position={positions.message}
               onMove={handleElementMove}
-              onFontSizeChange={handleFontSizeChange}
+              onResize={handleTextResize}
               containerRef={cardRef}
-              resizable={true}
-              fontSize={getFontSize('message')}
-              minFontSize={8}
-              maxFontSize={20}
+              width={textSizes.message.width}
+              height={textSizes.message.height}
+              minWidth={150}
+              maxWidth={400}
+              minHeight={40}
+              maxHeight={150}
               isSelected={selectedElement === 'message'}
               onSelect={setSelectedElement}
+              customization={cardData.customization}
             >
               <div onDoubleClick={() => handleDoubleClick('message')}>
                 {editingElement === 'message' ? (
@@ -825,7 +856,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                   </p>
                 )}
               </div>
-            </TextDraggableElement>
+            </ResizableTextBox>
           )}
         </div>
       </Card>
