@@ -25,27 +25,19 @@ const SnapGuides: React.FC<SnapGuidesProps> = ({ guides, containerSize, snapTool
           <div
             key={guide.id}
             className={`absolute transition-all duration-200 ease-out ${
-              guide.isActive 
-                ? 'bg-blue-400 opacity-80' 
-                : 'bg-blue-300 opacity-40'
-            } ${
-              guide.type === 'horizontal' ? 'h-px w-full' : 'w-px h-full'
+              guide.type === 'horizontal' ? 'h-0.5 w-full' : 'w-0.5 h-full'
             }`}
             style={{
               left: guide.type === 'vertical' ? `${guide.position}px` : 0,
               top: guide.type === 'horizontal' ? `${guide.position}px` : 0,
-              transform: isCanvasCenter 
-                ? guide.type === 'vertical' 
-                  ? 'translateX(-50%)' 
-                  : 'translateY(-50%)'
-                : 'none',
+              transform: 'none',
               zIndex: guide.isActive ? 45 : 35,
-              borderStyle: 'dashed',
-              borderWidth: guide.type === 'horizontal' ? '1px 0 0 0' : '0 0 0 1px',
-              borderColor: guide.isActive 
-                ? 'rgba(59, 130, 246, 0.8)' 
-                : 'rgba(59, 130, 246, 0.4)',
-              background: 'none',
+              backgroundColor: guide.isActive 
+                ? 'rgba(59, 130, 246, 0.9)' 
+                : 'rgba(59, 130, 246, 0.5)',
+              boxShadow: guide.isActive 
+                ? '0 0 4px rgba(59, 130, 246, 0.6)' 
+                : 'none',
             }}
           />
         );

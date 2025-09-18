@@ -100,11 +100,11 @@ export const useSnapController = ({
       const isNearVerticalCenter = Math.abs(currentPosition.x) <= tolerance;
       const isNearHorizontalCenter = Math.abs(currentPosition.y) <= tolerance;
       
-      // Canvas center guides - always show these when dragging
+      // Canvas center guides - use absolute positioning
       guides.push({
         id: 'canvas-vertical-center',
         type: 'vertical',
-        position: containerSize.width / 2,
+        position: containerSize.width / 2, // Canvas center X position in pixels
         isActive: isNearVerticalCenter,
         isCenter: true,
       });
@@ -112,7 +112,7 @@ export const useSnapController = ({
       guides.push({
         id: 'canvas-horizontal-center',
         type: 'horizontal',
-        position: containerSize.height / 2,
+        position: containerSize.height / 2, // Canvas center Y position in pixels
         isActive: isNearHorizontalCenter,
         isCenter: true,
       });
