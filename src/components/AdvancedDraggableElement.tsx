@@ -684,18 +684,19 @@ const AdvancedDraggableElement = ({
         >
           {/* Apply text border framework for text elements, regular content for others */}
           {isTextElement() ? (
-            <TextElementBorder
-              isSelected={isSelected}
-              isLocked={isLocked}
-              isDragging={isDragging}
-              isResizing={isResizing}
-              isRotating={isRotating}
-              borderConfig={textBorderConfig}
-              onResizeMouseDown={handleResizeMouseDown}
-              onResizeTouchStart={handleResizeTouchStart}
-            >
+            <div className="relative w-full h-full flex items-center justify-center p-2">
               {children}
-            </TextElementBorder>
+              
+              {/* Simple Selection Indicator for Text Elements */}
+              {isSelected && !isLocked && (
+                <div className="absolute inset-0 border-2 border-dashed border-primary/40 rounded bg-primary/5 pointer-events-none" />
+              )}
+              
+              {/* Lock Indicator for Text Elements */}
+              {isLocked && (
+                <div className="absolute inset-0 border-2 border-dashed border-yellow-500/40 rounded bg-yellow-500/5 pointer-events-none" />
+              )}
+            </div>
           ) : (
             children
           )}
