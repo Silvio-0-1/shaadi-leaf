@@ -25,6 +25,9 @@ interface ResizableTextBoxProps {
   snapToGrid?: boolean;
   showAlignmentGuides?: boolean;
   otherElements?: Array<{ id: string; position: ElementPosition; width?: number; height?: number; }>;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
+  onAlignmentGuides?: (guides: { horizontal: number[]; vertical: number[] }) => void;
 }
 
 const ResizableTextBox = ({ 
@@ -49,7 +52,10 @@ const ResizableTextBox = ({
   gridSize = 30,
   snapToGrid = false,
   showAlignmentGuides = false,
-  otherElements = []
+  otherElements = [],
+  onDragStart,
+  onDragEnd,
+  onAlignmentGuides,
 }: ResizableTextBoxProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -239,11 +245,8 @@ const ResizableTextBox = ({
       let newX = startPosition.x + deltaX;
       let newY = startPosition.y + deltaY;
       
-      // Apply grid snapping if enabled
-      if (snapToGrid && gridSize > 0) {
-        newX = Math.round(newX / gridSize) * gridSize;
-        newY = Math.round(newY / gridSize) * gridSize;
-      }
+      // Calculate alignment guides
+      const guides: { horizontal: number[]; vertical: number[] } = { horizontal: [], vertical: [] };
       
       // Apply alignment guides snapping if enabled
       if (showAlignmentGuides && otherElements.length > 0) {
@@ -255,6 +258,7 @@ const ResizableTextBox = ({
             // Snap to horizontal center alignment
             if (Math.abs(newY - element.position.y) < snapThreshold) {
               newY = element.position.y;
+              guides.horizontal.push(element.position.y);
               break;
             }
           }
@@ -266,10 +270,22 @@ const ResizableTextBox = ({
             // Snap to vertical center alignment
             if (Math.abs(newX - element.position.x) < snapThreshold) {
               newX = element.position.x;
+              guides.vertical.push(element.position.x);
               break;
             }
           }
         }
+      }
+      
+      // Apply grid snapping if enabled
+      if (snapToGrid && gridSize > 0) {
+        newX = Math.round(newX / gridSize) * gridSize;
+        newY = Math.round(newY / gridSize) * gridSize;
+      }
+      
+      // Send alignment guides to parent
+      if (onAlignmentGuides) {
+        onAlignmentGuides(guides);
       }
       
       // Constrain to container bounds
@@ -296,7 +312,7 @@ const ResizableTextBox = ({
   }, [
     isDragging, isResizing, isRotating, dragStart, startPosition, 
     calculateNewSize, calculateRotation, onMove, id, snapToGrid, gridSize, 
-    showAlignmentGuides, otherElements
+    showAlignmentGuides, otherElements, onAlignmentGuides
   ]);
 
   const handleMouseMove = (e: MouseEvent) => {

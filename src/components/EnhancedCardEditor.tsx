@@ -16,6 +16,7 @@ import InlineTextEditor from './InlineTextEditor';
 import EditorToolbar from './EditorToolbar';
 import GridOverlay from './GridOverlay';
 import ObjectToolbar from './ObjectToolbar';
+import AlignmentGuides from './AlignmentGuides';
 import { toast } from 'sonner';
 
 // Force cache refresh - Enhanced Card Editor v2.0
@@ -69,6 +70,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [showGridlines, setShowGridlines] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
+  const [currentAlignmentGuides, setCurrentAlignmentGuides] = useState<{ horizontal: number[]; vertical: number[] }>({ horizontal: [], vertical: [] });
+  const [isDraggingAny, setIsDraggingAny] = useState(false);
   const [gridSize] = useState(30);
   const [elementZIndices, setElementZIndices] = useState<Record<string, number>>({});
   const [elementRotations, setElementRotations] = useState<Record<string, number>>({});
@@ -891,6 +894,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           containerRef={cardRef}
         />
 
+        {/* Alignment Guides */}
+        <AlignmentGuides
+          visible={showAlignmentGuides && isDraggingAny}
+          containerRef={cardRef}
+          guides={currentAlignmentGuides}
+        />
+
 
         {/* Decorative Elements */}
         {!template?.backgroundImage && (
@@ -1135,6 +1145,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             snapToGrid={snapToGrid}
             showAlignmentGuides={showAlignmentGuides}
             otherElements={getAllElements()}
+            onDragStart={() => setIsDraggingAny(true)}
+            onDragEnd={() => setIsDraggingAny(false)}
+            onAlignmentGuides={setCurrentAlignmentGuides}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1193,6 +1206,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
+              onDragStart={() => setIsDraggingAny(true)}
+              onDragEnd={() => setIsDraggingAny(false)}
+              onAlignmentGuides={setCurrentAlignmentGuides}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1237,6 +1253,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
+              onDragStart={() => setIsDraggingAny(true)}
+              onDragEnd={() => setIsDraggingAny(false)}
+              onAlignmentGuides={setCurrentAlignmentGuides}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1298,6 +1317,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
+              onDragStart={() => setIsDraggingAny(true)}
+              onDragEnd={() => setIsDraggingAny(false)}
+              onAlignmentGuides={setCurrentAlignmentGuides}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
