@@ -30,9 +30,9 @@ const ResizableTextBox = ({
   children, 
   width = 200,
   height = 60,
-  minWidth = 50,
+  minWidth = 80,
   maxWidth = 800,
-  minHeight = 20,
+  minHeight = 40,
   maxHeight = 400,
   isSelected = false,
   onSelect,
@@ -51,6 +51,7 @@ const ResizableTextBox = ({
   const [currentSize, setCurrentSize] = useState({ width, height });
   
   const elementRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef<number>();
   const isMobile = useIsMobile();
 
   // Update current size when props change
@@ -156,9 +157,9 @@ const ResizableTextBox = ({
         break;
     }
     
-    // Apply constraints
-    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-    newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+    // Apply constraints with better minimums for text readability
+    newWidth = Math.max(Math.max(minWidth, 80), Math.min(maxWidth, newWidth));
+    newHeight = Math.max(Math.max(minHeight, 40), Math.min(maxHeight, newHeight));
     
     return { width: newWidth, height: newHeight };
   }, [resizeDirection, resizeStart, startSize, minWidth, maxWidth, minHeight, maxHeight]);
@@ -196,18 +197,32 @@ const ResizableTextBox = ({
   ]);
 
   const handleMouseMove = (e: MouseEvent) => {
-    handleMove(e.clientX, e.clientY);
+    if (rafId.current) {
+      cancelAnimationFrame(rafId.current);
+    }
+    rafId.current = requestAnimationFrame(() => {
+      handleMove(e.clientX, e.clientY);
+    });
   };
 
   const handleTouchMove = (e: TouchEvent) => {
     if (e.touches.length > 0) {
       const touch = e.touches[0];
-      handleMove(touch.clientX, touch.clientY);
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+      rafId.current = requestAnimationFrame(() => {
+        handleMove(touch.clientX, touch.clientY);
+      });
     }
     e.preventDefault();
   };
 
   const handleMouseUp = () => {
+    if (rafId.current) {
+      cancelAnimationFrame(rafId.current);
+    }
+    
     if (isResizing && onResize) {
       // Finalize the resize
       onResize(id, currentSize);
@@ -286,7 +301,7 @@ const ResizableTextBox = ({
   return (
     <div
       ref={elementRef}
-      className={`absolute select-none transition-all duration-100 ${
+      className={`absolute select-none ${
         isDragging || isResizing ? 'z-50' : isSelected ? 'z-40' : 'z-10'
       } ${!isResizing ? 'cursor-move' : ''} group ${className}`}
       style={{
@@ -302,7 +317,7 @@ const ResizableTextBox = ({
       onClick={handleClick}
     >
       <div 
-        className={`relative w-full h-full flex items-center justify-center p-2 transition-all duration-100 ${
+        className={`relative w-full h-full flex items-center justify-center p-2 ${
           isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
         } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''}`}
         style={{
