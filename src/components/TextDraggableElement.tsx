@@ -297,10 +297,16 @@ const TextDraggableElement = ({
   }, [isSelected, isDragging, isResizing, onSelect]);
 
   const resizeHandles = [
+    // Corner handles - change both width and height
     { direction: 'nw', cursor: 'nw-resize', position: 'top-0 left-0 -translate-x-1/2 -translate-y-1/2' },
     { direction: 'ne', cursor: 'ne-resize', position: 'top-0 right-0 translate-x-1/2 -translate-y-1/2' },
     { direction: 'se', cursor: 'se-resize', position: 'bottom-0 right-0 translate-x-1/2 translate-y-1/2' },
     { direction: 'sw', cursor: 'sw-resize', position: 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2' },
+    // Edge handles - change only one dimension
+    { direction: 'n', cursor: 'n-resize', position: 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2' },
+    { direction: 's', cursor: 's-resize', position: 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2' },
+    { direction: 'e', cursor: 'e-resize', position: 'top-1/2 right-0 translate-x-1/2 -translate-y-1/2' },
+    { direction: 'w', cursor: 'w-resize', position: 'top-1/2 left-0 -translate-x-1/2 -translate-y-1/2' },
   ];
 
   // Generate text color styles based on text type
@@ -326,7 +332,7 @@ const TextDraggableElement = ({
       {/* Hidden element for measuring text dimensions */}
       <div
         ref={measureRef}
-        className="fixed -left-[9999px] -top-[9999px] opacity-0 pointer-events-none whitespace-nowrap"
+        className="fixed -left-[9999px] -top-[9999px] opacity-0 pointer-events-none"
         style={{
           fontSize: `${previewFontSize}px`,
           fontFamily: 'inherit',
@@ -362,6 +368,7 @@ const TextDraggableElement = ({
           style={{
             // Remove scale transform to prevent layout issues
             fontSize: `${previewFontSize}px`,
+            whiteSpace: 'nowrap', // Keep text on single line
             ...textColorStyles,
           }}
         >
@@ -379,7 +386,16 @@ const TextDraggableElement = ({
             </div>
           )}
           
-          {/* Resize handles removed - no resizing allowed */}
+          {/* Resize handles */}
+          {isSelected && resizable && resizeHandles.map((handle) => (
+            <div
+              key={handle.direction}
+              className={`absolute w-3 h-3 bg-primary border-2 border-white rounded-full shadow-lg hover:scale-125 transition-all duration-200 z-50 ${handle.position} ${handle.cursor}`}
+              style={{ cursor: handle.cursor }}
+              onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
+              onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
+            />
+          ))}
         </div>
       </div>
     </>
