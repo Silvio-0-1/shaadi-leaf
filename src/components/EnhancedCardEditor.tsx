@@ -1160,26 +1160,24 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
 
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <AdvancedDraggableElement
+            <ResizableTextBox
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
+              onResize={handleTextResize}
               containerRef={cardRef}
-              resizable={true}
-              size={{ width: 180, height: 40 }}
-              onResize={handleElementResize}
+              width={textSizes.weddingDate.width}
+              height={textSizes.weddingDate.height}
+              minWidth={150}
+              maxWidth={400}
+              minHeight={40}
+              maxHeight={100}
               isSelected={selectedElement === 'weddingDate'}
-              isLocked={elementLockStates.weddingDate || false}
               onSelect={handleElementSelect}
+              customization={cardData.customization}
               rotation={elementRotations.weddingDate || 0}
               onRotate={handleElementRotate}
-              gridSize={gridSize}
-              snapToGrid={snapToGrid}
-              showAlignmentGuides={showAlignmentGuides}
-            otherElements={getAllElements()}
-            zIndex={elementZIndices.weddingDate || 25}
-            onDoubleClick={() => handleDoubleClick('weddingDate')}
-          >
+            >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
                 style={{ color: getTextColor('date') }}
@@ -1187,7 +1185,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               >
                 <Calendar className="h-4 w-4 mr-2 opacity-70" />
                 <span 
-                  className="font-medium"
+                  className="font-medium cursor-pointer"
+                  onDoubleClick={() => handleDoubleClick('weddingDate')}
                   style={{ 
                     fontFamily: getFontFamily('date'),
                     fontSize: `${elementFontSizes.weddingDate || 14}px`
@@ -1196,32 +1195,29 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </AdvancedDraggableElement>
+            </ResizableTextBox>
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <AdvancedDraggableElement
+            <ResizableTextBox
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
+              onResize={handleTextResize}
               containerRef={cardRef}
-              resizable={true}
-              size={{ width: 160, height: 40 }}
-              onResize={handleElementResize}
+              width={textSizes.venue.width}
+              height={textSizes.venue.height}
+              minWidth={140}
+              maxWidth={400}
+              minHeight={40}
+              maxHeight={100}
               isSelected={selectedElement === 'venue'}
-              isLocked={elementLockStates.venue || false}
               onSelect={handleElementSelect}
+              customization={cardData.customization}
               rotation={elementRotations.venue || 0}
               onRotate={handleElementRotate}
-              gridSize={gridSize}
-              snapToGrid={snapToGrid}
-              showAlignmentGuides={showAlignmentGuides}
-            otherElements={getAllElements()}
-            zIndex={elementZIndices.venue || 25}
-            customization={cardData.customization}
-            onDoubleClick={() => handleDoubleClick('venue')}
-          >
+            >
               <div 
                 className="w-full h-full flex items-center justify-center"
                 data-draggable-element="venue"
@@ -1241,6 +1237,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   <div 
                     className="flex items-center justify-center transition-all duration-200 cursor-pointer" 
                     style={{ color: getTextColor('venue') }}
+                    onDoubleClick={() => handleDoubleClick('venue')}
                   >
                     <MapPin className="h-4 w-4 mr-2 opacity-70" />
                     <span 
@@ -1255,32 +1252,29 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </div>
                 )}
               </div>
-            </AdvancedDraggableElement>
+            </ResizableTextBox>
           )}
 
           {/* Message */}
           {cardData.message && (
-            <AdvancedDraggableElement
+            <ResizableTextBox
               id="message"
               position={positions.message}
               onMove={handleElementMove}
+              onResize={handleTextResize}
               containerRef={cardRef}
-              resizable={true}
-              size={{ width: 220, height: 60 }}
-              onResize={handleElementResize}
+              width={textSizes.message.width}
+              height={textSizes.message.height}
+              minWidth={180}
+              maxWidth={500}
+              minHeight={60}
+              maxHeight={150}
               isSelected={selectedElement === 'message'}
-              isLocked={elementLockStates.message || false}
               onSelect={handleElementSelect}
+              customization={cardData.customization}
               rotation={elementRotations.message || 0}
               onRotate={handleElementRotate}
-              gridSize={gridSize}
-              snapToGrid={snapToGrid}
-              showAlignmentGuides={showAlignmentGuides}
-            otherElements={getAllElements()}
-            zIndex={elementZIndices.message || 25}
-            customization={cardData.customization}
-            onDoubleClick={() => handleDoubleClick('message')}
-          >
+            >
               <div 
                 className="w-full h-full flex items-center justify-center"
                 data-draggable-element="message"
@@ -1305,12 +1299,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                       fontFamily: getFontFamily('message'),
                       fontSize: `${elementFontSizes.message || 16}px`
                     }}
+                    onDoubleClick={() => handleDoubleClick('message')}
                   >
                     {cardData.message}
                   </p>
                 )}
               </div>
-            </AdvancedDraggableElement>
+            </ResizableTextBox>
           )}
         </div>
       </Card>
