@@ -131,19 +131,17 @@ export const useSnapController = ({
     elementSize: { width: number; height: number },
     isDragging: boolean
   ) => {
-    const centerX = containerSize.width / 2;
-    const centerY = containerSize.height / 2;
-
     let guides: SnapGuide[] = [];
     let tooltip: { message: string; x: number; y: number } | null = null;
 
     if (enabled) {
       // Always show center guides when enabled and dragging
       if (isDragging) {
+        // Use simplified positioning - just mark as center guides
         guides.push({
           id: 'center-vertical',
           type: 'vertical',
-          position: centerX,
+          position: 0, // Will be positioned at 50% in CSS
           isActive: Math.abs(currentPosition.x) <= tolerance,
           isCenter: true,
         });
@@ -151,12 +149,15 @@ export const useSnapController = ({
         guides.push({
           id: 'center-horizontal',
           type: 'horizontal',
-          position: centerY,
+          position: 0, // Will be positioned at 50% in CSS
           isActive: Math.abs(currentPosition.y) <= tolerance,
           isCenter: true,
         });
 
         // Add guides for other elements when dragging
+        const centerX = containerSize.width / 2;
+        const centerY = containerSize.height / 2;
+        
         otherElements.forEach((element, index) => {
           if (element.id === elementId) return;
 
@@ -189,8 +190,8 @@ export const useSnapController = ({
         if (snapResult.snapMessage) {
           tooltip = {
             message: snapResult.snapMessage,
-            x: centerX + currentPosition.x,
-            y: centerY + currentPosition.y,
+            x: 0, // Will be positioned at center in CSS
+            y: 0,
           };
         }
       }
