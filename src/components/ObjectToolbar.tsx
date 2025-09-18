@@ -49,6 +49,8 @@ interface ObjectToolbarProps {
   onToggleSnapToGrid?: () => void;
   showAlignmentGuides?: boolean;
   onToggleAlignmentGuides?: () => void;
+  snapToCenter?: boolean;
+  onToggleSnapToCenter?: () => void;
   onCenterHorizontally?: () => void;
   onCenterVertically?: () => void;
   onCenterBoth?: () => void;
@@ -79,6 +81,8 @@ const ObjectToolbar = ({
   onToggleSnapToGrid,
   showAlignmentGuides = true,
   onToggleAlignmentGuides,
+  snapToCenter = true,
+  onToggleSnapToCenter,
   onCenterHorizontally,
   onCenterVertically,
   onCenterBoth
@@ -197,6 +201,16 @@ const ObjectToolbar = ({
             checked={showGridlines}
             onCheckedChange={onToggleGridlines}
             className="data-[state=checked]:bg-primary"
+          />
+        </div>
+
+        {/* Snap Controls */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground font-medium">Snap to Center</span>
+          <Switch
+            checked={snapToCenter}
+            onCheckedChange={onToggleSnapToCenter}
+            className="data-[state=checked]:bg-blue-500"
           />
         </div>
 

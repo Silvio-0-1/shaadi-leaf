@@ -140,10 +140,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     tolerance: 8,
     containerSize,
     otherElements: getOtherElements(),
-    onSnap: (message) => {
-      // Remove toast spam - only log for debugging
-      console.log('🎯 Snapped:', message);
-    }
   });
   
   // Fetch template (static or custom)
@@ -293,13 +289,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     if (snapToCenter) {
       const snapResult = snapController.calculateSnap(elementId, newPosition, elementSize);
       finalPosition = snapResult.position;
-      
-      snapController.logSnapEvent('move', {
-        elementId,
-        original: newPosition,
-        snapped: finalPosition,
-        snappedToCenter: snapResult.snappedToCenter
-      });
     }
     
     setPositions(prev => {
@@ -919,6 +908,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
             showAlignmentGuides={showAlignmentGuides}
             onToggleAlignmentGuides={() => setShowAlignmentGuides(!showAlignmentGuides)}
+            snapToCenter={snapToCenter}
+            onToggleSnapToCenter={() => setSnapToCenter(!snapToCenter)}
             onCenterHorizontally={() => selectedElement && handleCenterHorizontally(selectedElement)}
             onCenterVertically={() => selectedElement && handleCenterVertically(selectedElement)}
             onCenterBoth={() => selectedElement && handleCenterBoth(selectedElement)}

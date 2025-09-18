@@ -13,7 +13,6 @@ interface UseSnapControllerProps {
   tolerance: number;
   containerSize: { width: number; height: number };
   otherElements?: Array<{ id: string; position: ElementPosition; size?: { width: number; height: number } }>;
-  onSnap?: (message: string) => void;
 }
 
 export const useSnapController = ({
@@ -21,38 +20,11 @@ export const useSnapController = ({
   tolerance = 8,
   containerSize,
   otherElements = [],
-  onSnap,
 }: UseSnapControllerProps) => {
   const [snapGuides, setSnapGuides] = useState<SnapGuide[]>([]);
   const [snapTooltip, setSnapTooltip] = useState<{ message: string; x: number; y: number } | null>(null);
-  const lastSnapTime = useRef<number>(0);
 
-  // Generate static guides (always visible when enabled)
-  const generateStaticGuides = useCallback((): SnapGuide[] => {
-    if (!enabled) return [];
-
-    const centerX = containerSize.width / 2;
-    const centerY = containerSize.height / 2;
-
-    return [
-      {
-        id: 'center-vertical',
-        type: 'vertical' as const,
-        position: centerX,
-        isActive: false,
-        isCenter: true,
-      },
-      {
-        id: 'center-horizontal',
-        type: 'horizontal' as const,
-        position: centerY,
-        isActive: false,
-        isCenter: true,
-      },
-    ];
-  }, [enabled, containerSize]);
-
-  // Calculate snap position and active guides
+  // Simplified snap calculation - only 4 cases
   const calculateSnap = useCallback((
     elementId: string,
     currentPosition: ElementPosition,
@@ -69,14 +41,11 @@ export const useSnapController = ({
     let snappedToCenter = { horizontal: false, vertical: false };
     let snapMessage = '';
 
-    const centerX = containerSize.width / 2;
-    const centerY = containerSize.height / 2;
-
-    // Check snap to center lines
+    // Case 1 & 2: Snap to canvas center (horizontal and vertical)
     if (Math.abs(currentPosition.x) <= tolerance) {
       newPosition.x = 0;
       snappedToCenter.vertical = true;
-      snapMessage += 'Vertical center';
+      snapMessage = 'Vertical center';
     }
 
     if (Math.abs(currentPosition.y) <= tolerance) {
@@ -86,35 +55,27 @@ export const useSnapController = ({
       snapMessage += 'Horizontal center';
     }
 
-    // Check snap to other elements
-    otherElements.forEach((element) => {
-      if (element.id === elementId) return;
+    // Case 3 & 4: Snap to other element centers (only if not already snapped to canvas center)
+    if (!snappedToCenter.vertical || !snappedToCenter.horizontal) {
+      otherElements.forEach((element) => {
+        if (element.id === elementId) return;
 
-      const xDiff = Math.abs(currentPosition.x - element.position.x);
-      const yDiff = Math.abs(currentPosition.y - element.position.y);
-
-      if (xDiff <= tolerance && !snappedToCenter.vertical) {
-        newPosition.x = element.position.x;
-        if (snapMessage) snapMessage += ' + ';
-        snapMessage += 'Aligned horizontally';
-      }
-
-      if (yDiff <= tolerance && !snappedToCenter.horizontal) {
-        newPosition.y = element.position.y;
-        if (snapMessage) snapMessage += ' + ';
-        snapMessage += 'Aligned vertically';
-      }
-    });
-
-    // Add subtle easing animation for snapping
-    if (newPosition.x !== currentPosition.x || newPosition.y !== currentPosition.y) {
-      const now = Date.now();
-      if (now - lastSnapTime.current > 100) { // Prevent spam
-        lastSnapTime.current = now;
-        if (snapMessage && onSnap) {
-          onSnap(snapMessage);
+        // Case 3: Horizontal alignment (same vertical position)
+        const yDiff = Math.abs(currentPosition.y - element.position.y);
+        if (yDiff <= tolerance && !snappedToCenter.horizontal) {
+          newPosition.y = element.position.y;
+          if (snapMessage) snapMessage += ' + ';
+          snapMessage += 'Element center (horizontal)';
         }
-      }
+
+        // Case 4: Vertical alignment (same horizontal position)  
+        const xDiff = Math.abs(currentPosition.x - element.position.x);
+        if (xDiff <= tolerance && !snappedToCenter.vertical) {
+          newPosition.x = element.position.x;
+          if (snapMessage) snapMessage += ' + ';
+          snapMessage += 'Element center (vertical)';
+        }
+      });
     }
 
     return {
@@ -122,9 +83,10 @@ export const useSnapController = ({
       snappedToCenter,
       snapMessage: snapMessage || undefined,
     };
-  }, [enabled, tolerance, containerSize, otherElements, onSnap]);
+  }, [enabled, tolerance, otherElements]);
 
-  // Update guides based on current drag state
+
+  // Update guides based on current drag state - simplified to only show 4 cases
   const updateGuides = useCallback((
     elementId: string,
     currentPosition: ElementPosition,
@@ -138,11 +100,11 @@ export const useSnapController = ({
       const isNearVerticalCenter = Math.abs(currentPosition.x) <= tolerance;
       const isNearHorizontalCenter = Math.abs(currentPosition.y) <= tolerance;
       
-      // Add center guides
+      // Always show canvas center guides when dragging
       guides.push({
         id: 'center-vertical',
         type: 'vertical',
-        position: 0, // Will be positioned at 50% in CSS
+        position: 0,
         isActive: isNearVerticalCenter,
         isCenter: true,
       });
@@ -150,12 +112,12 @@ export const useSnapController = ({
       guides.push({
         id: 'center-horizontal',
         type: 'horizontal',
-        position: 0, // Will be positioned at 50% in CSS
+        position: 0,
         isActive: isNearHorizontalCenter,
         isCenter: true,
       });
 
-      // Add guides for other elements ONLY if not snapping to center
+      // Show element center alignment guides only if not snapping to canvas center
       const centerX = containerSize.width / 2;
       const centerY = containerSize.height / 2;
       
@@ -165,8 +127,8 @@ export const useSnapController = ({
         const xDiff = Math.abs(currentPosition.x - element.position.x);
         const yDiff = Math.abs(currentPosition.y - element.position.y);
 
-        // Only show element alignment guides if not near center
-        if (xDiff <= tolerance * 3 && !isNearVerticalCenter) {
+        // Show vertical alignment guide (same X position) if close and not snapping to canvas center
+        if (xDiff <= tolerance * 2 && !isNearVerticalCenter) {
           guides.push({
             id: `element-${index}-vertical`,
             type: 'vertical',
@@ -176,7 +138,8 @@ export const useSnapController = ({
           });
         }
 
-        if (yDiff <= tolerance * 3 && !isNearHorizontalCenter) {
+        // Show horizontal alignment guide (same Y position) if close and not snapping to canvas center
+        if (yDiff <= tolerance * 2 && !isNearHorizontalCenter) {
           guides.push({
             id: `element-${index}-horizontal`,
             type: 'horizontal',
@@ -187,12 +150,12 @@ export const useSnapController = ({
         }
       });
 
-      // Show tooltip when snapping
+      // Show tooltip when snapping is active
       const snapResult = calculateSnap(elementId, currentPosition, elementSize);
       if (snapResult.snapMessage) {
         tooltip = {
           message: snapResult.snapMessage,
-          x: 0, // Will be positioned at center in CSS
+          x: 0,
           y: 0,
         };
       }
@@ -204,13 +167,8 @@ export const useSnapController = ({
 
   // Clear guides and tooltip
   const clearGuides = useCallback(() => {
-    setSnapGuides(generateStaticGuides());
+    setSnapGuides([]);
     setSnapTooltip(null);
-  }, [generateStaticGuides]);
-
-  // Debug logging
-  const logSnapEvent = useCallback((event: string, data: any) => {
-    console.log(`🎯 SNAP [${event}]:`, data);
   }, []);
 
   return {
@@ -219,6 +177,5 @@ export const useSnapController = ({
     calculateSnap,
     updateGuides,
     clearGuides,
-    logSnapEvent,
   };
 };
