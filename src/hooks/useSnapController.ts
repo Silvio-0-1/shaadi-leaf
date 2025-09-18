@@ -122,28 +122,30 @@ export const useSnapController = ({
       const centerY = containerSize.height / 2;
       
       otherElements.forEach((element, index) => {
-        if (element.id === elementId) return;
+        if (element.id === elementId) return; // Skip the element being dragged
 
         const xDiff = Math.abs(currentPosition.x - element.position.x);
         const yDiff = Math.abs(currentPosition.y - element.position.y);
 
-        // Show vertical alignment guide (same X position) if close and not snapping to canvas center
-        if (xDiff <= tolerance * 2 && !isNearVerticalCenter) {
+        // Show vertical alignment guide (same X position) when elements can align vertically
+        if (xDiff <= tolerance * 3 && !isNearVerticalCenter) {
+          const guidePosition = centerX + element.position.x;
           guides.push({
-            id: `element-${index}-vertical`,
+            id: `element-${element.id}-vertical`,
             type: 'vertical',
-            position: centerX + element.position.x,
+            position: guidePosition,
             isActive: xDiff <= tolerance,
             isCenter: false,
           });
         }
 
-        // Show horizontal alignment guide (same Y position) if close and not snapping to canvas center
-        if (yDiff <= tolerance * 2 && !isNearHorizontalCenter) {
+        // Show horizontal alignment guide (same Y position) when elements can align horizontally  
+        if (yDiff <= tolerance * 3 && !isNearHorizontalCenter) {
+          const guidePosition = centerY + element.position.y;
           guides.push({
-            id: `element-${index}-horizontal`,
+            id: `element-${element.id}-horizontal`,
             type: 'horizontal',
-            position: centerY + element.position.y,
+            position: guidePosition,
             isActive: yDiff <= tolerance,
             isCenter: false,
           });

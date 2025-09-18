@@ -317,6 +317,21 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     });
   }, [addToHistory, snapToCenter, snapController, elementSizes, textSizes]);
 
+  // Handle drag start - set dragging state and initialize guides
+  const handleDragStart = useCallback((elementId: string) => {
+    console.log('🎯 DRAG START:', elementId);
+    setIsDragging(true);
+    setDraggingElementId(elementId);
+  }, []);
+
+  // Handle drag end - clear guides and reset state
+  const handleDragEnd = useCallback((elementId: string) => {
+    console.log('🎯 DRAG END:', elementId);
+    setIsDragging(false);
+    setDraggingElementId(null);
+    snapController.clearGuides();
+  }, [snapController]);
+
   const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
     setPositions(prev => {
       let newPositions: CardElements;
@@ -1001,6 +1016,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
               zIndex={elementZIndices.logo || 15}
+              onDragStart={() => handleDragStart('logo')}
+              onDragEnd={() => handleDragEnd('logo')}
             >
               <div className="relative">
                 <img 
@@ -1037,6 +1054,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   showAlignmentGuides={showAlignmentGuides}
                   otherElements={getAllElements()}
                   zIndex={elementZIndices.photo || 20}
+                  onDragStart={() => handleDragStart('photo')}
+                  onDragEnd={() => handleDragEnd('photo')}
                 >
                   <div 
                     className={`w-full h-full border-4 border-white/90 shadow-xl transition-all duration-200 ${
@@ -1077,6 +1096,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                       showAlignmentGuides={showAlignmentGuides}
                       otherElements={getAllElements()}
                       zIndex={elementZIndices[photo.id] || 20}
+                      onDragStart={() => handleDragStart(photo.id)}
+                      onDragEnd={() => handleDragEnd(photo.id)}
                     >
                       <div 
                         className={`w-full h-full border-3 border-white/90 shadow-lg transition-all duration-200 ${
@@ -1168,6 +1189,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             showAlignmentGuides={showAlignmentGuides}
             otherElements={getAllElements()}
             zIndex={elementZIndices.heartIcon || 25}
+            onDragStart={() => handleDragStart('heartIcon')}
+            onDragEnd={() => handleDragEnd('heartIcon')}
           >
             <div className="flex items-center justify-center w-full h-full" data-draggable-element="heartIcon">
               <div 
