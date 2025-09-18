@@ -152,8 +152,8 @@ const TextDraggableElement = ({
     
     let scaleChange = 0;
     
-    // Only allow corner resize directions
     switch (resizeDirection) {
+      // Corner resize directions - change both width and height
       case 'se':
       case 'nw':
         // Use diagonal distance for proportional scaling
@@ -164,8 +164,20 @@ const TextDraggableElement = ({
         // Use diagonal distance but consider direction
         scaleChange = (deltaX - deltaY) / 2;
         break;
+      
+      // Edge resize directions - constrain to one dimension
+      case 'e':
+      case 'w':
+        // Left/right edges: only change width (use horizontal movement)
+        scaleChange = resizeDirection === 'e' ? deltaX : -deltaX;
+        break;
+      case 'n':
+      case 's':
+        // Top/bottom edges: only change height (use vertical movement)
+        scaleChange = resizeDirection === 's' ? deltaY : -deltaY;
+        break;
+      
       default:
-        // No edge resizing allowed
         return 1;
     }
     
