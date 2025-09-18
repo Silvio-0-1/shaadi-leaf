@@ -1127,7 +1127,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             otherElements={getAllElements()}
             zIndex={elementZIndices.groomName || 30}
             customization={cardData.customization}
-                  onDoubleClick={() => handleDoubleClick('groomName')}
+            onDoubleClick={() => handleDoubleClick('groomName')}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1183,10 +1183,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
-              otherElements={getAllElements()}
-              zIndex={elementZIndices.weddingDate || 25}
-                    onDoubleClick={() => handleDoubleClick('weddingDate')}
-            >
+            otherElements={getAllElements()}
+            zIndex={elementZIndices.weddingDate || 25}
+            onDoubleClick={() => handleDoubleClick('weddingDate')}
+          >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
                 style={{ color: getTextColor('date') }}
@@ -1224,11 +1224,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
-              otherElements={getAllElements()}
-              zIndex={elementZIndices.venue || 25}
-              customization={cardData.customization}
-                    onDoubleClick={() => handleDoubleClick('venue')}
-            >
+            otherElements={getAllElements()}
+            zIndex={elementZIndices.venue || 25}
+            customization={cardData.customization}
+            onDoubleClick={() => handleDoubleClick('venue')}
+          >
               <div 
                 className="w-full h-full flex items-center justify-center"
                 data-draggable-element="venue"
@@ -1283,11 +1283,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
-              otherElements={getAllElements()}
-              zIndex={elementZIndices.message || 25}
-              customization={cardData.customization}
-              onDoubleClick={() => handleDoubleClick('message')}
-            >
+            otherElements={getAllElements()}
+            zIndex={elementZIndices.message || 25}
+            customization={cardData.customization}
+            onDoubleClick={() => handleDoubleClick('message')}
+          >
               <div 
                 className="w-full h-full flex items-center justify-center"
                 data-draggable-element="message"
