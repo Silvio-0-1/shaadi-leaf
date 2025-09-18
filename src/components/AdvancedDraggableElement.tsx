@@ -33,6 +33,8 @@ interface AdvancedDraggableElementProps {
   onFontSizeChange?: (elementId: string, fontSize: number) => void;
   textBorderConfig?: TextBorderConfiguration;
   onDoubleClick?: (elementId: string) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 const AdvancedDraggableElement = ({ 

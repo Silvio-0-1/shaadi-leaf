@@ -16,6 +16,9 @@ import InlineTextEditor from './InlineTextEditor';
 import EditorToolbar from './EditorToolbar';
 import GridOverlay from './GridOverlay';
 import ObjectToolbar from './ObjectToolbar';
+import SelectionOverlay from './SelectionOverlay';
+import SnapGuides from './SnapGuides';
+import { useSnapController } from '@/hooks/useSnapController';
 import { toast } from 'sonner';
 
 // Force cache refresh - Enhanced Card Editor v2.0
@@ -69,7 +72,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [showGridlines, setShowGridlines] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
+  const [snapToCenter, setSnapToCenter] = useState(true);
   const [gridSize] = useState(30);
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
   const [elementZIndices, setElementZIndices] = useState<Record<string, number>>({});
   const [elementRotations, setElementRotations] = useState<Record<string, number>>({});
   const [elementLockStates, setElementLockStates] = useState<Record<string, boolean>>({});
@@ -81,6 +87,64 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     message: 16
   });
   const [elementSizes, setElementSizes] = useState<Record<string, { width: number; height: number }>>({});
+  
+  const [positions, setPositions] = useState<CardElements>(() => {
+    if (initialPositions) return initialPositions;
+    return defaultPositions;
+  });
+
+  // Container size for snap calculations
+  const [containerSize, setContainerSize] = useState({ width: 600, height: 400 });
+  
+  // Get other elements for alignment
+  const getOtherElements = useCallback(() => {
+    const elements = [];
+    
+    // Add text elements
+    Object.entries(positions).forEach(([key, pos]) => {
+      if (key !== 'photos' && key !== 'photo' && typeof pos === 'object' && 'x' in pos) {
+        elements.push({
+          id: key,
+          position: pos as ElementPosition,
+          size: elementSizes[key] || textSizes[key] || { width: 100, height: 50 }
+        });
+      }
+    });
+    
+    // Add photo element
+    if (positions.photo && cardData.uploadedImages && cardData.uploadedImages.length === 1) {
+      elements.push({
+        id: 'photo',
+        position: positions.photo.position,
+        size: positions.photo.size || { width: 120, height: 120 }
+      });
+    }
+    
+    // Add photos array
+    if (positions.photos && cardData.uploadedImages && cardData.uploadedImages.length > 1) {
+      positions.photos.forEach((photo) => {
+        elements.push({
+          id: photo.id,
+          position: photo.position,
+          size: photo.size || { width: 100, height: 100 }
+        });
+      });
+    }
+    
+    return elements;
+  }, [positions, elementSizes, textSizes, cardData.uploadedImages]);
+
+  // Snap controller hook
+  const snapController = useSnapController({
+    enabled: snapToCenter,
+    tolerance: 8,
+    containerSize,
+    otherElements: getOtherElements(),
+    onSnap: (message) => {
+      console.log('🎯 Snapped:', message);
+      toast.success(`Snapped to ${message.toLowerCase()}`);
+    }
+  });
   
   // Fetch template (static or custom)
   useEffect(() => {
@@ -138,10 +202,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     fetchTemplate();
   }, [cardData.templateId]);
   
-  const [positions, setPositions] = useState<CardElements>(() => {
-    if (initialPositions) return initialPositions;
-    return defaultPositions;
-  });
 
   // Update positions when template loads and has default positions
   useEffect(() => {
@@ -222,6 +282,23 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   }, [historyIndex]);
 
   const handleElementMove = useCallback((elementId: string, newPosition: ElementPosition) => {
+    console.log('🎯 DRAG [handleElementMove]:', { elementId, position: newPosition });
+    
+    // Apply snapping if enabled
+    let finalPosition = newPosition;
+    if (snapToCenter) {
+      const elementSize = elementSizes[elementId] || textSizes[elementId] || { width: 100, height: 50 };
+      const snapResult = snapController.calculateSnap(elementId, newPosition, elementSize);
+      finalPosition = snapResult.position;
+      
+      snapController.logSnapEvent('move', {
+        elementId,
+        original: newPosition,
+        snapped: finalPosition,
+        snappedToCenter: snapResult.snappedToCenter
+      });
+    }
+    
     setPositions(prev => {
       let newPositions: CardElements;
 
@@ -230,7 +307,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           ...prev,
           photos: prev.photos?.map(photo => 
             photo.id === elementId 
-              ? { ...photo, position: newPosition }
+              ? { ...photo, position: finalPosition }
               : photo
           ) || []
         };
@@ -238,15 +315,15 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         newPositions = {
           ...prev,
           [elementId]: elementId === 'photo' 
-            ? { ...prev.photo, position: newPosition }
-            : newPosition
+            ? { ...prev.photo, position: finalPosition }
+            : finalPosition
         };
       }
 
       addToHistory(newPositions);
       return newPositions;
     });
-  }, [addToHistory]);
+  }, [addToHistory, snapToCenter, snapController, elementSizes, textSizes]);
 
   const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
     setPositions(prev => {
@@ -921,6 +998,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onRotate={handleElementRotate}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
+              zIndex={elementZIndices.logo || 10}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
               zIndex={elementZIndices.logo || 15}

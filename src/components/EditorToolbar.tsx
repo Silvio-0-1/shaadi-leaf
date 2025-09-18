@@ -25,6 +25,8 @@ interface EditorToolbarProps {
   onToggleSnapToGrid: () => void;
   showAlignmentGuides: boolean;
   onToggleAlignmentGuides: () => void;
+  snapToCenter?: boolean;
+  onToggleSnapToCenter?: () => void;
   selectedElement: string | null;
   canUndo: boolean;
   canRedo: boolean;
