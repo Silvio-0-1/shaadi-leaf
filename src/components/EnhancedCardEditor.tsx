@@ -1037,6 +1037,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             isSelected={selectedElement === 'brideName'}
             onSelect={handleElementSelect}
             customization={cardData.customization}
+            rotation={elementRotations.brideName || 0}
+            onRotate={handleElementRotate}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1123,6 +1125,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             isSelected={selectedElement === 'groomName'}
             onSelect={handleElementSelect}
             customization={cardData.customization}
+            rotation={elementRotations.groomName || 0}
+            onRotate={handleElementRotate}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
