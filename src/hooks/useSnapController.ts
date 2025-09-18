@@ -134,66 +134,67 @@ export const useSnapController = ({
     let guides: SnapGuide[] = [];
     let tooltip: { message: string; x: number; y: number } | null = null;
 
-    if (enabled) {
-      // Always show center guides when enabled and dragging
-      if (isDragging) {
-        // Use simplified positioning - just mark as center guides
-        guides.push({
-          id: 'center-vertical',
-          type: 'vertical',
-          position: 0, // Will be positioned at 50% in CSS
-          isActive: Math.abs(currentPosition.x) <= tolerance,
-          isCenter: true,
-        });
+    if (enabled && isDragging) {
+      const isNearVerticalCenter = Math.abs(currentPosition.x) <= tolerance;
+      const isNearHorizontalCenter = Math.abs(currentPosition.y) <= tolerance;
+      
+      // Add center guides
+      guides.push({
+        id: 'center-vertical',
+        type: 'vertical',
+        position: 0, // Will be positioned at 50% in CSS
+        isActive: isNearVerticalCenter,
+        isCenter: true,
+      });
 
-        guides.push({
-          id: 'center-horizontal',
-          type: 'horizontal',
-          position: 0, // Will be positioned at 50% in CSS
-          isActive: Math.abs(currentPosition.y) <= tolerance,
-          isCenter: true,
-        });
+      guides.push({
+        id: 'center-horizontal',
+        type: 'horizontal',
+        position: 0, // Will be positioned at 50% in CSS
+        isActive: isNearHorizontalCenter,
+        isCenter: true,
+      });
 
-        // Add guides for other elements when dragging
-        const centerX = containerSize.width / 2;
-        const centerY = containerSize.height / 2;
-        
-        otherElements.forEach((element, index) => {
-          if (element.id === elementId) return;
+      // Add guides for other elements ONLY if not snapping to center
+      const centerX = containerSize.width / 2;
+      const centerY = containerSize.height / 2;
+      
+      otherElements.forEach((element, index) => {
+        if (element.id === elementId) return;
 
-          const xDiff = Math.abs(currentPosition.x - element.position.x);
-          const yDiff = Math.abs(currentPosition.y - element.position.y);
+        const xDiff = Math.abs(currentPosition.x - element.position.x);
+        const yDiff = Math.abs(currentPosition.y - element.position.y);
 
-          if (xDiff <= tolerance * 3) {
-            guides.push({
-              id: `element-${index}-vertical`,
-              type: 'vertical',
-              position: centerX + element.position.x,
-              isActive: xDiff <= tolerance,
-              isCenter: false,
-            });
-          }
-
-          if (yDiff <= tolerance * 3) {
-            guides.push({
-              id: `element-${index}-horizontal`,
-              type: 'horizontal',
-              position: centerY + element.position.y,
-              isActive: yDiff <= tolerance,
-              isCenter: false,
-            });
-          }
-        });
-
-        // Show tooltip when snapping
-        const snapResult = calculateSnap(elementId, currentPosition, elementSize);
-        if (snapResult.snapMessage) {
-          tooltip = {
-            message: snapResult.snapMessage,
-            x: 0, // Will be positioned at center in CSS
-            y: 0,
-          };
+        // Only show element alignment guides if not near center
+        if (xDiff <= tolerance * 3 && !isNearVerticalCenter) {
+          guides.push({
+            id: `element-${index}-vertical`,
+            type: 'vertical',
+            position: centerX + element.position.x,
+            isActive: xDiff <= tolerance,
+            isCenter: false,
+          });
         }
+
+        if (yDiff <= tolerance * 3 && !isNearHorizontalCenter) {
+          guides.push({
+            id: `element-${index}-horizontal`,
+            type: 'horizontal',
+            position: centerY + element.position.y,
+            isActive: yDiff <= tolerance,
+            isCenter: false,
+          });
+        }
+      });
+
+      // Show tooltip when snapping
+      const snapResult = calculateSnap(elementId, currentPosition, elementSize);
+      if (snapResult.snapMessage) {
+        tooltip = {
+          message: snapResult.snapMessage,
+          x: 0, // Will be positioned at center in CSS
+          y: 0,
+        };
       }
     }
 
