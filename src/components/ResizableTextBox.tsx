@@ -158,8 +158,11 @@ const ResizableTextBox = ({
     }
     
     // Apply constraints with better minimums for text readability
-    newWidth = Math.max(Math.max(minWidth, 80), Math.min(maxWidth, newWidth));
-    newHeight = Math.max(Math.max(minHeight, 40), Math.min(maxHeight, newHeight));
+    const absoluteMinWidth = Math.max(minWidth, 100);  // Ensure text is always readable
+    const absoluteMinHeight = Math.max(minHeight, 40);  // Ensure text has proper height
+    
+    newWidth = Math.max(absoluteMinWidth, Math.min(maxWidth, newWidth));
+    newHeight = Math.max(absoluteMinHeight, Math.min(maxHeight, newHeight));
     
     return { width: newWidth, height: newHeight };
   }, [resizeDirection, resizeStart, startSize, minWidth, maxWidth, minHeight, maxHeight]);

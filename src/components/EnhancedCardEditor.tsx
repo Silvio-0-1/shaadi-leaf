@@ -1108,35 +1108,27 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </AdvancedDraggableElement>
 
           {/* Groom's Name */}
-          <AdvancedDraggableElement
+          <ResizableTextBox
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
+            onResize={handleTextResize}
             containerRef={cardRef}
-            resizable={true}
-            size={{ width: 200, height: 50 }}
-            onResize={handleElementResize}
+            width={textSizes.groomName.width}
+            height={textSizes.groomName.height}
+            minWidth={100}
+            maxWidth={400}
+            minHeight={30}
+            maxHeight={120}
             isSelected={selectedElement === 'groomName'}
-            isLocked={elementLockStates.groomName || false}
             onSelect={handleElementSelect}
-            rotation={elementRotations.groomName || 0}
-            onRotate={handleElementRotate}
-            gridSize={gridSize}
-            snapToGrid={snapToGrid}
-            showAlignmentGuides={showAlignmentGuides}
-            otherElements={getAllElements()}
-            zIndex={elementZIndices.groomName || 30}
             customization={cardData.customization}
-            onDoubleClick={() => handleDoubleClick('groomName')}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
               data-draggable-element="groomName"
             >
-              {(() => {
-                console.log('🔍 Rendering groomName - editingElement:', editingElement, 'condition result:', editingElement === 'groomName');
-                return editingElement === 'groomName';
-              })() ? (
+              {editingElement === 'groomName' ? (
                 <InlineTextEditor
                   value={cardData.groomName || 'Groom\'s Name'}
                   onChange={(value) => handleTextChange('groomName', value)}
@@ -1153,6 +1145,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   className={`font-bold leading-tight text-center transition-all duration-200 cursor-pointer ${
                     selectedElement === 'groomName' ? 'drop-shadow-lg' : 'drop-shadow-sm'
                   }`}
+                  onDoubleClick={() => handleDoubleClick('groomName')}
                   style={{ 
                     color: getTextColor('groomName'),
                     fontFamily: getFontFamily('heading'),
@@ -1163,7 +1156,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </AdvancedDraggableElement>
+          </ResizableTextBox>
 
           {/* Wedding Date */}
           {cardData.weddingDate && (
