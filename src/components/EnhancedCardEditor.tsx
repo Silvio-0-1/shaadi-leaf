@@ -1032,27 +1032,30 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           )}
 
           {/* Bride's Name */}
-          <ResizableTextBox
+          <AdvancedDraggableElement
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
-            onResize={handleTextResize}
             containerRef={cardRef}
-            width={textSizes.brideName.width}
-            height={textSizes.brideName.height}
-            minWidth={100}
-            maxWidth={400}
-            minHeight={30}
-            maxHeight={120}
-            isSelected={selectedElement === 'brideName'}
-            onSelect={handleElementSelect}
-            customization={cardData.customization}
+            resizable={true}
+            size={textSizes.brideName}
             rotation={elementRotations.brideName || 0}
+            onResize={handleTextResize}
             onRotate={handleElementRotate}
+            isSelected={selectedElement === 'brideName'}
+            isLocked={elementLockStates.brideName || false}
+            onSelect={handleElementSelect}
+            minSize={{ width: 100, height: 30 }}
+            maxSize={{ width: 400, height: 120 }}
             gridSize={gridSize}
             snapToGrid={snapToGrid}
             showAlignmentGuides={showAlignmentGuides}
             otherElements={getAllElements()}
+            customization={cardData.customization}
+            fontSize={elementFontSizes.brideName || 36}
+            onFontSizeChange={handleFontSizeChange}
+            onDoubleClick={handleDoubleClick}
+            zIndex={elementZIndices.brideName || 10}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1084,7 +1087,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </ResizableTextBox>
+          </AdvancedDraggableElement>
 
           {/* Heart Icon */}
           <AdvancedDraggableElement
@@ -1124,30 +1127,30 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </AdvancedDraggableElement>
 
           {/* Groom's Name */}
-          <ResizableTextBox
+          <AdvancedDraggableElement
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
-            onResize={handleTextResize}
             containerRef={cardRef}
-            width={textSizes.groomName.width}
-            height={textSizes.groomName.height}
-            minWidth={100}
-            maxWidth={400}
-            minHeight={30}
-            maxHeight={120}
-            isSelected={selectedElement === 'groomName'}
-            onSelect={handleElementSelect}
-            customization={cardData.customization}
+            resizable={true}
+            size={textSizes.groomName}
             rotation={elementRotations.groomName || 0}
+            onResize={handleTextResize}
             onRotate={handleElementRotate}
+            isSelected={selectedElement === 'groomName'}
+            isLocked={elementLockStates.groomName || false}
+            onSelect={handleElementSelect}
+            minSize={{ width: 100, height: 30 }}
+            maxSize={{ width: 400, height: 120 }}
             gridSize={gridSize}
             snapToGrid={snapToGrid}
             showAlignmentGuides={showAlignmentGuides}
             otherElements={getAllElements()}
-            onDragStart={() => setIsDraggingAny(true)}
-            onDragEnd={() => setIsDraggingAny(false)}
-            onAlignmentGuides={setCurrentAlignmentGuides}
+            customization={cardData.customization}
+            fontSize={elementFontSizes.groomName || 36}
+            onFontSizeChange={handleFontSizeChange}
+            onDoubleClick={handleDoubleClick}
+            zIndex={elementZIndices.groomName || 10}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1181,34 +1184,34 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </ResizableTextBox>
+          </AdvancedDraggableElement>
 
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <ResizableTextBox
+            <AdvancedDraggableElement
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
-              onResize={handleTextResize}
               containerRef={cardRef}
-              width={textSizes.weddingDate.width}
-              height={textSizes.weddingDate.height}
-              minWidth={150}
-              maxWidth={400}
-              minHeight={40}
-              maxHeight={100}
-              isSelected={selectedElement === 'weddingDate'}
-              onSelect={handleElementSelect}
-              customization={cardData.customization}
+              resizable={true}
+              size={textSizes.weddingDate}
               rotation={elementRotations.weddingDate || 0}
+              onResize={handleTextResize}
               onRotate={handleElementRotate}
+              isSelected={selectedElement === 'weddingDate'}
+              isLocked={elementLockStates.weddingDate || false}
+              onSelect={handleElementSelect}
+              minSize={{ width: 150, height: 40 }}
+              maxSize={{ width: 400, height: 100 }}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
-              onDragStart={() => setIsDraggingAny(true)}
-              onDragEnd={() => setIsDraggingAny(false)}
-              onAlignmentGuides={setCurrentAlignmentGuides}
+              customization={cardData.customization}
+              fontSize={elementFontSizes.weddingDate || 14}
+              onFontSizeChange={handleFontSizeChange}
+              onDoubleClick={handleDoubleClick}
+              zIndex={elementZIndices.weddingDate || 10}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1227,35 +1230,35 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </ResizableTextBox>
+            </AdvancedDraggableElement>
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <ResizableTextBox
+            <AdvancedDraggableElement
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
-              onResize={handleTextResize}
               containerRef={cardRef}
-              width={textSizes.venue.width}
-              height={textSizes.venue.height}
-              minWidth={140}
-              maxWidth={400}
-              minHeight={40}
-              maxHeight={100}
-              isSelected={selectedElement === 'venue'}
-              onSelect={handleElementSelect}
-              customization={cardData.customization}
+              resizable={true}
+              size={textSizes.venue}
               rotation={elementRotations.venue || 0}
+              onResize={handleTextResize}
               onRotate={handleElementRotate}
+              isSelected={selectedElement === 'venue'}
+              isLocked={elementLockStates.venue || false}
+              onSelect={handleElementSelect}
+              minSize={{ width: 140, height: 40 }}
+              maxSize={{ width: 400, height: 100 }}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
-              onDragStart={() => setIsDraggingAny(true)}
-              onDragEnd={() => setIsDraggingAny(false)}
-              onAlignmentGuides={setCurrentAlignmentGuides}
+              customization={cardData.customization}
+              fontSize={elementFontSizes.venue || 14}
+              onFontSizeChange={handleFontSizeChange}
+              onDoubleClick={handleDoubleClick}
+              zIndex={elementZIndices.venue || 10}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1291,35 +1294,35 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </div>
                 )}
               </div>
-            </ResizableTextBox>
+            </AdvancedDraggableElement>
           )}
 
           {/* Message */}
           {cardData.message && (
-            <ResizableTextBox
+            <AdvancedDraggableElement
               id="message"
               position={positions.message}
               onMove={handleElementMove}
-              onResize={handleTextResize}
               containerRef={cardRef}
-              width={textSizes.message.width}
-              height={textSizes.message.height}
-              minWidth={180}
-              maxWidth={500}
-              minHeight={60}
-              maxHeight={150}
-              isSelected={selectedElement === 'message'}
-              onSelect={handleElementSelect}
-              customization={cardData.customization}
+              resizable={true}
+              size={textSizes.message}
               rotation={elementRotations.message || 0}
+              onResize={handleTextResize}
               onRotate={handleElementRotate}
+              isSelected={selectedElement === 'message'}
+              isLocked={elementLockStates.message || false}
+              onSelect={handleElementSelect}
+              minSize={{ width: 180, height: 60 }}
+              maxSize={{ width: 500, height: 150 }}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
-              onDragStart={() => setIsDraggingAny(true)}
-              onDragEnd={() => setIsDraggingAny(false)}
-              onAlignmentGuides={setCurrentAlignmentGuides}
+              customization={cardData.customization}
+              fontSize={elementFontSizes.message || 16}
+              onFontSizeChange={handleFontSizeChange}
+              onDoubleClick={handleDoubleClick}
+              zIndex={elementZIndices.message || 10}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1351,7 +1354,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </p>
                 )}
               </div>
-            </ResizableTextBox>
+            </AdvancedDraggableElement>
           )}
         </div>
       </Card>
