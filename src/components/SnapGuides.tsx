@@ -19,35 +19,33 @@ const SnapGuides: React.FC<SnapGuidesProps> = ({ guides, containerSize, snapTool
     <div className="absolute inset-0 pointer-events-none z-40">
       {/* Render snap guides */}
       {guides.map((guide) => {
-        const isVerticalCenter = guide.id === 'center-vertical';
-        const isHorizontalCenter = guide.id === 'center-horizontal';
+        const isCanvasCenter = guide.isCenter;
         
         return (
           <div
             key={guide.id}
             className={`absolute transition-all duration-200 ease-out ${
               guide.isActive 
-                ? guide.isCenter 
-                  ? 'bg-blue-400 opacity-90' 
-                  : 'bg-blue-300 opacity-80'
-                : 'bg-blue-200 opacity-30'
+                ? 'bg-blue-400 opacity-80' 
+                : 'bg-blue-300 opacity-40'
             } ${
               guide.type === 'horizontal' ? 'h-px w-full' : 'w-px h-full'
             }`}
             style={{
-              left: guide.type === 'vertical' 
-                ? isVerticalCenter ? '50%' : `${guide.position}px`
-                : 0,
-              top: guide.type === 'horizontal' 
-                ? isHorizontalCenter ? '50%' : `${guide.position}px` 
-                : 0,
-              transform: isVerticalCenter ? 'translateX(-50%)' : isHorizontalCenter ? 'translateY(-50%)' : 'none',
-              zIndex: guide.isActive ? 45 : 35,
-              boxShadow: guide.isActive 
-                ? guide.isCenter 
-                  ? '0 0 6px rgba(59, 130, 246, 0.4)' 
-                  : '0 0 4px rgba(59, 130, 246, 0.3)'
+              left: guide.type === 'vertical' ? `${guide.position}px` : 0,
+              top: guide.type === 'horizontal' ? `${guide.position}px` : 0,
+              transform: isCanvasCenter 
+                ? guide.type === 'vertical' 
+                  ? 'translateX(-50%)' 
+                  : 'translateY(-50%)'
                 : 'none',
+              zIndex: guide.isActive ? 45 : 35,
+              borderStyle: 'dashed',
+              borderWidth: guide.type === 'horizontal' ? '1px 0 0 0' : '0 0 0 1px',
+              borderColor: guide.isActive 
+                ? 'rgba(59, 130, 246, 0.8)' 
+                : 'rgba(59, 130, 246, 0.4)',
+              background: 'none',
             }}
           />
         );

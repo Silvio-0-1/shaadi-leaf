@@ -100,35 +100,35 @@ export const useSnapController = ({
       const isNearVerticalCenter = Math.abs(currentPosition.x) <= tolerance;
       const isNearHorizontalCenter = Math.abs(currentPosition.y) <= tolerance;
       
-      // Always show canvas center guides when dragging
+      // Canvas center guides - always show these when dragging
       guides.push({
-        id: 'center-vertical',
+        id: 'canvas-vertical-center',
         type: 'vertical',
-        position: 0,
+        position: containerSize.width / 2,
         isActive: isNearVerticalCenter,
         isCenter: true,
       });
 
       guides.push({
-        id: 'center-horizontal',
+        id: 'canvas-horizontal-center',
         type: 'horizontal',
-        position: 0,
+        position: containerSize.height / 2,
         isActive: isNearHorizontalCenter,
         isCenter: true,
       });
 
-      // Show element center alignment guides only if not snapping to canvas center
+      // Element center alignment guides - only show one per element
       const centerX = containerSize.width / 2;
       const centerY = containerSize.height / 2;
       
-      otherElements.forEach((element, index) => {
+      otherElements.forEach((element) => {
         if (element.id === elementId) return; // Skip the element being dragged
 
         const xDiff = Math.abs(currentPosition.x - element.position.x);
         const yDiff = Math.abs(currentPosition.y - element.position.y);
 
-        // Show vertical alignment guide (same X position) when elements can align vertically
-        if (xDiff <= tolerance * 3 && !isNearVerticalCenter) {
+        // Show vertical alignment guide (element's X center) - only if close and not already snapping to canvas center
+        if (xDiff <= tolerance * 2 && !isNearVerticalCenter) {
           const guidePosition = centerX + element.position.x;
           guides.push({
             id: `element-${element.id}-vertical`,
@@ -139,8 +139,8 @@ export const useSnapController = ({
           });
         }
 
-        // Show horizontal alignment guide (same Y position) when elements can align horizontally  
-        if (yDiff <= tolerance * 3 && !isNearHorizontalCenter) {
+        // Show horizontal alignment guide (element's Y center) - only if close and not already snapping to canvas center
+        if (yDiff <= tolerance * 2 && !isNearHorizontalCenter) {
           const guidePosition = centerY + element.position.y;
           guides.push({
             id: `element-${element.id}-horizontal`,
