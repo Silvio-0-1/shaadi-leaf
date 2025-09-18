@@ -998,7 +998,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onRotate={handleElementRotate}
               gridSize={gridSize}
               snapToGrid={snapToGrid}
-              zIndex={elementZIndices.logo || 10}
               showAlignmentGuides={showAlignmentGuides}
               otherElements={getAllElements()}
               zIndex={elementZIndices.logo || 15}
