@@ -138,32 +138,32 @@ export const useSnapController = ({
     let tooltip: { message: string; x: number; y: number } | null = null;
 
     if (enabled) {
-      // Always show center guides when enabled
-      guides.push({
-        id: 'center-vertical',
-        type: 'vertical',
-        position: centerX,
-        isActive: isDragging && Math.abs(currentPosition.x) <= tolerance,
-        isCenter: true,
-      });
-
-      guides.push({
-        id: 'center-horizontal',
-        type: 'horizontal',
-        position: centerY,
-        isActive: isDragging && Math.abs(currentPosition.y) <= tolerance,
-        isCenter: true,
-      });
-
-      // Add guides for other elements when dragging
+      // Always show center guides when enabled and dragging
       if (isDragging) {
+        guides.push({
+          id: 'center-vertical',
+          type: 'vertical',
+          position: centerX,
+          isActive: Math.abs(currentPosition.x) <= tolerance,
+          isCenter: true,
+        });
+
+        guides.push({
+          id: 'center-horizontal',
+          type: 'horizontal',
+          position: centerY,
+          isActive: Math.abs(currentPosition.y) <= tolerance,
+          isCenter: true,
+        });
+
+        // Add guides for other elements when dragging
         otherElements.forEach((element, index) => {
           if (element.id === elementId) return;
 
           const xDiff = Math.abs(currentPosition.x - element.position.x);
           const yDiff = Math.abs(currentPosition.y - element.position.y);
 
-          if (xDiff <= tolerance * 2) {
+          if (xDiff <= tolerance * 3) {
             guides.push({
               id: `element-${index}-vertical`,
               type: 'vertical',
@@ -173,7 +173,7 @@ export const useSnapController = ({
             });
           }
 
-          if (yDiff <= tolerance * 2) {
+          if (yDiff <= tolerance * 3) {
             guides.push({
               id: `element-${index}-horizontal`,
               type: 'horizontal',

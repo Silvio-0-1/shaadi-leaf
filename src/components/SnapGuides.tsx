@@ -21,19 +21,20 @@ const SnapGuides: React.FC<SnapGuidesProps> = ({ guides, containerSize, snapTool
       {guides.map((guide) => (
         <div
           key={guide.id}
-          className={`absolute ${
+          className={`absolute transition-all duration-150 ${
             guide.isActive 
               ? guide.isCenter 
-                ? 'bg-red-500 opacity-80' 
-                : 'bg-blue-500 opacity-60'
-              : 'bg-gray-300 opacity-30'
+                ? 'bg-blue-500 opacity-100 shadow-lg' 
+                : 'bg-blue-400 opacity-80'
+              : 'bg-blue-300 opacity-20'
           } ${
-            guide.type === 'horizontal' ? 'h-px w-full' : 'w-px h-full'
-          } transition-opacity duration-150`}
+            guide.type === 'horizontal' ? 'h-0.5 w-full' : 'w-0.5 h-full'
+          }`}
           style={{
             left: guide.type === 'vertical' ? guide.position : 0,
             top: guide.type === 'horizontal' ? guide.position : 0,
             zIndex: guide.isActive ? 45 : 35,
+            boxShadow: guide.isActive ? '0 0 8px rgba(59, 130, 246, 0.6)' : 'none',
           }}
         />
       ))}
@@ -41,15 +42,15 @@ const SnapGuides: React.FC<SnapGuidesProps> = ({ guides, containerSize, snapTool
       {/* Snap tooltip */}
       {snapTooltip && (
         <div
-          className="absolute bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none z-50 whitespace-nowrap"
+          className="absolute bg-blue-600 text-white text-xs px-3 py-1.5 rounded-md shadow-lg pointer-events-none z-50 whitespace-nowrap font-medium"
           style={{
             left: snapTooltip.x,
-            top: snapTooltip.y - 30,
+            top: snapTooltip.y - 35,
             transform: 'translateX(-50%)',
           }}
         >
           {snapTooltip.message}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900" />
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-blue-600" />
         </div>
       )}
     </div>

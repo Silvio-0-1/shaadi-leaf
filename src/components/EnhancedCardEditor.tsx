@@ -141,8 +141,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     containerSize,
     otherElements: getOtherElements(),
     onSnap: (message) => {
+      // Remove toast spam - only log for debugging
       console.log('🎯 Snapped:', message);
-      toast.success(`Snapped to ${message.toLowerCase()}`);
     }
   });
   
@@ -284,10 +284,13 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const handleElementMove = useCallback((elementId: string, newPosition: ElementPosition) => {
     console.log('🎯 DRAG [handleElementMove]:', { elementId, position: newPosition });
     
+    // Update guides during drag
+    const elementSize = elementSizes[elementId] || textSizes[elementId] || { width: 100, height: 50 };
+    snapController.updateGuides(elementId, newPosition, elementSize, true);
+    
     // Apply snapping if enabled
     let finalPosition = newPosition;
     if (snapToCenter) {
-      const elementSize = elementSizes[elementId] || textSizes[elementId] || { width: 100, height: 50 };
       const snapResult = snapController.calculateSnap(elementId, newPosition, elementSize);
       finalPosition = snapResult.position;
       
@@ -984,6 +987,12 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         )}
 
         <div className="relative h-full flex items-center justify-center p-8">
+          {/* Snap Guides Overlay - Show always when enabled */}
+          <SnapGuides 
+            guides={snapController.snapGuides}
+            containerSize={containerSize}
+            snapTooltip={snapController.snapTooltip}
+          />
           {/* Logo */}
           {cardData.logoImage && (
             <AdvancedDraggableElement
