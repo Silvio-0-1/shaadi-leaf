@@ -1039,6 +1039,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             customization={cardData.customization}
             rotation={elementRotations.brideName || 0}
             onRotate={handleElementRotate}
+            gridSize={gridSize}
+            snapToGrid={snapToGrid}
+            showAlignmentGuides={showAlignmentGuides}
+            otherElements={getAllElements()}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1127,6 +1131,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             customization={cardData.customization}
             rotation={elementRotations.groomName || 0}
             onRotate={handleElementRotate}
+            gridSize={gridSize}
+            snapToGrid={snapToGrid}
+            showAlignmentGuides={showAlignmentGuides}
+            otherElements={getAllElements()}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1181,6 +1189,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               customization={cardData.customization}
               rotation={elementRotations.weddingDate || 0}
               onRotate={handleElementRotate}
+              gridSize={gridSize}
+              snapToGrid={snapToGrid}
+              showAlignmentGuides={showAlignmentGuides}
+              otherElements={getAllElements()}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1221,6 +1233,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               customization={cardData.customization}
               rotation={elementRotations.venue || 0}
               onRotate={handleElementRotate}
+              gridSize={gridSize}
+              snapToGrid={snapToGrid}
+              showAlignmentGuides={showAlignmentGuides}
+              otherElements={getAllElements()}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1278,6 +1294,10 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               customization={cardData.customization}
               rotation={elementRotations.message || 0}
               onRotate={handleElementRotate}
+              gridSize={gridSize}
+              snapToGrid={snapToGrid}
+              showAlignmentGuides={showAlignmentGuides}
+              otherElements={getAllElements()}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"

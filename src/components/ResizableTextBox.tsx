@@ -21,6 +21,10 @@ interface ResizableTextBoxProps {
   className?: string;
   rotation?: number;
   onRotate?: (elementId: string, rotation: number) => void;
+  gridSize?: number;
+  snapToGrid?: boolean;
+  showAlignmentGuides?: boolean;
+  otherElements?: Array<{ id: string; position: ElementPosition; width?: number; height?: number; }>;
 }
 
 const ResizableTextBox = ({ 
@@ -41,7 +45,11 @@ const ResizableTextBox = ({
   customization,
   className = '',
   rotation = 0,
-  onRotate
+  onRotate,
+  gridSize = 30,
+  snapToGrid = false,
+  showAlignmentGuides = false,
+  otherElements = []
 }: ResizableTextBoxProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -228,8 +236,41 @@ const ResizableTextBox = ({
       const deltaX = clientX - dragStart.x;
       const deltaY = clientY - dragStart.y;
       
-      const newX = startPosition.x + deltaX;
-      const newY = startPosition.y + deltaY;
+      let newX = startPosition.x + deltaX;
+      let newY = startPosition.y + deltaY;
+      
+      // Apply grid snapping if enabled
+      if (snapToGrid && gridSize > 0) {
+        newX = Math.round(newX / gridSize) * gridSize;
+        newY = Math.round(newY / gridSize) * gridSize;
+      }
+      
+      // Apply alignment guides snapping if enabled
+      if (showAlignmentGuides && otherElements.length > 0) {
+        const snapThreshold = 8;
+        
+        // Check for horizontal alignment
+        for (const element of otherElements) {
+          if (element.id !== id) {
+            // Snap to horizontal center alignment
+            if (Math.abs(newY - element.position.y) < snapThreshold) {
+              newY = element.position.y;
+              break;
+            }
+          }
+        }
+        
+        // Check for vertical alignment
+        for (const element of otherElements) {
+          if (element.id !== id) {
+            // Snap to vertical center alignment
+            if (Math.abs(newX - element.position.x) < snapThreshold) {
+              newX = element.position.x;
+              break;
+            }
+          }
+        }
+      }
       
       // Constrain to container bounds
       const containerRect = containerRef.current.getBoundingClientRect();
@@ -254,7 +295,8 @@ const ResizableTextBox = ({
     }
   }, [
     isDragging, isResizing, isRotating, dragStart, startPosition, 
-    calculateNewSize, calculateRotation, onMove, id
+    calculateNewSize, calculateRotation, onMove, id, snapToGrid, gridSize, 
+    showAlignmentGuides, otherElements
   ]);
 
   const handleMouseMove = (e: MouseEvent) => {
