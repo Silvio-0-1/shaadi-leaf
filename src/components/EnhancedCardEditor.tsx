@@ -968,12 +968,23 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         className="aspect-[3/4] overflow-hidden relative group shadow-2xl border-0 bg-white rounded-none"
         style={getBackgroundStyle()}
         onClick={(e) => {
+          // Only deselect if clicking directly on the card background, not on any elements
+          const clickTarget = e.target as HTMLElement;
+          const isClickingOnElement = clickTarget.closest('[data-draggable-element]') || 
+                                     clickTarget.closest('.absolute') ||
+                                     clickTarget.getAttribute('data-draggable-element');
+          
+          if (isClickingOnElement) {
+            console.log('🟢 Clicking on element, not deselecting');
+            return;
+          }
+          
           // Prevent immediate deselection by checking timing
           const now = Date.now();
           const timeSinceSelection = now - lastSelectionTime;
           
-          // If an element was just selected (within 300ms), don't deselect it
-          if (timeSinceSelection < 300) {
+          // If an element was just selected (within 500ms), don't deselect it
+          if (timeSinceSelection < 500) {
             console.log('🔴 Preventing deselection - element was just selected:', timeSinceSelection, 'ms ago');
             return;
           }
