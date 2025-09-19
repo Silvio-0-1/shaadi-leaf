@@ -105,8 +105,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
       }
     };
 
-    // Initial size update
-    updateContainerSize();
+    // Use a timeout to ensure DOM has settled
+    const timer = setTimeout(updateContainerSize, 0);
 
     // Create ResizeObserver to watch for container size changes
     const resizeObserver = new ResizeObserver(updateContainerSize);
@@ -119,10 +119,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     window.addEventListener('resize', updateContainerSize);
 
     return () => {
+      clearTimeout(timer);
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateContainerSize);
     };
-  }, [cardRef]);
+  }, [template, cardData]); // Depend on template and cardData changes
   
   // Get other elements for alignment
   const getOtherElements = useCallback(() => {
