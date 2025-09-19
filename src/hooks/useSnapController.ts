@@ -131,8 +131,7 @@ export const useSnapController = ({
         // Show vertical alignment guide (element's X center)
         if (xDiff <= tolerance * 2 && !isNearVerticalCenter) {
           // Convert element's center-based position to screen pixels
-          // For vertical alignment guide (element's X center)
-          const guidePosition = containerSize.width / 2 + element.position.x;
+          const guidePosition = canvasVerticalCenter + element.position.x;
           guides.push({
             id: `element-${element.id}-vertical`,
             type: 'vertical',
@@ -145,8 +144,7 @@ export const useSnapController = ({
         // Show horizontal alignment guide (element's Y center)
         if (yDiff <= tolerance * 2 && !isNearHorizontalCenter) {
           // Convert element's center-based position to screen pixels
-          // For horizontal alignment guide (element's Y center)  
-          const guidePosition = containerSize.height / 2 + element.position.y;
+          const guidePosition = canvasHorizontalCenter + element.position.y;
           guides.push({
             id: `element-${element.id}-horizontal`,
             type: 'horizontal',
