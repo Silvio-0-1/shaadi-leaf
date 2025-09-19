@@ -977,15 +977,23 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                                               clickTarget.getAttribute('data-draggable-element') ||
                                               clickTarget.closest('.absolute.select-none'); // Fallback for text elements
           
+          // Check if we're clicking on toolbar elements (buttons, selects, etc.)
+          const isClickingOnToolbar = clickTarget.closest('button') || 
+                                      clickTarget.closest('[role="combobox"]') ||
+                                      clickTarget.closest('[role="option"]') ||
+                                      clickTarget.closest('.bg-background\\/95') || // Toolbar background
+                                      clickTarget.closest('[data-radix-popper-content-wrapper]'); // Select dropdown
+          
           console.log('🔍 Click detection:', { 
             target: clickTarget.tagName, 
             classList: clickTarget.className,
             textElement: !!isClickingOnTextElement, 
-            draggableElement: !!isClickingOnDraggableElement 
+            draggableElement: !!isClickingOnDraggableElement,
+            toolbar: !!isClickingOnToolbar
           });
           
-          if (isClickingOnTextElement || isClickingOnDraggableElement) {
-            console.log('🟢 Clicking on element, not deselecting');
+          if (isClickingOnTextElement || isClickingOnDraggableElement || isClickingOnToolbar) {
+            console.log('🟢 Clicking on element/toolbar, not deselecting');
             return;
           }
           
