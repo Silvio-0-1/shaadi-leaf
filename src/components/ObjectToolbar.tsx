@@ -300,6 +300,12 @@ const ObjectToolbar = ({
                 onFontFamilyChange?.(value);
               }}
               disabled={!hasSelection || !isTextElement || isElementLocked}
+              onOpenChange={(open) => {
+                if (open) {
+                  // Prevent deselection when dropdown opens
+                  document.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
+                }
+              }}
             >
               <SelectTrigger 
                 className="h-9 text-sm w-36 bg-background hover:bg-accent"
@@ -312,7 +318,13 @@ const ObjectToolbar = ({
                 onClick={(e) => e.stopPropagation()}
               >
                 {fontOptions.map((font) => (
-                  <SelectItem key={font} value={font} className="text-sm" style={{ fontFamily: font }}>
+                  <SelectItem 
+                    key={font} 
+                    value={font} 
+                    className="text-sm" 
+                    style={{ fontFamily: font }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {font}
                   </SelectItem>
                 ))}
@@ -327,6 +339,12 @@ const ObjectToolbar = ({
               value={fontSize?.toString() || '16'} 
               onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
               disabled={!hasSelection || !isTextElement || isElementLocked}
+              onOpenChange={(open) => {
+                if (open) {
+                  // Prevent deselection when dropdown opens
+                  document.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
+                }
+              }}
             >
               <SelectTrigger 
                 className="h-9 text-sm w-20 bg-background hover:bg-accent"
@@ -339,7 +357,12 @@ const ObjectToolbar = ({
                 onClick={(e) => e.stopPropagation()}
               >
                 {[10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 64, 68, 72, 80, 88, 96].map((size) => (
-                  <SelectItem key={size} value={size.toString()} className="text-sm">
+                  <SelectItem 
+                    key={size} 
+                    value={size.toString()} 
+                    className="text-sm"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {size}px
                   </SelectItem>
                 ))}

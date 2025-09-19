@@ -981,8 +981,17 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           const isClickingOnToolbar = clickTarget.closest('button') || 
                                       clickTarget.closest('[role="combobox"]') ||
                                       clickTarget.closest('[role="option"]') ||
+                                      clickTarget.closest('[role="listbox"]') ||
+                                      clickTarget.closest('[data-radix-select-trigger]') ||
+                                      clickTarget.closest('[data-radix-select-content]') ||
+                                      clickTarget.closest('[data-radix-select-item]') ||
+                                      clickTarget.closest('[data-radix-select-viewport]') ||
+                                      clickTarget.closest('[data-radix-collection-item]') ||
                                       clickTarget.closest('.bg-background\\/95') || // Toolbar background
-                                      clickTarget.closest('[data-radix-popper-content-wrapper]'); // Select dropdown
+                                      clickTarget.closest('[data-radix-popper-content-wrapper]') || // Select dropdown
+                                      (clickTarget.className && clickTarget.className.includes && 
+                                       (clickTarget.className.includes('select-') || 
+                                        clickTarget.className.includes('radix-')));
           
           console.log('🔍 Click detection:', { 
             target: clickTarget.tagName, 
