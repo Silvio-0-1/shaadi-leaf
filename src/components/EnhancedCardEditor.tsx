@@ -95,6 +95,34 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
 
   // Container size for snap calculations
   const [containerSize, setContainerSize] = useState({ width: 600, height: 400 });
+
+  // Update container size when the card ref changes
+  useEffect(() => {
+    const updateContainerSize = () => {
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        setContainerSize({ width: rect.width, height: rect.height });
+      }
+    };
+
+    // Initial size update
+    updateContainerSize();
+
+    // Create ResizeObserver to watch for container size changes
+    const resizeObserver = new ResizeObserver(updateContainerSize);
+    
+    if (cardRef.current) {
+      resizeObserver.observe(cardRef.current);
+    }
+
+    // Also listen to window resize as backup
+    window.addEventListener('resize', updateContainerSize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateContainerSize);
+    };
+  }, [cardRef]);
   
   // Get other elements for alignment
   const getOtherElements = useCallback(() => {
