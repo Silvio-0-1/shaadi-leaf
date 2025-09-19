@@ -1137,6 +1137,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             customization={cardData.customization}
             rotation={elementRotations.brideName || 0}
             onRotate={handleElementRotate}
+            onDragStart={() => handleDragStart('brideName')}
+            onDragEnd={() => handleDragEnd('brideName')}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1227,6 +1229,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             customization={cardData.customization}
             rotation={elementRotations.groomName || 0}
             onRotate={handleElementRotate}
+            onDragStart={() => handleDragStart('groomName')}
+            onDragEnd={() => handleDragEnd('groomName')}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1281,6 +1285,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               customization={cardData.customization}
               rotation={elementRotations.weddingDate || 0}
               onRotate={handleElementRotate}
+              onDragStart={() => handleDragStart('weddingDate')}
+              onDragEnd={() => handleDragEnd('weddingDate')}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1321,6 +1327,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               customization={cardData.customization}
               rotation={elementRotations.venue || 0}
               onRotate={handleElementRotate}
+              onDragStart={() => handleDragStart('venue')}
+              onDragEnd={() => handleDragEnd('venue')}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1378,6 +1386,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               customization={cardData.customization}
               rotation={elementRotations.message || 0}
               onRotate={handleElementRotate}
+              onDragStart={() => handleDragStart('message')}
+              onDragEnd={() => handleDragEnd('message')}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"

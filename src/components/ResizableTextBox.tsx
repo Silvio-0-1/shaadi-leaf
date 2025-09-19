@@ -21,6 +21,8 @@ interface ResizableTextBoxProps {
   className?: string;
   rotation?: number;
   onRotate?: (elementId: string, rotation: number) => void;
+  onDragStart?: (elementId: string) => void;
+  onDragEnd?: (elementId: string) => void;
 }
 
 const ResizableTextBox = ({ 
@@ -41,7 +43,9 @@ const ResizableTextBox = ({
   customization,
   className = '',
   rotation = 0,
-  onRotate
+  onRotate,
+  onDragStart,
+  onDragEnd
 }: ResizableTextBoxProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -79,6 +83,7 @@ const ResizableTextBox = ({
     setDragStart({ x: e.clientX, y: e.clientY });
     setStartPosition(position);
     onSelect?.(id);
+    onDragStart?.(id);
     
     e.preventDefault();
     e.stopPropagation();
@@ -92,6 +97,7 @@ const ResizableTextBox = ({
     setDragStart({ x: touch.clientX, y: touch.clientY });
     setStartPosition(position);
     onSelect?.(id);
+    onDragStart?.(id);
     
     e.preventDefault();
     e.stopPropagation();
@@ -282,6 +288,10 @@ const ResizableTextBox = ({
   const handleMouseUp = () => {
     if (rafId.current) {
       cancelAnimationFrame(rafId.current);
+    }
+    
+    if (isDragging) {
+      onDragEnd?.(id);
     }
     
     if (isResizing && onResize) {
