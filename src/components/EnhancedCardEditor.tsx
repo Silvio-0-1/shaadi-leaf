@@ -1178,6 +1178,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             customization={cardData.customization}
             rotation={elementRotations.brideName || 0}
             onRotate={handleElementRotate}
+            isLocked={elementLockStates.brideName || false}
             onDragStart={() => handleDragStart('brideName')}
             onDragEnd={() => handleDragEnd('brideName')}
           >
@@ -1270,6 +1271,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             customization={cardData.customization}
             rotation={elementRotations.groomName || 0}
             onRotate={handleElementRotate}
+            isLocked={elementLockStates.groomName || false}
             onDragStart={() => handleDragStart('groomName')}
             onDragEnd={() => handleDragEnd('groomName')}
           >
@@ -1328,6 +1330,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onRotate={handleElementRotate}
               onDragStart={() => handleDragStart('weddingDate')}
               onDragEnd={() => handleDragEnd('weddingDate')}
+              isLocked={elementLockStates.weddingDate || false}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1370,6 +1373,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onRotate={handleElementRotate}
               onDragStart={() => handleDragStart('venue')}
               onDragEnd={() => handleDragEnd('venue')}
+              isLocked={elementLockStates.venue || false}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1429,6 +1433,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onRotate={handleElementRotate}
               onDragStart={() => handleDragStart('message')}
               onDragEnd={() => handleDragEnd('message')}
+              isLocked={elementLockStates.message || false}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"

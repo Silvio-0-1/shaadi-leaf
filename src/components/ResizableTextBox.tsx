@@ -23,6 +23,7 @@ interface ResizableTextBoxProps {
   onRotate?: (elementId: string, rotation: number) => void;
   onDragStart?: (elementId: string) => void;
   onDragEnd?: (elementId: string) => void;
+  isLocked?: boolean;
 }
 
 const ResizableTextBox = ({ 
@@ -45,7 +46,8 @@ const ResizableTextBox = ({
   rotation = 0,
   onRotate,
   onDragStart,
-  onDragEnd
+  onDragEnd,
+  isLocked = false
 }: ResizableTextBoxProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -78,7 +80,7 @@ const ResizableTextBox = ({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current || isResizing || isRotating) return;
+    if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -91,7 +93,7 @@ const ResizableTextBox = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!containerRef.current || isResizing || isRotating) return;
+    if (!containerRef.current || isResizing || isRotating || isLocked) return;
     
     const touch = e.touches[0];
     setIsDragging(true);
@@ -105,7 +107,7 @@ const ResizableTextBox = ({
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isLocked) return;
     
     setIsResizing(true);
     setResizeDirection(direction);
@@ -118,7 +120,7 @@ const ResizableTextBox = ({
   };
 
   const handleResizeTouchStart = (e: React.TouchEvent, direction: string) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isLocked) return;
     
     const touch = e.touches[0];
     setIsResizing(true);
@@ -132,7 +134,7 @@ const ResizableTextBox = ({
   };
 
   const handleRotationMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current || !elementRef.current) return;
+    if (!containerRef.current || !elementRef.current || isLocked) return;
     
     setIsRotating(true);
     setRotationStart({ 
@@ -147,7 +149,7 @@ const ResizableTextBox = ({
   };
 
   const handleRotationTouchStart = (e: React.TouchEvent) => {
-    if (!containerRef.current || !elementRef.current) return;
+    if (!containerRef.current || !elementRef.current || isLocked) return;
     
     const touch = e.touches[0];
     setIsRotating(true);
