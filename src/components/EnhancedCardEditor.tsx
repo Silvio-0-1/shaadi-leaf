@@ -974,10 +974,12 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           // Check if we're clicking on a text element or any draggable element
           const isClickingOnTextElement = clickTarget.closest('[data-text-element]');
           const isClickingOnDraggableElement = clickTarget.closest('[data-draggable-element]') || 
-                                              clickTarget.getAttribute('data-draggable-element');
+                                              clickTarget.getAttribute('data-draggable-element') ||
+                                              clickTarget.closest('.absolute.select-none'); // Fallback for text elements
           
           console.log('🔍 Click detection:', { 
             target: clickTarget.tagName, 
+            classList: clickTarget.className,
             textElement: !!isClickingOnTextElement, 
             draggableElement: !!isClickingOnDraggableElement 
           });
@@ -997,25 +999,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             return;
           }
           
-          // Deselect when clicking on empty space (not on any draggable element)
-          const target = e.target as HTMLElement;
-          
-          // More robust detection - check if target or any parent has data-draggable-element
-          const isDraggableElement = 
-            target.hasAttribute('data-draggable-element') ||
-            target.closest('[data-draggable-element]') !== null ||
-            target.getAttribute('data-draggable-element') !== null ||
-            !!target.closest('.absolute.select-none'); // Fallback to class-based detection
-          
-          console.log('🔴 Card onClick - timeSinceSelection:', timeSinceSelection, 'target:', target.tagName);
-          
-          // Only deselect if clicking on card background (not on elements)
-          if (!isDraggableElement) {
-            console.log('🔴 Deselecting element because click was outside draggable elements');
-            setSelectedElement(null);
-          } else {
-            console.log('🔴 Not deselecting - click was on draggable element');
-          }
+          console.log('🔴 Deselecting element because click was outside draggable elements');
+          setSelectedElement(null);
         }}
       >
         {/* Grid Overlay */}
