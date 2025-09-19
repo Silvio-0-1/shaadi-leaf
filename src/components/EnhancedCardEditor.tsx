@@ -1178,9 +1178,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             width={textSizes.brideName.width}
             height={textSizes.brideName.height}
-            minWidth={100}
+            minWidth={150}
             maxWidth={600}
-            minHeight={30}
+            minHeight={40}
             maxHeight={200}
             isSelected={selectedElement === 'brideName'}
             onSelect={handleElementSelect}
