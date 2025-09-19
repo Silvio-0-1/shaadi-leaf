@@ -183,7 +183,10 @@ const ObjectToolbar = ({
                 key={action.id}
                 variant="ghost"
                 size="sm"
-                onClick={action.onClick}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  action.onClick?.();
+                }}
                 disabled={action.disabled}
                 className="h-9 w-9 p-0 hover:bg-accent"
                 title={action.label}
@@ -201,6 +204,7 @@ const ObjectToolbar = ({
             checked={showGridlines}
             onCheckedChange={onToggleGridlines}
             className="data-[state=checked]:bg-primary"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
 
@@ -211,6 +215,7 @@ const ObjectToolbar = ({
             checked={snapToCenter}
             onCheckedChange={onToggleSnapToCenter}
             className="data-[state=checked]:bg-blue-500"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
 
@@ -219,7 +224,10 @@ const ObjectToolbar = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onCenterHorizontally}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCenterHorizontally?.();
+            }}
             disabled={!hasSelection || isElementLocked}
             className="h-9 w-9 p-0 hover:bg-accent"
             title="Center Horizontally"
@@ -229,7 +237,10 @@ const ObjectToolbar = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onCenterVertically}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCenterVertically?.();
+            }}
             disabled={!hasSelection || isElementLocked}
             className="h-9 w-9 p-0 hover:bg-accent"
             title="Center Vertically"
@@ -239,7 +250,10 @@ const ObjectToolbar = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onCenterBoth}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCenterBoth?.();
+            }}
             disabled={!hasSelection || isElementLocked}
             className="h-9 w-9 p-0 hover:bg-accent"
             title="Center Both Axes"
@@ -261,7 +275,10 @@ const ObjectToolbar = ({
                 variant={action.id === 'delete' ? 'destructive' : 
                         action.id === 'toggle-lock' && isElementLocked ? 'default' : 'ghost'}
                 size="sm"
-                onClick={action.onClick}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  action.onClick?.();
+                }}
                 disabled={action.disabled}
                 className="h-9 w-9 p-0 hover:bg-accent"
                 title={action.label}
@@ -279,10 +296,15 @@ const ObjectToolbar = ({
             <Type className="h-4 w-4 text-muted-foreground" />
             <Select 
               value={fontFamily || 'Playfair Display'} 
-              onValueChange={onFontFamilyChange}
+              onValueChange={(value) => {
+                onFontFamilyChange?.(value);
+              }}
               disabled={!hasSelection || !isTextElement || isElementLocked}
             >
-              <SelectTrigger className="h-9 text-sm w-36 bg-background hover:bg-accent">
+              <SelectTrigger 
+                className="h-9 text-sm w-36 bg-background hover:bg-accent"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-40 bg-background border border-border">
@@ -303,7 +325,10 @@ const ObjectToolbar = ({
               onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
               disabled={!hasSelection || !isTextElement || isElementLocked}
             >
-              <SelectTrigger className="h-9 text-sm w-20 bg-background hover:bg-accent">
+              <SelectTrigger 
+                className="h-9 text-sm w-20 bg-background hover:bg-accent"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border">
