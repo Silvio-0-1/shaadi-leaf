@@ -171,38 +171,51 @@ const ResizableTextBox = ({
     let newWidth = startSize.width;
     let newHeight = startSize.height;
     
-    switch (resizeDirection) {
-      // Corner handles - change both dimensions
-      case 'se':
-        newWidth = startSize.width + deltaX;
-        newHeight = startSize.height + deltaY;
-        break;
-      case 'sw':
-        newWidth = startSize.width - deltaX;
-        newHeight = startSize.height + deltaY;
-        break;
-      case 'ne':
-        newWidth = startSize.width + deltaX;
-        newHeight = startSize.height - deltaY;
-        break;
-      case 'nw':
-        newWidth = startSize.width - deltaX;
-        newHeight = startSize.height - deltaY;
-        break;
-        
-      // Edge handles - change only one dimension
-      case 'e':
-        newWidth = startSize.width + deltaX;
-        break;
-      case 'w':
-        newWidth = startSize.width - deltaX;
-        break;
-      case 's':
-        newHeight = startSize.height + deltaY;
-        break;
-      case 'n':
-        newHeight = startSize.height - deltaY;
-        break;
+    // Check if this is a corner handle
+    const isCornerHandle = ['nw', 'ne', 'se', 'sw'].includes(resizeDirection);
+    
+    if (isCornerHandle) {
+      // For corner handles, use the larger delta to maintain better control
+      const primaryDelta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+      
+      switch (resizeDirection) {
+        case 'se':
+          // Southeast: both positive
+          newWidth = startSize.width + primaryDelta;
+          newHeight = startSize.height + primaryDelta;
+          break;
+        case 'sw':
+          // Southwest: width negative, height positive
+          newWidth = startSize.width - primaryDelta;
+          newHeight = startSize.height + primaryDelta;
+          break;
+        case 'ne':
+          // Northeast: width positive, height negative
+          newWidth = startSize.width + primaryDelta;
+          newHeight = startSize.height - primaryDelta;
+          break;
+        case 'nw':
+          // Northwest: both negative
+          newWidth = startSize.width - primaryDelta;
+          newHeight = startSize.height - primaryDelta;
+          break;
+      }
+    } else {
+      // Edge handles - change only one dimension (keep existing behavior)
+      switch (resizeDirection) {
+        case 'e':
+          newWidth = startSize.width + deltaX;
+          break;
+        case 'w':
+          newWidth = startSize.width - deltaX;
+          break;
+        case 's':
+          newHeight = startSize.height + deltaY;
+          break;
+        case 'n':
+          newHeight = startSize.height - deltaY;
+          break;
+      }
     }
     
     // Apply constraints with better minimums for text readability
