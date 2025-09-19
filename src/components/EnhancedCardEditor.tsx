@@ -972,10 +972,15 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           const clickTarget = e.target as HTMLElement;
           
           // Check if we're clicking on a text element or any draggable element
-          const isClickingOnTextElement = clickTarget.closest('.resizable-text-box') || 
-                                         clickTarget.closest('[data-text-element]');
+          const isClickingOnTextElement = clickTarget.closest('[data-text-element]');
           const isClickingOnDraggableElement = clickTarget.closest('[data-draggable-element]') || 
                                               clickTarget.getAttribute('data-draggable-element');
+          
+          console.log('🔍 Click detection:', { 
+            target: clickTarget.tagName, 
+            textElement: !!isClickingOnTextElement, 
+            draggableElement: !!isClickingOnDraggableElement 
+          });
           
           if (isClickingOnTextElement || isClickingOnDraggableElement) {
             console.log('🟢 Clicking on element, not deselecting');

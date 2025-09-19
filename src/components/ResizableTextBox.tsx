@@ -379,6 +379,7 @@ const ResizableTextBox = ({
   return (
     <div
       ref={elementRef}
+      data-text-element="true"
       className={`absolute select-none ${
         isDragging || isResizing || isRotating ? 'z-50' : isSelected ? 'z-40' : 'z-10'
       } ${!isResizing && !isRotating ? 'cursor-move' : ''} group ${className}`}
