@@ -109,8 +109,6 @@ const ResizableTextBox = ({
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
     if (!containerRef.current || isLocked) return;
     
-    console.log('🎯 Resize started:', direction);
-    
     setIsResizing(true);
     setResizeDirection(direction);
     setResizeStart({ x: e.clientX, y: e.clientY });
@@ -170,8 +168,6 @@ const ResizableTextBox = ({
     const deltaX = clientX - resizeStart.x;
     const deltaY = clientY - resizeStart.y;
     
-    console.log('📏 Resize calculation:', { resizeDirection, deltaX, deltaY, startSize });
-    
     let newWidth = startSize.width;
     let newHeight = startSize.height;
     
@@ -209,17 +205,14 @@ const ResizableTextBox = ({
         break;
     }
     
-    // Apply constraints with better minimums for text readability
+    // Apply constraints with generous limits for text elements
     const absoluteMinWidth = Math.max(minWidth, 120);
     const absoluteMinHeight = Math.max(minHeight, 50);
     
     newWidth = Math.max(absoluteMinWidth, Math.min(maxWidth, newWidth));
     newHeight = Math.max(absoluteMinHeight, Math.min(maxHeight, newHeight));
     
-    const result = { width: newWidth, height: newHeight };
-    console.log('📏 New size:', result);
-    
-    return result;
+    return { width: newWidth, height: newHeight };
   }, [resizeDirection, resizeStart, startSize, minWidth, maxWidth, minHeight, maxHeight]);
 
   const calculateRotation = useCallback((clientX: number, clientY: number) => {
@@ -260,7 +253,6 @@ const ResizableTextBox = ({
       
       onMove(id, { x: constrainedX, y: constrainedY });
     } else if (isResizing) {
-      console.log('🔄 Resizing in progress...');
       // Calculate and apply real-time size for smooth preview
       const newSize = calculateNewSize(clientX, clientY);
       setCurrentSize(newSize);
