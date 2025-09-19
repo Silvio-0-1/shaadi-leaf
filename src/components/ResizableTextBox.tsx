@@ -73,7 +73,6 @@ const ResizableTextBox = ({
 
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
-    e.preventDefault();
     console.log('🟢 Text element clicked:', id);
     onSelect?.(id);
   };

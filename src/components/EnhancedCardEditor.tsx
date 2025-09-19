@@ -970,11 +970,14 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
         onClick={(e) => {
           // Only deselect if clicking directly on the card background, not on any elements
           const clickTarget = e.target as HTMLElement;
-          const isClickingOnElement = clickTarget.closest('[data-draggable-element]') || 
-                                     clickTarget.closest('.absolute') ||
-                                     clickTarget.getAttribute('data-draggable-element');
           
-          if (isClickingOnElement) {
+          // Check if we're clicking on a text element or any draggable element
+          const isClickingOnTextElement = clickTarget.closest('.resizable-text-box') || 
+                                         clickTarget.closest('[data-text-element]');
+          const isClickingOnDraggableElement = clickTarget.closest('[data-draggable-element]') || 
+                                              clickTarget.getAttribute('data-draggable-element');
+          
+          if (isClickingOnTextElement || isClickingOnDraggableElement) {
             console.log('🟢 Clicking on element, not deselecting');
             return;
           }
@@ -983,8 +986,8 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           const now = Date.now();
           const timeSinceSelection = now - lastSelectionTime;
           
-          // If an element was just selected (within 500ms), don't deselect it
-          if (timeSinceSelection < 500) {
+          // If an element was just selected (within 300ms), don't deselect it
+          if (timeSinceSelection < 300) {
             console.log('🔴 Preventing deselection - element was just selected:', timeSinceSelection, 'ms ago');
             return;
           }
