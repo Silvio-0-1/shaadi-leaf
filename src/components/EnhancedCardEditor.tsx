@@ -1178,9 +1178,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             width={textSizes.brideName.width}
             height={textSizes.brideName.height}
-            minWidth={150}
+            minWidth={200}
             maxWidth={600}
-            minHeight={40}
+            minHeight={60}
             maxHeight={200}
             isSelected={selectedElement === 'brideName'}
             onSelect={handleElementSelect}
@@ -1271,9 +1271,9 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             containerRef={cardRef}
             width={textSizes.groomName.width}
             height={textSizes.groomName.height}
-            minWidth={100}
+            minWidth={200}
             maxWidth={600}
-            minHeight={30}
+            minHeight={60}
             maxHeight={200}
             isSelected={selectedElement === 'groomName'}
             onSelect={handleElementSelect}
