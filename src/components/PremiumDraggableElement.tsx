@@ -278,7 +278,7 @@ const PremiumDraggableElement = ({
             {resizeHandles.map((handle) => (
               <div
                 key={handle.direction}
-                className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-white border-2 border-primary rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-110 transition-all duration-150 ${handle.position}`}
+                className={`absolute ${isMobile ? 'w-6 h-6' : 'w-4 h-4'} bg-primary border-2 border-white rounded-full shadow-lg opacity-90 hover:opacity-100 hover:scale-125 transition-all duration-200 ${handle.position}`}
                 style={{ cursor: handle.cursor }}
                 onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
                 onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}

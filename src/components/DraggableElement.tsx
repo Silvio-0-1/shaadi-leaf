@@ -275,7 +275,7 @@ const DraggableElement = ({
             {resizeHandles.map((handle) => (
               <div
                 key={handle.direction}
-                className={`absolute w-3 h-3 bg-white border-2 border-primary opacity-0 group-hover:opacity-100 transition-opacity ${handle.position}`}
+                className={`absolute w-4 h-4 bg-primary border-2 border-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 hover:scale-125 transition-all duration-200 ${handle.position}`}
                 style={{ cursor: handle.cursor }}
                 onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
                 onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
