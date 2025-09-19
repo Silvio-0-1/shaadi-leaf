@@ -79,11 +79,13 @@ const ResizableTextBox = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!containerRef.current || isResizing || isRotating) return;
     
+    console.log('🔵 ResizableTextBox handleMouseDown:', id);
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setStartPosition(position);
     onSelect?.(id);
     onDragStart?.(id);
+    console.log('🔵 ResizableTextBox onDragStart called for:', id);
     
     e.preventDefault();
     e.stopPropagation();
@@ -291,6 +293,7 @@ const ResizableTextBox = ({
     }
     
     if (isDragging) {
+      console.log('🔵 ResizableTextBox handleMouseUp - calling onDragEnd for:', id);
       onDragEnd?.(id);
     }
     
