@@ -32,11 +32,14 @@ const SnapGuides: React.FC<SnapGuidesProps> = ({ guides, containerSize, snapTool
               top: guide.type === 'horizontal' ? `${guide.position}px` : 0,
               transform: 'none',
               zIndex: guide.isActive ? 45 : 35,
-              backgroundColor: guide.isActive 
-                ? 'rgba(59, 130, 246, 0.9)' 
+              backgroundColor: 'transparent',
+              borderStyle: 'dashed',
+              borderWidth: guide.type === 'horizontal' ? '1px 0 0 0' : '0 0 0 1px',
+              borderColor: guide.isActive 
+                ? 'rgba(59, 130, 246, 0.8)' 
                 : 'rgba(59, 130, 246, 0.5)',
               boxShadow: guide.isActive 
-                ? '0 0 4px rgba(59, 130, 246, 0.6)' 
+                ? '0 0 2px rgba(59, 130, 246, 0.4)' 
                 : 'none',
             }}
           />

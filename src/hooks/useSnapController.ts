@@ -17,7 +17,7 @@ interface UseSnapControllerProps {
 
 export const useSnapController = ({
   enabled,
-  tolerance = 8,
+  tolerance = 6, // Changed from 8 to 6 for tighter snapping
   containerSize,
   otherElements = [],
 }: UseSnapControllerProps) => {
@@ -100,11 +100,15 @@ export const useSnapController = ({
       const isNearVerticalCenter = Math.abs(currentPosition.x) <= tolerance;
       const isNearHorizontalCenter = Math.abs(currentPosition.y) <= tolerance;
       
-      // Canvas center guides - use absolute positioning
+      // Canvas center guides - elements use center-based coordinates
+      // Position 0,0 appears at the physical center of the container
+      const canvasVerticalCenter = containerSize.width / 2;
+      const canvasHorizontalCenter = containerSize.height / 2;
+      
       guides.push({
         id: 'canvas-vertical-center',
         type: 'vertical',
-        position: containerSize.width / 2, // Canvas center X position in pixels
+        position: canvasVerticalCenter,
         isActive: isNearVerticalCenter,
         isCenter: true,
       });
@@ -112,24 +116,22 @@ export const useSnapController = ({
       guides.push({
         id: 'canvas-horizontal-center',
         type: 'horizontal',
-        position: containerSize.height / 2, // Canvas center Y position in pixels
+        position: canvasHorizontalCenter,
         isActive: isNearHorizontalCenter,
         isCenter: true,
       });
 
-      // Element center alignment guides - only show one per element
-      const centerX = containerSize.width / 2;
-      const centerY = containerSize.height / 2;
-      
+      // Element center alignment guides
       otherElements.forEach((element) => {
         if (element.id === elementId) return; // Skip the element being dragged
 
         const xDiff = Math.abs(currentPosition.x - element.position.x);
         const yDiff = Math.abs(currentPosition.y - element.position.y);
 
-        // Show vertical alignment guide (element's X center) - only if close and not already snapping to canvas center
+        // Show vertical alignment guide (element's X center)
         if (xDiff <= tolerance * 2 && !isNearVerticalCenter) {
-          const guidePosition = centerX + element.position.x;
+          // Convert element's center-based position to screen pixels
+          const guidePosition = canvasVerticalCenter + element.position.x;
           guides.push({
             id: `element-${element.id}-vertical`,
             type: 'vertical',
@@ -139,9 +141,10 @@ export const useSnapController = ({
           });
         }
 
-        // Show horizontal alignment guide (element's Y center) - only if close and not already snapping to canvas center
+        // Show horizontal alignment guide (element's Y center)
         if (yDiff <= tolerance * 2 && !isNearHorizontalCenter) {
-          const guidePosition = centerY + element.position.y;
+          // Convert element's center-based position to screen pixels
+          const guidePosition = canvasHorizontalCenter + element.position.y;
           guides.push({
             id: `element-${element.id}-horizontal`,
             type: 'horizontal',
