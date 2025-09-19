@@ -85,7 +85,6 @@ export const useSnapController = ({
     };
   }, [enabled, tolerance, otherElements]);
 
-
   // Update guides based on current drag state - simplified to only show 4 cases
   const updateGuides = useCallback((
     elementId: string,
@@ -100,15 +99,16 @@ export const useSnapController = ({
       const isNearVerticalCenter = Math.abs(currentPosition.x) <= tolerance;
       const isNearHorizontalCenter = Math.abs(currentPosition.y) <= tolerance;
       
-      // Canvas center guides - elements use center-based coordinates
-      // Position 0,0 appears at the physical center of the container
-      const canvasVerticalCenter = containerSize.width / 2;
-      const canvasHorizontalCenter = containerSize.height / 2;
+      // Canvas center guides - these should always be at the actual center pixels
+      // Since element position 0,0 corresponds to canvas center, 
+      // the guide lines should be drawn at the physical center pixels
+      const canvasPhysicalVerticalCenter = containerSize.width / 2;
+      const canvasPhysicalHorizontalCenter = containerSize.height / 2;
       
       guides.push({
         id: 'canvas-vertical-center',
         type: 'vertical',
-        position: canvasVerticalCenter,
+        position: canvasPhysicalVerticalCenter,
         isActive: isNearVerticalCenter,
         isCenter: true,
       });
@@ -116,7 +116,7 @@ export const useSnapController = ({
       guides.push({
         id: 'canvas-horizontal-center',
         type: 'horizontal',
-        position: canvasHorizontalCenter,
+        position: canvasPhysicalHorizontalCenter,
         isActive: isNearHorizontalCenter,
         isCenter: true,
       });
@@ -131,7 +131,7 @@ export const useSnapController = ({
         // Show vertical alignment guide (element's X center)
         if (xDiff <= tolerance * 2 && !isNearVerticalCenter) {
           // Convert element's center-based position to screen pixels
-          const guidePosition = canvasVerticalCenter + element.position.x;
+          const guidePosition = canvasPhysicalVerticalCenter + element.position.x;
           guides.push({
             id: `element-${element.id}-vertical`,
             type: 'vertical',
@@ -144,7 +144,7 @@ export const useSnapController = ({
         // Show horizontal alignment guide (element's Y center)
         if (yDiff <= tolerance * 2 && !isNearHorizontalCenter) {
           // Convert element's center-based position to screen pixels
-          const guidePosition = canvasHorizontalCenter + element.position.y;
+          const guidePosition = canvasPhysicalHorizontalCenter + element.position.y;
           guides.push({
             id: `element-${element.id}-horizontal`,
             type: 'horizontal',
