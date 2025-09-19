@@ -109,6 +109,8 @@ const ResizableTextBox = ({
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
     if (!containerRef.current || isLocked) return;
     
+    console.log('🎯 Resize started:', direction);
+    
     setIsResizing(true);
     setResizeDirection(direction);
     setResizeStart({ x: e.clientX, y: e.clientY });
@@ -168,33 +170,31 @@ const ResizableTextBox = ({
     const deltaX = clientX - resizeStart.x;
     const deltaY = clientY - resizeStart.y;
     
+    console.log('📏 Resize calculation:', { resizeDirection, deltaX, deltaY, startSize });
+    
     let newWidth = startSize.width;
     let newHeight = startSize.height;
     
     switch (resizeDirection) {
-      // Corner handles - resize both dimensions based on average delta for smoother resizing
+      // Corner handles - resize both dimensions
       case 'se':
-        const seDelta = (deltaX + deltaY) / 2;
-        newWidth = startSize.width + seDelta;
-        newHeight = startSize.height + seDelta;
+        newWidth = startSize.width + deltaX;
+        newHeight = startSize.height + deltaY;
         break;
       case 'sw':
-        const swDelta = (-deltaX + deltaY) / 2;
-        newWidth = startSize.width - swDelta;
-        newHeight = startSize.height + swDelta;
+        newWidth = startSize.width - deltaX;
+        newHeight = startSize.height + deltaY;
         break;
       case 'ne':
-        const neDelta = (deltaX - deltaY) / 2;
-        newWidth = startSize.width + neDelta;
-        newHeight = startSize.height - neDelta;
+        newWidth = startSize.width + deltaX;
+        newHeight = startSize.height - deltaY;
         break;
       case 'nw':
-        const nwDelta = (-deltaX - deltaY) / 2;
-        newWidth = startSize.width - nwDelta;
-        newHeight = startSize.height - nwDelta;
+        newWidth = startSize.width - deltaX;
+        newHeight = startSize.height - deltaY;
         break;
         
-      // Edge handles - change only one dimension (keep existing behavior)
+      // Edge handles - change only one dimension
       case 'e':
         newWidth = startSize.width + deltaX;
         break;
@@ -210,13 +210,16 @@ const ResizableTextBox = ({
     }
     
     // Apply constraints with better minimums for text readability
-    const absoluteMinWidth = Math.max(minWidth, 120);  // Increased from 100px
-    const absoluteMinHeight = Math.max(minHeight, 50);  // Increased from 40px
+    const absoluteMinWidth = Math.max(minWidth, 120);
+    const absoluteMinHeight = Math.max(minHeight, 50);
     
     newWidth = Math.max(absoluteMinWidth, Math.min(maxWidth, newWidth));
     newHeight = Math.max(absoluteMinHeight, Math.min(maxHeight, newHeight));
     
-    return { width: newWidth, height: newHeight };
+    const result = { width: newWidth, height: newHeight };
+    console.log('📏 New size:', result);
+    
+    return result;
   }, [resizeDirection, resizeStart, startSize, minWidth, maxWidth, minHeight, maxHeight]);
 
   const calculateRotation = useCallback((clientX: number, clientY: number) => {
@@ -257,6 +260,7 @@ const ResizableTextBox = ({
       
       onMove(id, { x: constrainedX, y: constrainedY });
     } else if (isResizing) {
+      console.log('🔄 Resizing in progress...');
       // Calculate and apply real-time size for smooth preview
       const newSize = calculateNewSize(clientX, clientY);
       setCurrentSize(newSize);
