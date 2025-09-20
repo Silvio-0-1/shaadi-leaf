@@ -1,516 +1,358 @@
-import { useState, useRef, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useTextMeasurement } from '@/hooks/useTextMeasurement';
-import { ElementPosition, TemplateCustomization } from '@/types';
+// Replace your entire DynamicTextBox.tsx file with this code:
+
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { ElementPosition } from '@/types';
 
 interface DynamicTextBoxProps {
   id: string;
   position: ElementPosition;
   onMove: (elementId: string, position: ElementPosition) => void;
-  onResize?: (elementId: string, size: { width: number; height: number }) => void;
+  onResize: (elementId: string, size: { width: number; height: number }) => void;
   containerRef: React.RefObject<HTMLDivElement>;
-  children: ReactNode;
-  fontSize?: number;
-  fontFamily?: string;
-  fontWeight?: string;
-  width?: number;
-  height?: number;
+  fontSize: number;
+  fontFamily: string;
+  text: string;
   minWidth?: number;
   maxWidth?: number;
   minHeight?: number;
   maxHeight?: number;
-  isSelected?: boolean;
-  onSelect?: (elementId: string | null) => void;
-  customization?: TemplateCustomization;
-  className?: string;
+  isSelected: boolean;
+  onSelect: (elementId: string) => void;
+  customization?: any;
   rotation?: number;
   onRotate?: (elementId: string, rotation: number) => void;
-  onDragStart?: (elementId: string) => void;
-  onDragEnd?: (elementId: string) => void;
   isLocked?: boolean;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
+  onTextChange?: (value: string) => void;
   autoSize?: boolean;
-  text?: string;
-  onTextChange?: (text: string) => void;
+  children: React.ReactNode;
 }
 
-const DynamicTextBox = ({ 
-  id, 
-  position, 
-  onMove, 
+const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
+  id,
+  position,
+  onMove,
   onResize,
-  containerRef, 
-  children, 
-  fontSize = 16,
-  fontFamily = 'Inter, system-ui, sans-serif',
-  fontWeight = '400',
-  width: propWidth = 200,
-  height: propHeight = 60,
-  minWidth = 60,
-  maxWidth = 800,
-  minHeight = 30,
-  maxHeight = 400,
-  isSelected = false,
+  containerRef,
+  fontSize,
+  fontFamily,
+  text,
+  minWidth = 100,
+  maxWidth = 600,
+  minHeight = 40,
+  maxHeight = 300,
+  isSelected,
   onSelect,
   customization,
-  className = '',
   rotation = 0,
   onRotate,
+  isLocked = false,
   onDragStart,
   onDragEnd,
-  isLocked = false,
+  onTextChange,
   autoSize = true,
-  text = '',
-  onTextChange
-}: DynamicTextBoxProps) => {
+  children
+}) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  const [isRotating, setIsRotating] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+  const [elementSize, setElementSize] = useState({ width: minWidth, height: minHeight });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0 });
-  const [startSize, setStartSize] = useState({ width: 0, height: 0 });
-  const [resizeDirection, setResizeDirection] = useState<string>('');
-  const [rotationStart, setRotationStart] = useState({ x: 0, y: 0, rotation: 0 });
-  
-  const [currentRotation, setCurrentRotation] = useState(rotation);
-  const [manualSize, setManualSize] = useState<{ width: number; height: number } | null>(null);
-  
   const elementRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const rafId = useRef<number>();
-  const isMobile = useIsMobile();
-  const { measureText } = useTextMeasurement();
+  const textContentRef = useRef<HTMLDivElement>(null);
 
-  // Calculate dynamic size based on text content
-  const calculatedSize = useMemo(() => {
-    if (!autoSize || !text.trim()) {
-      return { width: propWidth, height: propHeight };
-    }
-
-    const measured = measureText(text, {
-      fontFamily,
-      fontSize,
-      fontWeight,
-      lineHeight: 1.4,
-      maxWidth: maxWidth,
-      padding: { horizontal: 16, vertical: 12 }
-    });
-
-    return {
-      width: Math.max(minWidth, Math.min(maxWidth, measured.width)),
-      height: Math.max(minHeight, Math.min(maxHeight, measured.height))
-    };
-  }, [text, fontSize, fontFamily, fontWeight, autoSize, propWidth, propHeight, minWidth, maxWidth, minHeight, maxHeight, measureText]);
-
-  // Use manual size if set by user, otherwise use calculated size
-  const currentSize = useMemo(() => {
-    if (manualSize) {
-      return manualSize;
-    }
-    return calculatedSize;
-  }, [manualSize, calculatedSize]);
-
-  // Update rotation when prop changes
+  // Auto-size based on text content and font size
   useEffect(() => {
-    setCurrentRotation(rotation);
-  }, [rotation]);
-
-  // Auto-resize when text changes (unless manually resized)
-  useEffect(() => {
-    if (autoSize && !manualSize && onResize) {
-      onResize(id, calculatedSize);
-    }
-  }, [calculatedSize, autoSize, manualSize, onResize, id]);
-
-  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
-    e.stopPropagation();
-    onSelect?.(id);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current || isResizing || isRotating || isLocked) return;
-    
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setStartPosition(position);
-    onSelect?.(id);
-    onDragStart?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!containerRef.current || isResizing || isRotating || isLocked) return;
-    
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setDragStart({ x: touch.clientX, y: touch.clientY });
-    setStartPosition(position);
-    onSelect?.(id);
-    onDragStart?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
-    if (!containerRef.current || isLocked) return;
-    
-    setIsResizing(true);
-    setResizeDirection(direction);
-    setResizeStart({ x: e.clientX, y: e.clientY });
-    setStartSize(currentSize);
-    onSelect?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleResizeTouchStart = (e: React.TouchEvent, direction: string) => {
-    if (!containerRef.current || isLocked) return;
-    
-    const touch = e.touches[0];
-    setIsResizing(true);
-    setResizeDirection(direction);
-    setResizeStart({ x: touch.clientX, y: touch.clientY });
-    setStartSize(currentSize);
-    onSelect?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleRotationMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current || !elementRef.current || isLocked) return;
-    
-    setIsRotating(true);
-    setRotationStart({ 
-      x: e.clientX, 
-      y: e.clientY, 
-      rotation: currentRotation 
-    });
-    onSelect?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleRotationTouchStart = (e: React.TouchEvent) => {
-    if (!containerRef.current || !elementRef.current || isLocked) return;
-    
-    const touch = e.touches[0];
-    setIsRotating(true);
-    setRotationStart({ 
-      x: touch.clientX, 
-      y: touch.clientY, 
-      rotation: currentRotation 
-    });
-    onSelect?.(id);
-    
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const calculateNewSize = useCallback((clientX: number, clientY: number) => {
-    const deltaX = clientX - resizeStart.x;
-    const deltaY = clientY - resizeStart.y;
-    
-    let newWidth = startSize.width;
-    let newHeight = startSize.height;
-    
-    switch (resizeDirection) {
-      // Corner handles - resize both dimensions proportionally
-      case 'se':
-        newWidth = startSize.width + deltaX;
-        newHeight = startSize.height + deltaY;
-        break;
-      case 'sw':
-        newWidth = startSize.width - deltaX;
-        newHeight = startSize.height + deltaY;
-        break;
-      case 'ne':
-        newWidth = startSize.width + deltaX;
-        newHeight = startSize.height - deltaY;
-        break;
-      case 'nw':
-        newWidth = startSize.width - deltaX;
-        newHeight = startSize.height - deltaY;
-        break;
-        
-      // Edge handles - change only one dimension
-      case 'e':
-        newWidth = startSize.width + deltaX;
-        break;
-      case 'w':
-        newWidth = startSize.width - deltaX;
-        break;
-      case 's':
-        newHeight = startSize.height + deltaY;
-        break;
-      case 'n':
-        newHeight = startSize.height - deltaY;
-        break;
-    }
-    
-    // Apply constraints
-    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-    newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
-    
-    return { width: newWidth, height: newHeight };
-  }, [resizeDirection, resizeStart, startSize, minWidth, maxWidth, minHeight, maxHeight]);
-
-  const calculateRotation = useCallback((clientX: number, clientY: number) => {
-    if (!elementRef.current || !containerRef.current) return currentRotation;
-    
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const centerX = containerRect.left + containerRect.width / 2 + position.x;
-    const centerY = containerRect.top + containerRect.height / 2 + position.y;
-    
-    const angle = Math.atan2(clientY - centerY, clientX - centerX);
-    const degrees = (angle * 180) / Math.PI + 90;
-    
-    // Snap to 15-degree increments
-    const snappedDegrees = Math.round(degrees / 15) * 15;
-    return snappedDegrees % 360;
-  }, [position, currentRotation]);
-
-  const handleMove = useCallback((clientX: number, clientY: number) => {
-    if (!containerRef.current) return;
-
-    if (isDragging) {
-      const deltaX = clientX - dragStart.x;
-      const deltaY = clientY - dragStart.y;
+    if (autoSize && textContentRef.current) {
+      const textElement = textContentRef.current;
       
-      const newX = startPosition.x + deltaX;
-      const newY = startPosition.y + deltaY;
+      // Create a temporary element to measure text dimensions
+      const tempElement = document.createElement('div');
+      tempElement.style.position = 'absolute';
+      tempElement.style.visibility = 'hidden';
+      tempElement.style.whiteSpace = 'nowrap';
+      tempElement.style.fontSize = `${fontSize}px`;
+      tempElement.style.fontFamily = fontFamily;
+      tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
+      tempElement.textContent = text || 'Sample Text';
+      
+      document.body.appendChild(tempElement);
+      
+      const measuredWidth = Math.max(minWidth, Math.min(maxWidth, tempElement.offsetWidth + 40));
+      const measuredHeight = Math.max(minHeight, Math.min(maxHeight, tempElement.offsetHeight + 20));
+      
+      document.body.removeChild(tempElement);
+      
+      // Only update if dimensions changed significantly
+      if (Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5) {
+        const newSize = { width: measuredWidth, height: measuredHeight };
+        setElementSize(newSize);
+        onResize(id, newSize);
+      }
+    }
+  }, [text, fontSize, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize]);
+
+  const getContainerBounds = useCallback(() => {
+    if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
+    const rect = containerRef.current.getBoundingClientRect();
+    return {
+      width: rect.width,
+      height: rect.height,
+      left: rect.left,
+      top: rect.top
+    };
+  }, [containerRef]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (isLocked) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+
+    const target = e.target as HTMLElement;
+    const isResizeHandle = target.classList.contains('resize-handle');
+    
+    if (isResizeHandle) {
+      // Handle corner resize
+      const handleType = target.getAttribute('data-handle');
+      setIsResizing(true);
+      setResizeHandle(handleType);
+      
+      const containerBounds = getContainerBounds();
+      setDragStart({
+        x: e.clientX,
+        y: e.clientY
+      });
+    } else {
+      // Handle drag (existing functionality)
+      setIsDragging(true);
+      onSelect(id);
+      onDragStart?.();
+
+      const containerBounds = getContainerBounds();
+      setDragStart({
+        x: e.clientX - (position.x + containerBounds.width / 2),
+        y: e.clientY - (position.y + containerBounds.height / 2)
+      });
+    }
+  }, [isLocked, position, id, onSelect, onDragStart, getContainerBounds]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isLocked) return;
+
+    if (isResizing && resizeHandle) {
+      // Handle corner resize
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+      
+      let newWidth = elementSize.width;
+      let newHeight = elementSize.height;
+      
+      // Calculate new dimensions based on resize handle
+      switch (resizeHandle) {
+        case 'nw': // Northwest
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
+          break;
+        case 'ne': // Northeast
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
+          break;
+        case 'sw': // Southwest
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
+          break;
+        case 'se': // Southeast
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
+          break;
+      }
+      
+      // Smooth resize with transition
+      const newSize = { width: newWidth, height: newHeight };
+      setElementSize(newSize);
+      onResize(id, newSize);
+      
+      // Update drag start for next movement
+      setDragStart({ x: e.clientX, y: e.clientY });
+    } else if (isDragging) {
+      // Handle drag (existing functionality)
+      const containerBounds = getContainerBounds();
+      const newX = e.clientX - dragStart.x - containerBounds.width / 2;
+      const newY = e.clientY - dragStart.y - containerBounds.height / 2;
       
       // Constrain to container bounds
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const padding = 40;
-      const maxX = containerRect.width / 2 - padding;
-      const maxY = containerRect.height / 2 - padding;
-      const minX = -containerRect.width / 2 + padding;
-      const minY = -containerRect.height / 2 + padding;
+      const maxX = containerBounds.width / 2 - elementSize.width / 2;
+      const minX = -containerBounds.width / 2 + elementSize.width / 2;
+      const maxY = containerBounds.height / 2 - elementSize.height / 2;
+      const minY = -containerBounds.height / 2 + elementSize.height / 2;
       
       const constrainedX = Math.max(minX, Math.min(maxX, newX));
       const constrainedY = Math.max(minY, Math.min(maxY, newY));
       
       onMove(id, { x: constrainedX, y: constrainedY });
-    } else if (isResizing) {
-      // Calculate and apply real-time size for smooth preview
-      const newSize = calculateNewSize(clientX, clientY);
-      setManualSize(newSize); // Mark as manually resized
-    } else if (isRotating) {
-      // Calculate and apply real-time rotation
-      const newRotation = calculateRotation(clientX, clientY);
-      setCurrentRotation(newRotation);
     }
-  }, [
-    isDragging, isResizing, isRotating, dragStart, startPosition, 
-    calculateNewSize, calculateRotation, onMove, id
-  ]);
+  }, [isLocked, isResizing, resizeHandle, isDragging, dragStart, elementSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize, onMove, getContainerBounds]);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (rafId.current) {
-      cancelAnimationFrame(rafId.current);
-    }
-    rafId.current = requestAnimationFrame(() => {
-      handleMove(e.clientX, e.clientY);
-    });
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    if (e.touches.length > 0) {
-      const touch = e.touches[0];
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-      rafId.current = requestAnimationFrame(() => {
-        handleMove(touch.clientX, touch.clientY);
-      });
-    }
-    e.preventDefault();
-  };
-
-  const handleMouseUp = () => {
-    if (rafId.current) {
-      cancelAnimationFrame(rafId.current);
-    }
-    
+  const handleMouseUp = useCallback(() => {
     if (isDragging) {
-      onDragEnd?.(id);
+      setIsDragging(false);
+      onDragEnd?.();
     }
-    
-    if (isResizing && onResize && manualSize) {
-      // Finalize the resize
-      onResize(id, manualSize);
+    if (isResizing) {
+      setIsResizing(false);
+      setResizeHandle(null);
     }
-    
-    if (isRotating && onRotate) {
-      // Finalize the rotation
-      onRotate(id, currentRotation);
-    }
-    
-    setIsDragging(false);
-    setIsResizing(false);
-    setIsRotating(false);
-    setResizeDirection('');
-  };
+  }, [isDragging, isResizing, onDragEnd]);
 
+  // Mouse event listeners
   useEffect(() => {
-    if (isDragging || isResizing || isRotating) {
-      const handleGlobalMouseMove = (e: MouseEvent) => handleMouseMove(e);
-      const handleGlobalTouchMove = (e: TouchEvent) => handleTouchMove(e);
-      const handleGlobalMouseUp = () => handleMouseUp();
-      
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-      document.addEventListener('touchend', handleGlobalMouseUp);
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
       
       return () => {
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
-        document.removeEventListener('touchmove', handleGlobalTouchMove);
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
-        document.removeEventListener('touchend', handleGlobalMouseUp);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, isResizing, isRotating]);
+  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
-  // Handle global clicks to deselect
-  useEffect(() => {
-    const handleGlobalClick = () => {
-      if (isSelected && !isDragging && !isResizing && !isRotating) {
-        onSelect?.(null);
-      }
+  // Corner resize handles
+  const renderResizeHandles = () => {
+    if (!isSelected || isLocked) return null;
+
+    const handleStyle = {
+      position: 'absolute' as const,
+      width: '8px',
+      height: '8px',
+      backgroundColor: '#3b82f6',
+      border: '2px solid white',
+      borderRadius: '50%',
+      cursor: 'pointer',
+      zIndex: 1000,
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
     };
 
-    if (isSelected) {
-      document.addEventListener('click', handleGlobalClick);
-      return () => document.removeEventListener('click', handleGlobalClick);
-    }
-  }, [isSelected, isDragging, isResizing, isRotating, onSelect]);
+    return (
+      <>
+        {/* Northwest handle */}
+        <div
+          className="resize-handle"
+          data-handle="nw"
+          style={{
+            ...handleStyle,
+            top: '-4px',
+            left: '-4px',
+            cursor: 'nw-resize'
+          }}
+          onMouseDown={handleMouseDown}
+        />
+        {/* Northeast handle */}
+        <div
+          className="resize-handle"
+          data-handle="ne"
+          style={{
+            ...handleStyle,
+            top: '-4px',
+            right: '-4px',
+            cursor: 'ne-resize'
+          }}
+          onMouseDown={handleMouseDown}
+        />
+        {/* Southwest handle */}
+        <div
+          className="resize-handle"
+          data-handle="sw"
+          style={{
+            ...handleStyle,
+            bottom: '-4px',
+            left: '-4px',
+            cursor: 'sw-resize'
+          }}
+          onMouseDown={handleMouseDown}
+        />
+        {/* Southeast handle */}
+        <div
+          className="resize-handle"
+          data-handle="se"
+          style={{
+            ...handleStyle,
+            bottom: '-4px',
+            right: '-4px',
+            cursor: 'se-resize'
+          }}
+          onMouseDown={handleMouseDown}
+        />
+      </>
+    );
+  };
 
-  const resizeHandles = [
-    // Corner handles - change both dimensions
-    { direction: 'nw', cursor: 'nw-resize', position: '-top-1 -left-1' },
-    { direction: 'ne', cursor: 'ne-resize', position: '-top-1 -right-1' },
-    { direction: 'se', cursor: 'se-resize', position: '-bottom-1 -right-1' },
-    { direction: 'sw', cursor: 'sw-resize', position: '-bottom-1 -left-1' },
-    // Edge handles - change only one dimension
-    { direction: 'n', cursor: 'n-resize', position: '-top-1 left-1/2 -translate-x-1/2' },
-    { direction: 's', cursor: 's-resize', position: '-bottom-1 left-1/2 -translate-x-1/2' },
-    { direction: 'e', cursor: 'e-resize', position: 'top-1/2 -right-1 -translate-y-1/2' },
-    { direction: 'w', cursor: 'w-resize', position: 'top-1/2 -left-1 -translate-y-1/2' },
-  ];
-
-  // Generate text color styles based on text type
-  const getTextColorStyles = useCallback(() => {
-    if (!customization?.textColors) return {};
-    
-    const colorKey = id === 'brideName' ? 'brideName' 
-                   : id === 'groomName' ? 'groomName'
-                   : id === 'weddingDate' ? 'date'
-                   : id === 'venue' ? 'venue'
-                   : id === 'message' ? 'message'
-                   : null;
-    
-    return colorKey && customization.textColors[colorKey] 
-      ? { color: customization.textColors[colorKey] }
-      : {};
-  }, [id, customization]);
-
-  const textColorStyles = getTextColorStyles();
+  const elementStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+    width: `${elementSize.width}px`,
+    height: `${elementSize.height}px`,
+    cursor: isLocked ? 'default' : (isDragging ? 'grabbing' : 'grab'),
+    userSelect: 'none',
+    zIndex: isSelected ? 1000 : 10,
+    transition: isResizing ? 'none' : 'all 0.2s ease-out',
+    border: isSelected && !isLocked ? '2px dashed #3b82f6' : '2px solid transparent',
+    borderRadius: '4px',
+    backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+  };
 
   return (
     <div
       ref={elementRef}
-      data-text-element="true"
-      className={`absolute select-none transition-all duration-200 ease-out ${
-        isDragging || isResizing || isRotating ? 'z-50' : isSelected ? 'z-40' : 'z-10'
-      } ${!isResizing && !isRotating ? 'cursor-move' : ''} group ${className}`}
-      style={{
-        transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) rotate(${currentRotation}deg)`,
-        left: '50%',
-        top: '50%',
-        touchAction: 'none',
-        width: `${currentSize.width}px`,
-        height: `${currentSize.height}px`,
-      }}
+      style={elementStyle}
       onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
-      onClick={handleClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(id);
+      }}
+      data-text-element={id}
     >
-      <div 
-        ref={contentRef}
-        className={`relative w-full h-full flex items-center justify-center p-4 transition-all duration-200 ${
-          isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-        } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''}`}
+      {/* Text content wrapper */}
+      <div
+        ref={textContentRef}
+        className="w-full h-full flex items-center justify-center overflow-hidden"
         style={{
-          overflow: 'hidden',
-          wordWrap: 'break-word',
-          hyphens: 'auto',
-          lineHeight: '1.4',
           fontSize: `${fontSize}px`,
-          fontFamily,
-          fontWeight,
-          ...textColorStyles,
+          fontFamily: fontFamily
         }}
       >
         {children}
-        
-        {/* Selection Indicator */}
-        {isSelected && (
-          <div className="absolute inset-0 border-2 border-dashed border-primary/40 rounded bg-primary/5 pointer-events-none" />
-        )}
-        
-        {/* Size and Rotation Indicator */}
-        {isSelected && (
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs bg-black/80 text-white px-2 py-1 rounded font-mono whitespace-nowrap pointer-events-none">
-            {Math.round(currentSize.width)} × {Math.round(currentSize.height)} • {Math.round(currentRotation)}°
-            {autoSize && !manualSize && <span className="ml-2 text-green-400">AUTO</span>}
-          </div>
-        )}
-        
-        {/* Rotation Handle */}
-        {isSelected && onRotate && (
-          <div
-            className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-blue-500 border-2 border-white rounded-full shadow-lg hover:scale-125 transition-all duration-200 z-50 cursor-grab flex items-center justify-center"
-            onMouseDown={handleRotationMouseDown}
-            onTouchStart={handleRotationTouchStart}
-          >
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-          </div>
-        )}
-        
-        {/* Reset to Auto Size Button */}
-        {isSelected && autoSize && manualSize && (
-          <div
-            className="absolute -bottom-8 -right-8 px-2 py-1 bg-green-500 text-white text-xs rounded cursor-pointer hover:bg-green-600 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              setManualSize(null);
-              if (onResize) {
-                onResize(id, calculatedSize);
-              }
-            }}
-          >
-            Auto
-          </div>
-        )}
-        
-        {/* Resize handles */}
-        {isSelected && resizeHandles.map((handle) => (
-          <div
-            key={handle.direction}
-            className={`absolute w-3 h-3 bg-primary border-2 border-white rounded-full shadow-lg hover:scale-125 transition-all duration-200 z-50 ${handle.position}`}
-            style={{ cursor: handle.cursor }}
-            onMouseDown={(e) => handleResizeMouseDown(e, handle.direction)}
-            onTouchStart={(e) => handleResizeTouchStart(e, handle.direction)}
-          />
-        ))}
       </div>
+      
+      {/* Resize handles */}
+      {renderResizeHandles()}
+      
+      {/* Lock indicator */}
+      {isLocked && isSelected && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-12px',
+            right: '-12px',
+            width: '16px',
+            height: '16px',
+            backgroundColor: '#ef4444',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '10px',
+            color: 'white',
+            zIndex: 1001
+          }}
+        >
+          🔒
+        </div>
+      )}
     </div>
   );
 };
