@@ -114,12 +114,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
     const isResizeHandle = target.classList.contains('resize-handle');
     
     if (isResizeHandle) {
-      // Handle corner resize
+      // Handle corner resize - prevent event from bubbling
       const handleType = target.getAttribute('data-handle');
       setIsResizing(true);
       setResizeHandle(handleType);
+      onSelect(id);
       
-      const containerBounds = getContainerBounds();
       setDragStart({
         x: e.clientX,
         y: e.clientY
@@ -169,12 +169,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           break;
       }
       
-      // Smooth resize with transition
+      // Apply new size
       const newSize = { width: newWidth, height: newHeight };
       setElementSize(newSize);
       onResize(id, newSize);
       
-      // Update drag start for next movement
+      // Update drag start for smooth continuous resizing
       setDragStart({ x: e.clientX, y: e.clientY });
     } else if (isDragging) {
       // Handle drag (existing functionality)
@@ -225,14 +225,18 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
 
     const handleStyle = {
       position: 'absolute' as const,
-      width: '8px',
-      height: '8px',
+      width: '10px',
+      height: '10px',
       backgroundColor: '#3b82f6',
       border: '2px solid white',
       borderRadius: '50%',
-      cursor: 'pointer',
       zIndex: 1000,
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+    };
+
+    const handleMouseDownCapture = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      handleMouseDown(e);
     };
 
     return (
@@ -243,11 +247,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="nw"
           style={{
             ...handleStyle,
-            top: '-4px',
-            left: '-4px',
+            top: '-6px',
+            left: '-6px',
             cursor: 'nw-resize'
           }}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handleMouseDownCapture}
         />
         {/* Northeast handle */}
         <div
@@ -255,11 +259,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="ne"
           style={{
             ...handleStyle,
-            top: '-4px',
-            right: '-4px',
+            top: '-6px',
+            right: '-6px',
             cursor: 'ne-resize'
           }}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handleMouseDownCapture}
         />
         {/* Southwest handle */}
         <div
@@ -267,11 +271,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="sw"
           style={{
             ...handleStyle,
-            bottom: '-4px',
-            left: '-4px',
+            bottom: '-6px',
+            left: '-6px',
             cursor: 'sw-resize'
           }}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handleMouseDownCapture}
         />
         {/* Southeast handle */}
         <div
@@ -279,11 +283,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="se"
           style={{
             ...handleStyle,
-            bottom: '-4px',
-            right: '-4px',
+            bottom: '-6px',
+            right: '-6px',
             cursor: 'se-resize'
           }}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handleMouseDownCapture}
         />
       </>
     );
