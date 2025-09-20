@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useDynamicFontSizing } from '@/hooks/useDynamicFontSizing';
 import { 
   Heart, 
   Calendar, 
@@ -79,7 +80,12 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [elementZIndices, setElementZIndices] = useState<Record<string, number>>({});
   const [elementRotations, setElementRotations] = useState<Record<string, number>>({});
   const [elementLockStates, setElementLockStates] = useState<Record<string, boolean>>({});
-  const [elementFontSizes, setElementFontSizes] = useState<Record<string, number>>({
+  const {
+    elementFontSizes,
+    updateFontSizeFromResize,
+    setFontSize,
+    getFontSize
+  } = useDynamicFontSizing({
     brideName: 36,
     groomName: 36,
     weddingDate: 14,
@@ -276,19 +282,26 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   }, [positions, onPositionsUpdate]);
 
   // Sync font sizes from customization to element font sizes
-  useEffect(() => {
-    if (cardData.customization?.fontSizes) {
-      const fontSizes = cardData.customization.fontSizes;
-      setElementFontSizes(prev => ({
-        ...prev,
-        brideName: fontSizes.headingSize || prev.brideName,
-        groomName: fontSizes.headingSize || prev.groomName,
-        weddingDate: fontSizes.dateSize || prev.weddingDate,
-        venue: fontSizes.venueSize || prev.venue,
-        message: fontSizes.messageSize || prev.message
-      }));
+useEffect(() => {
+  if (cardData.customization?.fontSizes) {
+    const fontSizes = cardData.customization.fontSizes;
+    
+    // Sync font sizes from customization to the hook
+    if (fontSizes.headingSize) {
+      setFontSize('brideName', fontSizes.headingSize);
+      setFontSize('groomName', fontSizes.headingSize);
     }
-  }, [cardData.customization?.fontSizes]);
+    if (fontSizes.dateSize) {
+      setFontSize('weddingDate', fontSizes.dateSize);
+    }
+    if (fontSizes.venueSize) {
+      setFontSize('venue', fontSizes.venueSize);
+    }
+    if (fontSizes.messageSize) {
+      setFontSize('message', fontSizes.messageSize);
+    }
+  }
+}, [cardData.customization?.fontSizes, setFontSize]);
 
   const addToHistory = useCallback((newPositions: CardElements) => {
     setHistory(prev => {
@@ -361,63 +374,58 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     snapController.clearGuides();
   }, [snapController]);
 
-  const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
-    setPositions(prev => {
-      let newPositions: CardElements;
+const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
+  setPositions(prev => {
+    let newPositions: CardElements;
 
-      if (elementId.startsWith('photo-')) {
-        newPositions = {
-          ...prev,
-          photos: prev.photos?.map(photo =>
-            photo.id === elementId
-              ? { ...photo, size: newSize }
-              : photo
-          ) || []
-        };
-      } else if (elementId === 'photo') {
-        newPositions = {
-          ...prev,
-          photo: { ...prev.photo, size: newSize }
-        };
-      } else {
-        // For text elements, scale font size based on width change
-        const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(elementId);
-        if (isTextElement) {
-          const baseFontSizes = {
-            brideName: 36,
-            groomName: 36,
-            weddingDate: 14,
-            venue: 14,
-            message: 16
+    if (elementId.startsWith('photo-')) {
+      newPositions = {
+        ...prev,
+        photos: prev.photos?.map(photo =>
+          photo.id === elementId
+            ? { ...photo, size: newSize }
+            : photo
+        ) || []
+      };
+    } else if (elementId === 'photo') {
+      newPositions = {
+        ...prev,
+        photo: { ...prev.photo, size: newSize }
+      };
+    } else {
+      // For text elements, update font size based on new width
+      const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(elementId);
+      if (isTextElement) {
+        const newFontSize = updateFontSizeFromResize(elementId, newSize);
+        
+        // Update customization to reflect the new font size
+        const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+                           elementId === 'weddingDate' ? 'dateSize' :
+                           elementId === 'venue' ? 'venueSize' :
+                           elementId === 'message' ? 'messageSize' : null;
+        
+        if (fontSizeKey) {
+          const updatedCustomization = {
+            ...cardData.customization,
+            fontSizes: {
+              ...cardData.customization?.fontSizes,
+              [fontSizeKey]: newFontSize
+            }
           };
-          
-          const baseSizes = {
-            brideName: 200,
-            groomName: 200,
-            weddingDate: 180,
-            venue: 160,
-            message: 220
-          };
-          
-          const scaleRatio = newSize.width / (baseSizes[elementId as keyof typeof baseSizes] || 200);
-          const newFontSize = Math.max(8, Math.min(72, Math.round((baseFontSizes[elementId as keyof typeof baseFontSizes] || 16) * scaleRatio)));
-          
-          setElementFontSizes(prev => ({
-            ...prev,
-            [elementId]: newFontSize
-          }));
+          onDataChange({ customization: updatedCustomization });
         }
-        
-        // Update element sizes tracking
-        setElementSizes(prev => ({ ...prev, [elementId]: newSize }));
-        
-        newPositions = prev;
       }
+      
+      // Update element sizes tracking
+      setElementSizes(prev => ({ ...prev, [elementId]: newSize }));
+      
+      newPositions = prev;
+    }
 
-      addToHistory(newPositions);
-      return newPositions;
-    });
-  }, [addToHistory, elementSizes]);
+    addToHistory(newPositions);
+    return newPositions;
+  });
+}, [addToHistory, updateFontSizeFromResize, cardData.customization, onDataChange]);
 
   const handleElementRotate = useCallback((elementId: string, rotation: number) => {
     setElementRotations(prev => ({
@@ -713,28 +721,28 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   }, [cardData.uploadedImages, positions.photos, onDataChange]);
 
   // Font controls
-  const handleFontSizeChange = useCallback((elementId: string, newSize: number) => {
-    setElementFontSizes(prev => ({ ...prev, [elementId]: newSize }));
-    
-    // Update customization based on element type
-    const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
-                       elementId === 'weddingDate' ? 'dateSize' :
-                       elementId === 'venue' ? 'venueSize' :
-                       elementId === 'message' ? 'messageSize' : null;
-    
-    if (fontSizeKey) {
-      const updatedCustomization = {
-        ...cardData.customization,
-        fontSizes: {
-          ...cardData.customization?.fontSizes,
-          [fontSizeKey]: newSize
-        }
-      };
-      onDataChange({ customization: updatedCustomization });
-    }
-    
-    toast.success("Font size updated");
-  }, [cardData.customization, onDataChange]);
+const handleFontSizeChange = useCallback((elementId: string, newSize: number) => {
+  setFontSize(elementId, newSize);
+  
+  // Update customization based on element type
+  const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+                     elementId === 'weddingDate' ? 'dateSize' :
+                     elementId === 'venue' ? 'venueSize' :
+                     elementId === 'message' ? 'messageSize' : null;
+  
+  if (fontSizeKey) {
+    const updatedCustomization = {
+      ...cardData.customization,
+      fontSizes: {
+        ...cardData.customization?.fontSizes,
+        [fontSizeKey]: newSize
+      }
+    };
+    onDataChange({ customization: updatedCustomization });
+  }
+  
+  toast.success("Font size updated");
+}, [setFontSize, cardData.customization, onDataChange]);
 
   const handleFontFamilyChange = useCallback((elementId: string, newFamily: string) => {
     // Update customization based on element type
@@ -1180,7 +1188,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             onMove={handleElementMove}
             onResize={handleTextResize}
             containerRef={cardRef}
-            fontSize={elementFontSizes.brideName || 36}
+            fontSize={getFontSize('brideName')}
             fontFamily={getFontFamily('heading')}
             text={cardData.brideName || "Bride's Name"}
             minWidth={275}
