@@ -62,39 +62,36 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
-// Auto-size based on text content and font size - but only when not manually resized
+// Disable auto-sizing when manually resizing
 useEffect(() => {
+  // Only auto-size when text content changes, not when resizing manually
   if (autoSize && textContentRef.current && !isResizing && !isDragging) {
+    // Simple approach: only resize when text actually changes
     const textElement = textContentRef.current;
     
-    // Create a temporary element to measure text dimensions
-    const tempElement = document.createElement('div');
-    tempElement.style.position = 'absolute';
-    tempElement.style.visibility = 'hidden';
-    tempElement.style.whiteSpace = 'nowrap';
-    tempElement.style.fontSize = `${fontSize}px`;
-    tempElement.style.fontFamily = fontFamily;
-    tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
-    tempElement.textContent = text || 'Sample Text';
-    
-    document.body.appendChild(tempElement);
-    
-    const measuredWidth = Math.max(minWidth, Math.min(maxWidth, tempElement.offsetWidth + 40));
-    const measuredHeight = Math.max(minHeight, Math.min(maxHeight, tempElement.offsetHeight + 20));
-    
-    document.body.removeChild(tempElement);
-    
-    // Only auto-resize when text changes, not when font size changes due to manual resize
-    const isTextChange = tempElement.textContent !== text;
-    const dimensionChanged = Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5;
-    
-    if (isTextChange && dimensionChanged) {
+    if (text && text.length > 0) {
+      const tempElement = document.createElement('div');
+      tempElement.style.position = 'absolute';
+      tempElement.style.visibility = 'hidden';
+      tempElement.style.whiteSpace = 'nowrap';
+      tempElement.style.fontSize = `${fontSize}px`;
+      tempElement.style.fontFamily = fontFamily;
+      tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
+      tempElement.textContent = text;
+      
+      document.body.appendChild(tempElement);
+      
+      const measuredWidth = Math.max(minWidth, Math.min(maxWidth, tempElement.offsetWidth + 40));
+      const measuredHeight = Math.max(minHeight, Math.min(maxHeight, tempElement.offsetHeight + 20));
+      
+      document.body.removeChild(tempElement);
+      
+      // Only update size if text content has actually changed
       const newSize = { width: measuredWidth, height: measuredHeight };
       setElementSize(newSize);
-      // Don't call onResize here to avoid triggering font size recalculation
     }
   }
-}, [text, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, isResizing, isDragging]);
+}, [text]); // Only depend on text changes
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
