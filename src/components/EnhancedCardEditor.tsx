@@ -398,25 +398,23 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
       if (isTextElement) {
         const newFontSize = updateFontSizeFromResize(elementId, newSize);
         
-        // Keep the original mapping but only update the specific element
-const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
-                   elementId === 'weddingDate' ? 'dateSize' :
-                   elementId === 'venue' ? 'venueSize' :
-                   elementId === 'message' ? 'messageSize' : null;
-
-if (fontSizeKey) {
-  // Only update the customization if it's for a different element type
-  // This way bride and groom can have different font sizes in memory
-  // but still share the same customization key
-  const updatedCustomization = {
-    ...cardData.customization,
-    fontSizes: {
-      ...cardData.customization?.fontSizes,
-      [fontSizeKey]: newFontSize
-    }
-  };
-  onDataChange({ customization: updatedCustomization });
-}
+        // Update customization to reflect the new font size
+        const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+                           elementId === 'weddingDate' ? 'dateSize' :
+                           elementId === 'venue' ? 'venueSize' :
+                           elementId === 'message' ? 'messageSize' : null;
+        
+        if (fontSizeKey) {
+          const updatedCustomization = {
+            ...cardData.customization,
+            fontSizes: {
+              ...cardData.customization?.fontSizes,
+              [fontSizeKey]: newFontSize
+            }
+          };
+          onDataChange({ customization: updatedCustomization });
+        }
+      }
       
       // Update element sizes tracking
       setElementSizes(prev => ({ ...prev, [elementId]: newSize }));
