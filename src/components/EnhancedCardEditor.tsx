@@ -11,7 +11,7 @@ import { WeddingCardData, CardElements, ElementPosition, Template, IndividualPho
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
 import AdvancedDraggableElement from './AdvancedDraggableElement';
-import ResizableTextBox from './ResizableTextBox';
+import DynamicTextBox from './DynamicTextBox';
 import InlineTextEditor from './InlineTextEditor';
 import EditorToolbar from './EditorToolbar';
 import GridOverlay from './GridOverlay';
@@ -1170,12 +1170,15 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           )}
 
           {/* Bride's Name */}
-          <ResizableTextBox
+          <DynamicTextBox
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
             onResize={handleTextResize}
             containerRef={cardRef}
+            fontSize={elementFontSizes.brideName || 36}
+            fontFamily={getFontFamily('heading')}
+            text={cardData.brideName || "Bride's Name"}
             width={textSizes.brideName.width}
             height={textSizes.brideName.height}
             minWidth={200}
@@ -1190,6 +1193,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             isLocked={elementLockStates.brideName || false}
             onDragStart={() => handleDragStart('brideName')}
             onDragEnd={() => handleDragEnd('brideName')}
+            autoSize={true}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1221,7 +1225,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </ResizableTextBox>
+          </DynamicTextBox>
 
           {/* Heart Icon */}
           <AdvancedDraggableElement
@@ -1263,12 +1267,15 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
           </AdvancedDraggableElement>
 
           {/* Groom's Name */}
-          <ResizableTextBox
+          <DynamicTextBox
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
             onResize={handleTextResize}
             containerRef={cardRef}
+            fontSize={elementFontSizes.groomName || 36}
+            fontFamily={getFontFamily('heading')}
+            text={cardData.groomName || "Groom's Name"}
             width={textSizes.groomName.width}
             height={textSizes.groomName.height}
             minWidth={200}
@@ -1283,6 +1290,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             isLocked={elementLockStates.groomName || false}
             onDragStart={() => handleDragStart('groomName')}
             onDragEnd={() => handleDragEnd('groomName')}
+            autoSize={true}
           >
             <div 
               className="w-full h-full flex items-center justify-center"
@@ -1316,16 +1324,19 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                 </h1>
               )}
             </div>
-          </ResizableTextBox>
+          </DynamicTextBox>
 
           {/* Wedding Date */}
           {cardData.weddingDate && (
-            <ResizableTextBox
+            <DynamicTextBox
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
               onResize={handleTextResize}
               containerRef={cardRef}
+              fontSize={elementFontSizes.weddingDate || 14}
+              fontFamily={getFontFamily('date')}
+              text={formatDate(cardData.weddingDate)}
               width={textSizes.weddingDate.width}
               height={textSizes.weddingDate.height}
               minWidth={150}
@@ -1340,6 +1351,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDragStart={() => handleDragStart('weddingDate')}
               onDragEnd={() => handleDragEnd('weddingDate')}
               isLocked={elementLockStates.weddingDate || false}
+              autoSize={true}
             >
               <div 
                 className="flex items-center justify-center w-full h-full transition-all duration-200" 
@@ -1358,17 +1370,20 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   {formatDate(cardData.weddingDate)}
                 </span>
               </div>
-            </ResizableTextBox>
+            </DynamicTextBox>
           )}
 
           {/* Venue */}
           {cardData.venue && (
-            <ResizableTextBox
+            <DynamicTextBox
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
               onResize={handleTextResize}
               containerRef={cardRef}
+              fontSize={elementFontSizes.venue || 14}
+              fontFamily={getFontFamily('venue')}
+              text={cardData.venue}
               width={textSizes.venue.width}
               height={textSizes.venue.height}
               minWidth={140}
@@ -1383,6 +1398,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDragStart={() => handleDragStart('venue')}
               onDragEnd={() => handleDragEnd('venue')}
               isLocked={elementLockStates.venue || false}
+              autoSize={true}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1418,17 +1434,20 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </div>
                 )}
               </div>
-            </ResizableTextBox>
+            </DynamicTextBox>
           )}
 
           {/* Message */}
           {cardData.message && (
-            <ResizableTextBox
+            <DynamicTextBox
               id="message"
               position={positions.message}
               onMove={handleElementMove}
               onResize={handleTextResize}
               containerRef={cardRef}
+              fontSize={elementFontSizes.message || 16}
+              fontFamily={getFontFamily('message')}
+              text={cardData.message}
               width={textSizes.message.width}
               height={textSizes.message.height}
               minWidth={180}
@@ -1443,6 +1462,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDragStart={() => handleDragStart('message')}
               onDragEnd={() => handleDragEnd('message')}
               isLocked={elementLockStates.message || false}
+              autoSize={true}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
@@ -1474,7 +1494,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
                   </p>
                 )}
               </div>
-            </ResizableTextBox>
+            </DynamicTextBox>
           )}
         </div>
       </Card>
