@@ -428,7 +428,11 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
 
   const handleTextChange = useCallback((field: keyof WeddingCardData, value: string) => {
     onDataChange?.({ [field]: value });
-  }, [onDataChange]);
+    // Trigger auto-sizing by updating textSizes when text changes
+    if (field in textSizes) {
+      setTextSizes(prev => ({ ...prev, [field]: prev[field] }));
+    }
+  }, [onDataChange, textSizes]);
 
   const handleTextResize = useCallback((elementId: string, size: { width: number; height: number }) => {
     setTextSizes(prev => ({
@@ -1179,8 +1183,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             fontSize={elementFontSizes.brideName || 36}
             fontFamily={getFontFamily('heading')}
             text={cardData.brideName || "Bride's Name"}
-            width={textSizes.brideName.width}
-            height={textSizes.brideName.height}
             minWidth={200}
             maxWidth={600}
             minHeight={60}
@@ -1193,6 +1195,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             isLocked={elementLockStates.brideName || false}
             onDragStart={() => handleDragStart('brideName')}
             onDragEnd={() => handleDragEnd('brideName')}
+            onTextChange={(value) => handleTextChange('brideName', value)}
             autoSize={true}
           >
             <div 
@@ -1276,8 +1279,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             fontSize={elementFontSizes.groomName || 36}
             fontFamily={getFontFamily('heading')}
             text={cardData.groomName || "Groom's Name"}
-            width={textSizes.groomName.width}
-            height={textSizes.groomName.height}
             minWidth={200}
             maxWidth={600}
             minHeight={60}
@@ -1290,6 +1291,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
             isLocked={elementLockStates.groomName || false}
             onDragStart={() => handleDragStart('groomName')}
             onDragEnd={() => handleDragEnd('groomName')}
+            onTextChange={(value) => handleTextChange('groomName', value)}
             autoSize={true}
           >
             <div 
@@ -1337,8 +1339,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               fontSize={elementFontSizes.weddingDate || 14}
               fontFamily={getFontFamily('date')}
               text={formatDate(cardData.weddingDate)}
-              width={textSizes.weddingDate.width}
-              height={textSizes.weddingDate.height}
               minWidth={150}
               maxWidth={500}
               minHeight={40}
@@ -1384,8 +1384,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               fontSize={elementFontSizes.venue || 14}
               fontFamily={getFontFamily('venue')}
               text={cardData.venue}
-              width={textSizes.venue.width}
-              height={textSizes.venue.height}
               minWidth={140}
               maxWidth={500}
               minHeight={40}
@@ -1398,6 +1396,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDragStart={() => handleDragStart('venue')}
               onDragEnd={() => handleDragEnd('venue')}
               isLocked={elementLockStates.venue || false}
+              onTextChange={(value) => handleTextChange('venue', value)}
               autoSize={true}
             >
               <div 
@@ -1448,8 +1447,6 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               fontSize={elementFontSizes.message || 16}
               fontFamily={getFontFamily('message')}
               text={cardData.message}
-              width={textSizes.message.width}
-              height={textSizes.message.height}
               minWidth={180}
               maxWidth={600}
               minHeight={60}
@@ -1462,6 +1459,7 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
               onDragStart={() => handleDragStart('message')}
               onDragEnd={() => handleDragEnd('message')}
               isLocked={elementLockStates.message || false}
+              onTextChange={(value) => handleTextChange('message', value)}
               autoSize={true}
             >
               <div 
