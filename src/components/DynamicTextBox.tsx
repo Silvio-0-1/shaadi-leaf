@@ -63,11 +63,14 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const textContentRef = useRef<HTMLDivElement>(null);
 
   // Auto-size based on text content and font size
-  useEffect(() => {
-    if (autoSize && textContentRef.current) {
+  // Disable auto-sizing when manually resizing
+useEffect(() => {
+  // Only auto-size when text content changes, not when resizing manually
+  if (autoSize && textContentRef.current && !isResizing && !isDragging) {
+    
+    if (text && text.length > 0) {
       const textElement = textContentRef.current;
       
-      // Create a temporary element to measure text dimensions
       const tempElement = document.createElement('div');
       tempElement.style.position = 'absolute';
       tempElement.style.visibility = 'hidden';
@@ -75,7 +78,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
       tempElement.style.fontSize = `${fontSize}px`;
       tempElement.style.fontFamily = fontFamily;
       tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
-      tempElement.textContent = text || 'Sample Text';
+      tempElement.textContent = text;
       
       document.body.appendChild(tempElement);
       
@@ -84,14 +87,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
       
       document.body.removeChild(tempElement);
       
-      // Only update if dimensions changed significantly
-      if (Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5) {
-        const newSize = { width: measuredWidth, height: measuredHeight };
-        setElementSize(newSize);
-        onResize(id, newSize);
-      }
+      // Only update size if text content has actually changed
+      const newSize = { width: measuredWidth, height: measuredHeight };
+      setElementSize(newSize);
     }
-  }, [text, fontSize, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize]);
+  }
+}, [text, isResizing, isDragging]); // Only depend on text changes and resize states
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
@@ -114,17 +115,17 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
     const isResizeHandle = target.classList.contains('resize-handle');
     
     if (isResizeHandle) {
-      // Handle corner resize
-      const handleType = target.getAttribute('data-handle');
-      setIsResizing(true);
-      setResizeHandle(handleType);
-      
-      const containerBounds = getContainerBounds();
-      setDragStart({
-        x: e.clientX,
-        y: e.clientY
-      });
-    } else {
+  // Handle corner resize - prevent event from bubbling
+  const handleType = target.getAttribute('data-handle');
+  setIsResizing(true);
+  setResizeHandle(handleType);
+  onSelect(id); // Make sure element is selected
+  
+  setDragStart({
+    x: e.clientX,
+    y: e.clientY
+  });
+} else {
       // Handle drag (existing functionality)
       setIsDragging(true);
       onSelect(id);
@@ -141,46 +142,42 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isLocked) return;
 
-if (isResizing && resizeHandle) {
-  // Handle corner resize with better sensitivity
-  const deltaX = e.clientX - dragStart.x;
-  const deltaY = e.clientY - dragStart.y;
-  
-  // Use current element size as base, not the original size
-  let newWidth = elementSize.width;
-  let newHeight = elementSize.height;
-  
-  // More sensitive resize calculation - use smaller increments
-  const sensitivity = 1; // 1:1 pixel ratio for better responsiveness
-  
-  // Calculate new dimensions based on resize handle
-  switch (resizeHandle) {
-    case 'nw': // Northwest
-      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth - (deltaX * sensitivity)));
-      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight - (deltaY * sensitivity)));
-      break;
-    case 'ne': // Northeast
-      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth + (deltaX * sensitivity)));
-      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight - (deltaY * sensitivity)));
-      break;
-    case 'sw': // Southwest
-      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth - (deltaX * sensitivity)));
-      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight + (deltaY * sensitivity)));
-      break;
-    case 'se': // Southeast
-      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth + (deltaX * sensitivity)));
-      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight + (deltaY * sensitivity)));
-      break;
-  }
-  
-  // Apply new size immediately
-  const newSize = { width: Math.round(newWidth), height: Math.round(newHeight) };
-  setElementSize(newSize);
-  onResize(id, newSize);
-  
-  // Update drag start for smooth continuous resizing
-  setDragStart({ x: e.clientX, y: e.clientY });
-} else if (isDragging) {
+    if (isResizing && resizeHandle) {
+      // Handle corner resize
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+      
+      let newWidth = elementSize.width;
+      let newHeight = elementSize.height;
+      
+      // Calculate new dimensions based on resize handle
+      switch (resizeHandle) {
+        case 'nw': // Northwest
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
+          break;
+        case 'ne': // Northeast
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
+          break;
+        case 'sw': // Southwest
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
+          break;
+        case 'se': // Southeast
+          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
+          break;
+      }
+      
+      // Smooth resize with transition
+      const newSize = { width: newWidth, height: newHeight };
+      setElementSize(newSize);
+      onResize(id, newSize);
+      
+      // Update drag start for next movement
+      setDragStart({ x: e.clientX, y: e.clientY });
+    } else if (isDragging) {
       // Handle drag (existing functionality)
       const containerBounds = getContainerBounds();
       const newX = e.clientX - dragStart.x - containerBounds.width / 2;
@@ -223,75 +220,79 @@ if (isResizing && resizeHandle) {
     }
   }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
-  // Corner resize handles
-  const renderResizeHandles = () => {
-    if (!isSelected || isLocked) return null;
+// Corner resize handles
+const renderResizeHandles = () => {
+  if (!isSelected || isLocked) return null;
 
-    const handleStyle = {
-      position: 'absolute' as const,
-      width: '8px',
-      height: '8px',
-      backgroundColor: '#3b82f6',
-      border: '2px solid white',
-      borderRadius: '50%',
-      cursor: 'pointer',
-      zIndex: 1000,
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-    };
-
-    return (
-      <>
-        {/* Northwest handle */}
-        <div
-          className="resize-handle"
-          data-handle="nw"
-          style={{
-            ...handleStyle,
-            top: '-4px',
-            left: '-4px',
-            cursor: 'nw-resize'
-          }}
-          onMouseDown={handleMouseDown}
-        />
-        {/* Northeast handle */}
-        <div
-          className="resize-handle"
-          data-handle="ne"
-          style={{
-            ...handleStyle,
-            top: '-4px',
-            right: '-4px',
-            cursor: 'ne-resize'
-          }}
-          onMouseDown={handleMouseDown}
-        />
-        {/* Southwest handle */}
-        <div
-          className="resize-handle"
-          data-handle="sw"
-          style={{
-            ...handleStyle,
-            bottom: '-4px',
-            left: '-4px',
-            cursor: 'sw-resize'
-          }}
-          onMouseDown={handleMouseDown}
-        />
-        {/* Southeast handle */}
-        <div
-          className="resize-handle"
-          data-handle="se"
-          style={{
-            ...handleStyle,
-            bottom: '-4px',
-            right: '-4px',
-            cursor: 'se-resize'
-          }}
-          onMouseDown={handleMouseDown}
-        />
-      </>
-    );
+  const handleStyle = {
+    position: 'absolute' as const,
+    width: '10px',
+    height: '10px',
+    backgroundColor: '#3b82f6',
+    border: '2px solid white',
+    borderRadius: '50%',
+    zIndex: 1000,
+    boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
   };
+
+  const handleMouseDownCapture = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleMouseDown(e);
+  };
+
+  return (
+    <>
+      {/* Northwest handle */}
+      <div
+        className="resize-handle"
+        data-handle="nw"
+        style={{
+          ...handleStyle,
+          top: '-6px',
+          left: '-6px',
+          cursor: 'nw-resize'
+        }}
+        onMouseDown={handleMouseDownCapture}
+      />
+      {/* Northeast handle */}
+      <div
+        className="resize-handle"
+        data-handle="ne"
+        style={{
+          ...handleStyle,
+          top: '-6px',
+          right: '-6px',
+          cursor: 'ne-resize'
+        }}
+        onMouseDown={handleMouseDownCapture}
+      />
+      {/* Southwest handle */}
+      <div
+        className="resize-handle"
+        data-handle="sw"
+        style={{
+          ...handleStyle,
+          bottom: '-6px',
+          left: '-6px',
+          cursor: 'sw-resize'
+        }}
+        onMouseDown={handleMouseDownCapture}
+      />
+      {/* Southeast handle */}
+      <div
+        className="resize-handle"
+        data-handle="se"
+        style={{
+          ...handleStyle,
+          bottom: '-6px',
+          right: '-6px',
+          cursor: 'se-resize'
+        }}
+        onMouseDown={handleMouseDownCapture}
+      />
+    </>
+  );
+};
 
   const elementStyle: React.CSSProperties = {
     position: 'absolute',
