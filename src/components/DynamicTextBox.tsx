@@ -62,14 +62,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
-// Disable auto-sizing when manually resizing
-useEffect(() => {
-  // Only auto-size when text content changes, not when resizing manually
-  if (autoSize && textContentRef.current && !isResizing && !isDragging) {
-    // Simple approach: only resize when text actually changes
-    const textElement = textContentRef.current;
-    
-    if (text && text.length > 0) {
+  // Auto-size based on text content and font size
+  useEffect(() => {
+    if (autoSize && textContentRef.current) {
+      const textElement = textContentRef.current;
+      
+      // Create a temporary element to measure text dimensions
       const tempElement = document.createElement('div');
       tempElement.style.position = 'absolute';
       tempElement.style.visibility = 'hidden';
@@ -77,7 +75,7 @@ useEffect(() => {
       tempElement.style.fontSize = `${fontSize}px`;
       tempElement.style.fontFamily = fontFamily;
       tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
-      tempElement.textContent = text;
+      tempElement.textContent = text || 'Sample Text';
       
       document.body.appendChild(tempElement);
       
@@ -86,12 +84,14 @@ useEffect(() => {
       
       document.body.removeChild(tempElement);
       
-      // Only update size if text content has actually changed
-      const newSize = { width: measuredWidth, height: measuredHeight };
-      setElementSize(newSize);
+      // Only update if dimensions changed significantly
+      if (Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5) {
+        const newSize = { width: measuredWidth, height: measuredHeight };
+        setElementSize(newSize);
+        onResize(id, newSize);
+      }
     }
-  }
-}, [text]); // Only depend on text changes
+  }, [text, fontSize, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize]);
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
@@ -141,42 +141,46 @@ useEffect(() => {
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isLocked) return;
 
-    if (isResizing && resizeHandle) {
-      // Handle corner resize
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
-      
-      let newWidth = elementSize.width;
-      let newHeight = elementSize.height;
-      
-      // Calculate new dimensions based on resize handle
-      switch (resizeHandle) {
-        case 'nw': // Northwest
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
-          break;
-        case 'ne': // Northeast
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
-          break;
-        case 'sw': // Southwest
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
-          break;
-        case 'se': // Southeast
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
-          break;
-      }
-      
-      // Smooth resize with transition
-      const newSize = { width: newWidth, height: newHeight };
-      setElementSize(newSize);
-      onResize(id, newSize);
-      
-      // Update drag start for next movement
-      setDragStart({ x: e.clientX, y: e.clientY });
-    } else if (isDragging) {
+if (isResizing && resizeHandle) {
+  // Handle corner resize with better sensitivity
+  const deltaX = e.clientX - dragStart.x;
+  const deltaY = e.clientY - dragStart.y;
+  
+  // Use current element size as base, not the original size
+  let newWidth = elementSize.width;
+  let newHeight = elementSize.height;
+  
+  // More sensitive resize calculation - use smaller increments
+  const sensitivity = 1; // 1:1 pixel ratio for better responsiveness
+  
+  // Calculate new dimensions based on resize handle
+  switch (resizeHandle) {
+    case 'nw': // Northwest
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth - (deltaX * sensitivity)));
+      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight - (deltaY * sensitivity)));
+      break;
+    case 'ne': // Northeast
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth + (deltaX * sensitivity)));
+      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight - (deltaY * sensitivity)));
+      break;
+    case 'sw': // Southwest
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth - (deltaX * sensitivity)));
+      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight + (deltaY * sensitivity)));
+      break;
+    case 'se': // Southeast
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth + (deltaX * sensitivity)));
+      newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight + (deltaY * sensitivity)));
+      break;
+  }
+  
+  // Apply new size immediately
+  const newSize = { width: Math.round(newWidth), height: Math.round(newHeight) };
+  setElementSize(newSize);
+  onResize(id, newSize);
+  
+  // Update drag start for smooth continuous resizing
+  setDragStart({ x: e.clientX, y: e.clientY });
+} else if (isDragging) {
       // Handle drag (existing functionality)
       const containerBounds = getContainerBounds();
       const newX = e.clientX - dragStart.x - containerBounds.width / 2;
