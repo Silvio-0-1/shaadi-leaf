@@ -62,36 +62,36 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
-  // Auto-size based on text content and font size
-  useEffect(() => {
-    if (autoSize && textContentRef.current) {
-      const textElement = textContentRef.current;
-      
-      // Create a temporary element to measure text dimensions
-      const tempElement = document.createElement('div');
-      tempElement.style.position = 'absolute';
-      tempElement.style.visibility = 'hidden';
-      tempElement.style.whiteSpace = 'nowrap';
-      tempElement.style.fontSize = `${fontSize}px`;
-      tempElement.style.fontFamily = fontFamily;
-      tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
-      tempElement.textContent = text || 'Sample Text';
-      
-      document.body.appendChild(tempElement);
-      
-      const measuredWidth = Math.max(minWidth, Math.min(maxWidth, tempElement.offsetWidth + 40));
-      const measuredHeight = Math.max(minHeight, Math.min(maxHeight, tempElement.offsetHeight + 20));
-      
-      document.body.removeChild(tempElement);
-      
-      // Only update if dimensions changed significantly
-      if (Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5) {
-        const newSize = { width: measuredWidth, height: measuredHeight };
-        setElementSize(newSize);
-        onResize(id, newSize);
-      }
+// Auto-size based on text content and font size
+useEffect(() => {
+  if (autoSize && textContentRef.current && !isResizing) {
+    const textElement = textContentRef.current;
+    
+    // Create a temporary element to measure text dimensions
+    const tempElement = document.createElement('div');
+    tempElement.style.position = 'absolute';
+    tempElement.style.visibility = 'hidden';
+    tempElement.style.whiteSpace = 'nowrap';
+    tempElement.style.fontSize = `${fontSize}px`;
+    tempElement.style.fontFamily = fontFamily;
+    tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
+    tempElement.textContent = text || 'Sample Text';
+    
+    document.body.appendChild(tempElement);
+    
+    const measuredWidth = Math.max(minWidth, Math.min(maxWidth, tempElement.offsetWidth + 40));
+    const measuredHeight = Math.max(minHeight, Math.min(maxHeight, tempElement.offsetHeight + 20));
+    
+    document.body.removeChild(tempElement);
+    
+    // Only update if dimensions changed significantly and we're not resizing
+    if (Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5) {
+      const newSize = { width: measuredWidth, height: measuredHeight };
+      setElementSize(newSize);
+      onResize(id, newSize);
     }
-  }, [text, fontSize, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize]);
+  }
+}, [text, fontSize, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize, isResizing]);
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
@@ -114,12 +114,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
     const isResizeHandle = target.classList.contains('resize-handle');
     
     if (isResizeHandle) {
-      // Handle corner resize - prevent event from bubbling
+      // Handle corner resize
       const handleType = target.getAttribute('data-handle');
       setIsResizing(true);
       setResizeHandle(handleType);
-      onSelect(id);
       
+      const containerBounds = getContainerBounds();
       setDragStart({
         x: e.clientX,
         y: e.clientY
@@ -169,12 +169,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           break;
       }
       
-      // Apply new size
+      // Smooth resize with transition
       const newSize = { width: newWidth, height: newHeight };
       setElementSize(newSize);
       onResize(id, newSize);
       
-      // Update drag start for smooth continuous resizing
+      // Update drag start for next movement
       setDragStart({ x: e.clientX, y: e.clientY });
     } else if (isDragging) {
       // Handle drag (existing functionality)
@@ -225,18 +225,14 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
 
     const handleStyle = {
       position: 'absolute' as const,
-      width: '10px',
-      height: '10px',
+      width: '8px',
+      height: '8px',
       backgroundColor: '#3b82f6',
       border: '2px solid white',
       borderRadius: '50%',
+      cursor: 'pointer',
       zIndex: 1000,
-      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-    };
-
-    const handleMouseDownCapture = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      handleMouseDown(e);
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
     };
 
     return (
@@ -247,11 +243,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="nw"
           style={{
             ...handleStyle,
-            top: '-6px',
-            left: '-6px',
+            top: '-4px',
+            left: '-4px',
             cursor: 'nw-resize'
           }}
-          onMouseDown={handleMouseDownCapture}
+          onMouseDown={handleMouseDown}
         />
         {/* Northeast handle */}
         <div
@@ -259,11 +255,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="ne"
           style={{
             ...handleStyle,
-            top: '-6px',
-            right: '-6px',
+            top: '-4px',
+            right: '-4px',
             cursor: 'ne-resize'
           }}
-          onMouseDown={handleMouseDownCapture}
+          onMouseDown={handleMouseDown}
         />
         {/* Southwest handle */}
         <div
@@ -271,11 +267,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="sw"
           style={{
             ...handleStyle,
-            bottom: '-6px',
-            left: '-6px',
+            bottom: '-4px',
+            left: '-4px',
             cursor: 'sw-resize'
           }}
-          onMouseDown={handleMouseDownCapture}
+          onMouseDown={handleMouseDown}
         />
         {/* Southeast handle */}
         <div
@@ -283,11 +279,11 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
           data-handle="se"
           style={{
             ...handleStyle,
-            bottom: '-6px',
-            right: '-6px',
+            bottom: '-4px',
+            right: '-4px',
             cursor: 'se-resize'
           }}
-          onMouseDown={handleMouseDownCapture}
+          onMouseDown={handleMouseDown}
         />
       </>
     );
@@ -354,7 +350,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
             zIndex: 1001
           }}
         >
-          🔒
+          🔴
         </div>
       )}
     </div>

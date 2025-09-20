@@ -1186,7 +1186,7 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
             id="brideName"
             position={positions.brideName}
             onMove={handleElementMove}
-            onResize={handleTextResize}
+            onResize={handleElementResize}
             containerRef={cardRef}
             fontSize={getFontSize('brideName')}
             fontFamily={getFontFamily('heading')}
@@ -1282,9 +1282,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
             id="groomName"
             position={positions.groomName}
             onMove={handleElementMove}
-            onResize={handleTextResize}
+            onResize={handleElementResize}
             containerRef={cardRef}
-            fontSize={elementFontSizes.groomName || 36}
+            fontSize={getFontSize('groomName')}
             fontFamily={getFontFamily('heading')}
             text={cardData.groomName || "Groom's Name"}
             minWidth={275}
@@ -1342,9 +1342,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               id="weddingDate"
               position={positions.weddingDate}
               onMove={handleElementMove}
-              onResize={handleTextResize}
+              onResize={handleElementResize}
               containerRef={cardRef}
-              fontSize={elementFontSizes.weddingDate || 14}
+              fontSize={getFontSize('weddingDate')}
               fontFamily={getFontFamily('date')}
               text={formatDate(cardData.weddingDate)}
               minWidth={150}
@@ -1387,9 +1387,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               id="venue"
               position={positions.venue}
               onMove={handleElementMove}
-              onResize={handleTextResize}
+              onResize={handleElementResize}
               containerRef={cardRef}
-              fontSize={elementFontSizes.venue || 14}
+              fontSize={getFontSize('venue')}
               fontFamily={getFontFamily('venue')}
               text={cardData.venue}
               minWidth={140}
@@ -1450,9 +1450,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               id="message"
               position={positions.message}
               onMove={handleElementMove}
-              onResize={handleTextResize}
+              onResize={handleElementResize}
               containerRef={cardRef}
-              fontSize={elementFontSizes.message || 16}
+              fontSize={getFontSize('message')}
               fontFamily={getFontFamily('message')}
               text={cardData.message}
               minWidth={180}
