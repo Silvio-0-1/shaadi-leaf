@@ -53,34 +53,39 @@ export const useDynamicFontSizing = (initialFontSizes: Record<string, number> = 
     ...initialFontSizes
   }));
 
-const calculateFontSizeFromWidth = useCallback((elementId: string, newWidth: number): number => {
-  const config = DEFAULT_FONT_CONFIG[elementId];
-  if (!config) return elementFontSizes[elementId] || 16;
+  const calculateFontSizeFromWidth = useCallback((elementId: string, newWidth: number): number => {
+    const config = DEFAULT_FONT_CONFIG[elementId];
+    if (!config) return elementFontSizes[elementId] || 16;
 
-  // Direct proportional scaling - more responsive
-  const scaleRatio = newWidth / config.baseWidth;
-  const newFontSize = config.baseFontSize * scaleRatio;
+    // Calculate scale ratio based on width change
+    const scaleRatio = newWidth / config.baseWidth;
+    
+    // Apply scaling with smooth curve (using square root for smoother scaling)
+    const smoothScale = Math.sqrt(scaleRatio);
+    
+    // Calculate new font size
+    const newFontSize = config.baseFontSize * smoothScale;
+    
+    // Clamp to min/max values
+    return Math.max(config.minFontSize, Math.min(config.maxFontSize, Math.round(newFontSize)));
+  }, [elementFontSizes]);
+
+const updateFontSizeFromResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
+  const isTextElement = Object.keys(DEFAULT_FONT_CONFIG).includes(elementId);
   
-  // Clamp to min/max values
-  return Math.max(config.minFontSize, Math.min(config.maxFontSize, Math.round(newFontSize)));
-}, [elementFontSizes]);
-
-  const updateFontSizeFromResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
-    const isTextElement = Object.keys(DEFAULT_FONT_CONFIG).includes(elementId);
+  if (isTextElement) {
+    const newFontSize = calculateFontSizeFromWidth(elementId, newSize.width);
     
-    if (isTextElement) {
-      const newFontSize = calculateFontSizeFromWidth(elementId, newSize.width);
-      
-      setElementFontSizes(prev => ({
-        ...prev,
-        [elementId]: newFontSize
-      }));
-      
-      return newFontSize;
-    }
+    setElementFontSizes(prev => ({
+      ...prev,
+      [elementId]: newFontSize
+    }));
     
-    return elementFontSizes[elementId] || 16;
-  }, [calculateFontSizeFromWidth, elementFontSizes]);
+    return newFontSize;
+  }
+  
+  return elementFontSizes[elementId] || 16;
+}, [calculateFontSizeFromWidth, elementFontSizes]);
 
   const setFontSize = useCallback((elementId: string, fontSize: number) => {
     setElementFontSizes(prev => ({

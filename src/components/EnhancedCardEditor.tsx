@@ -281,16 +281,15 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     onPositionsUpdate?.(positions);
   }, [positions, onPositionsUpdate]);
 
+  // Sync font sizes from customization to element font sizes
 useEffect(() => {
   if (cardData.customization?.fontSizes) {
     const fontSizes = cardData.customization.fontSizes;
     
     // Sync font sizes from customization to the hook
-    if (fontSizes.brideNameSize) {
-      setFontSize('brideName', fontSizes.brideNameSize);
-    }
-    if (fontSizes.groomNameSize) {
-      setFontSize('groomName', fontSizes.groomNameSize);
+    if (fontSizes.headingSize) {
+      setFontSize('brideName', fontSizes.headingSize);
+      setFontSize('groomName', fontSizes.headingSize);
     }
     if (fontSizes.dateSize) {
       setFontSize('weddingDate', fontSizes.dateSize);
@@ -400,23 +399,24 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
         const newFontSize = updateFontSizeFromResize(elementId, newSize);
         
         // Update customization to reflect the new font size
-const fontSizeKey = elementId === 'brideName' ? 'brideNameSize' :
-                   elementId === 'groomName' ? 'groomNameSize' :
-                   elementId === 'weddingDate' ? 'dateSize' :
-                   elementId === 'venue' ? 'venueSize' :
-                   elementId === 'message' ? 'messageSize' : null;
+        const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+                           elementId === 'weddingDate' ? 'dateSize' :
+                           elementId === 'venue' ? 'venueSize' :
+                           elementId === 'message' ? 'messageSize' : null;
         
-        if (fontSizeKey) {
-          const updatedCustomization = {
-            ...cardData.customization,
-            fontSizes: {
-              ...cardData.customization?.fontSizes,
-              [fontSizeKey]: newFontSize
-            }
-          };
-          onDataChange({ customization: updatedCustomization });
-        }
-      }
+if (fontSizeKey) {
+  // Only update the customization if it's for a different element type
+  // This way bride and groom can have different font sizes in memory
+  // but still share the same customization key
+  const updatedCustomization = {
+    ...cardData.customization,
+    fontSizes: {
+      ...cardData.customization?.fontSizes,
+      [fontSizeKey]: newFontSize
+    }
+  };
+  onDataChange({ customization: updatedCustomization });
+}
       
       // Update element sizes tracking
       setElementSizes(prev => ({ ...prev, [elementId]: newSize }));
@@ -727,11 +727,10 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
   setFontSize(elementId, newSize);
   
   // Update customization based on element type
-  const fontSizeKey = elementId === 'brideName' ? 'brideNameSize' :
-                   elementId === 'groomName' ? 'groomNameSize' :
-                   elementId === 'weddingDate' ? 'dateSize' :
-                   elementId === 'venue' ? 'venueSize' :
-                   elementId === 'message' ? 'messageSize' : null;
+  const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+                     elementId === 'weddingDate' ? 'dateSize' :
+                     elementId === 'venue' ? 'venueSize' :
+                     elementId === 'message' ? 'messageSize' : null;
   
   if (fontSizeKey) {
     const updatedCustomization = {
