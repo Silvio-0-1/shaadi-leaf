@@ -62,9 +62,9 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
-// Auto-size based on text content and font size
+// Auto-size based on text content and font size - but only when not manually resized
 useEffect(() => {
-  if (autoSize && textContentRef.current && !isResizing) {
+  if (autoSize && textContentRef.current && !isResizing && !isDragging) {
     const textElement = textContentRef.current;
     
     // Create a temporary element to measure text dimensions
@@ -84,14 +84,17 @@ useEffect(() => {
     
     document.body.removeChild(tempElement);
     
-    // Only update if dimensions changed significantly and we're not resizing
-    if (Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5) {
+    // Only auto-resize when text changes, not when font size changes due to manual resize
+    const isTextChange = tempElement.textContent !== text;
+    const dimensionChanged = Math.abs(elementSize.width - measuredWidth) > 5 || Math.abs(elementSize.height - measuredHeight) > 5;
+    
+    if (isTextChange && dimensionChanged) {
       const newSize = { width: measuredWidth, height: measuredHeight };
       setElementSize(newSize);
-      onResize(id, newSize);
+      // Don't call onResize here to avoid triggering font size recalculation
     }
   }
-}, [text, fontSize, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize, isResizing]);
+}, [text, fontFamily, autoSize, minWidth, maxWidth, minHeight, maxHeight, isResizing, isDragging]);
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
@@ -350,7 +353,7 @@ useEffect(() => {
             zIndex: 1001
           }}
         >
-          🔴
+          🔒
         </div>
       )}
     </div>
