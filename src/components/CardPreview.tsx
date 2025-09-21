@@ -299,7 +299,7 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
 
   const getPhotoClasses = (isMainPhoto: boolean = false) => {
     const photoShape = cardData.customization?.photoShape || 'rounded';
-    const baseClasses = isMainPhoto ? "border-4 border-white shadow-lg" : "border-2 border-white shadow-md";
+    const baseClasses = isMainPhoto ? "shadow-lg" : "shadow-md";
     
     switch (photoShape) {
       case 'circle':

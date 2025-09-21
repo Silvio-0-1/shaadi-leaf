@@ -1124,11 +1124,11 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
                   onDragEnd={() => handleDragEnd('photo')}
                 >
                   <div 
-                    className={`w-full h-full border-4 border-white/90 shadow-xl transition-all duration-200 ${
+                    className={`w-full h-full shadow-xl transition-all duration-200 ${
                       cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                       cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                       'rounded-xl'
-                    }`}
+                    } ${selectedElement === 'photo' ? 'outline-2 outline-primary outline-offset-2' : ''}`}
                     style={{ 
                       backgroundImage: `url(${cardData.uploadedImages[0]})`,
                       backgroundSize: 'cover',

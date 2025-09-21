@@ -57,7 +57,7 @@ const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
     >
       {/* Selection bounding box */}
       <div
-        className="absolute border-2 border-blue-500 pointer-events-none"
+        className="absolute border-2 border-primary pointer-events-none"
         style={{
           left: absoluteX,
           top: absoluteY,

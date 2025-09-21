@@ -365,7 +365,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                   maintainAspectRatio={true}
                 >
                   <div 
-                    className={`w-full h-full border-4 border-white shadow-lg ${
+                    className={`w-full h-full shadow-lg ${
                       cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                       cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                       'rounded-lg'
@@ -396,7 +396,7 @@ const InteractiveCardPreview = ({ cardData, initialPositions, onPositionsUpdate 
                       maintainAspectRatio={true}
                     >
                       <div 
-                        className={`w-full h-full border-4 border-white shadow-lg ${
+                        className={`w-full h-full shadow-lg ${
                           cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                           cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                           'rounded-lg'
