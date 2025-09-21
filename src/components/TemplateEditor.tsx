@@ -164,6 +164,18 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
     onCustomizationChange(updatedCustomization);
   };
 
+  const updateNamesSize = (value: number) => {
+    const updatedCustomization = {
+      ...customization,
+      fontSizes: {
+        ...customization.fontSizes,
+        brideNameSize: value,
+        groomNameSize: value
+      }
+    };
+    onCustomizationChange(updatedCustomization);
+  };
+
   const updateTextColor = (colorKey: string, value: string) => {
     const updatedCustomization = {
       ...customization,
@@ -220,11 +232,11 @@ const TemplateEditor = ({ customization, onCustomizationChange, templateId }: Te
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Font Size</span>
-                <span>{customization.fontSizes?.headingSize || 32}px</span>
+                <span>{customization.fontSizes?.brideNameSize || 32}px</span>
               </div>
               <Slider
-                value={[customization.fontSizes?.headingSize || 32]}
-                onValueChange={(value) => updateFontSize('headingSize', value[0])}
+                value={[customization.fontSizes?.brideNameSize || 32]}
+                onValueChange={(value) => updateNamesSize(value[0])}
                 min={16}
                 max={72}
                 step={2}

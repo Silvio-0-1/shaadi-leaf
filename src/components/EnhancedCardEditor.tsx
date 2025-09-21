@@ -287,9 +287,11 @@ useEffect(() => {
     const fontSizes = cardData.customization.fontSizes;
     
     // Sync font sizes from customization to the hook
-    if (fontSizes.headingSize) {
-      setFontSize('brideName', fontSizes.headingSize);
-      setFontSize('groomName', fontSizes.headingSize);
+    if (fontSizes.brideNameSize) {
+      setFontSize('brideName', fontSizes.brideNameSize);
+    }
+    if (fontSizes.groomNameSize) {
+      setFontSize('groomName', fontSizes.groomNameSize);
     }
     if (fontSizes.dateSize) {
       setFontSize('weddingDate', fontSizes.dateSize);
@@ -399,7 +401,8 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
         const newFontSize = updateFontSizeFromResize(elementId, newSize);
         
         // Update customization to reflect the new font size
-        const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+        const fontSizeKey = elementId === 'brideName' ? 'brideNameSize' :
+                           elementId === 'groomName' ? 'groomNameSize' :
                            elementId === 'weddingDate' ? 'dateSize' :
                            elementId === 'venue' ? 'venueSize' :
                            elementId === 'message' ? 'messageSize' : null;
@@ -725,7 +728,8 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
   setFontSize(elementId, newSize);
   
   // Update customization based on element type
-  const fontSizeKey = elementId === 'brideName' || elementId === 'groomName' ? 'headingSize' :
+  const fontSizeKey = elementId === 'brideName' ? 'brideNameSize' :
+                     elementId === 'groomName' ? 'groomNameSize' :
                      elementId === 'weddingDate' ? 'dateSize' :
                      elementId === 'venue' ? 'venueSize' :
                      elementId === 'message' ? 'messageSize' : null;

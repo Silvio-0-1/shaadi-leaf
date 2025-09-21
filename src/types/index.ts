@@ -30,7 +30,8 @@ export interface TemplateCustomization {
     message?: string;
   };
   fontSizes?: {
-    headingSize?: number;
+    brideNameSize?: number;
+    groomNameSize?: number;
     bodySize?: number;
     dateSize?: number;
     venueSize?: number;

@@ -316,8 +316,8 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
 
   const handleFontSizeChange = useCallback((elementId: string, newFontSize: number) => {
     const fontSizeMap: { [key: string]: keyof NonNullable<typeof cardData.customization>['fontSizes'] } = {
-      'brideName': 'headingSize',
-      'groomName': 'headingSize',
+      'brideName': 'brideNameSize',
+      'groomName': 'groomNameSize',
       'weddingDate': 'dateSize',
       'venue': 'venueSize',
       'message': 'messageSize'
@@ -425,8 +425,8 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
 
   const getFontSize = (element: 'brideName' | 'groomName' | 'weddingDate' | 'venue' | 'message') => {
     const fontSizeMap = {
-      'brideName': cardData.customization?.fontSizes?.headingSize || 24,
-      'groomName': cardData.customization?.fontSizes?.headingSize || 24,
+      'brideName': cardData.customization?.fontSizes?.brideNameSize || 24,
+      'groomName': cardData.customization?.fontSizes?.groomNameSize || 24,
       'weddingDate': cardData.customization?.fontSizes?.dateSize || 14,
       'venue': cardData.customization?.fontSizes?.venueSize || 14,
       'message': cardData.customization?.fontSizes?.messageSize || 12
