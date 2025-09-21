@@ -364,7 +364,7 @@ const TextDraggableElement = ({
           ref={contentRef}
           className={`relative w-full h-full flex items-center justify-center transition-all duration-200 ${
             isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-          } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''}`}
+          } ${isSelected ? 'outline-2 outline-primary outline-offset-1' : ''}`}
           style={{
             // Remove scale transform to prevent layout issues
             fontSize: `${previewFontSize}px`,

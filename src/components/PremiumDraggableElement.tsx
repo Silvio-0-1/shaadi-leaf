@@ -263,7 +263,7 @@ const PremiumDraggableElement = ({
       <div 
         className={`relative w-full h-full transition-all duration-200 ${
           isDragging || isResizing ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-        } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-white/50' : ''} rounded-sm`}
+        } ${isSelected ? 'outline-2 outline-primary outline-offset-2' : ''} rounded-sm`}
       >
         {children}
         

@@ -400,7 +400,7 @@ const ResizableTextBox = ({
       <div 
         className={`relative w-full h-full flex items-center justify-center p-2 ${
           isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
-        } ${isSelected ? 'ring-2 ring-primary/50 ring-offset-1' : ''}`}
+        } ${isSelected ? 'outline-2 outline-primary outline-offset-1' : ''}`}
         style={{
           overflow: 'hidden',
           wordWrap: 'break-word',

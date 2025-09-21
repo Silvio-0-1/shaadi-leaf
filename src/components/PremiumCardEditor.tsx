@@ -590,11 +590,11 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
                       maintainAspectRatio={true}
                     >
                       <div 
-                        className={`w-full h-full border-3 border-white/90 shadow-lg transition-all duration-200 ${
+                        className={`w-full h-full shadow-lg transition-all duration-200 ${
                           cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                           cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                           'rounded-lg'
-                        } ${selectedElement === photo.id ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+                        } ${selectedElement === photo.id ? 'outline-2 outline-primary outline-offset-1' : ''}`}
                         style={{ 
                           backgroundImage: `url(${cardData.uploadedImages[index]})`,
                           backgroundSize: 'cover',

@@ -679,8 +679,8 @@ const AdvancedDraggableElement = ({
             // Only apply photo element styles for non-text elements
             !isTextElement() ? (
               `${isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''} ${
-                isSelected && !isLocked ? 'ring-2 ring-primary/50 ring-offset-1 ring-offset-white/50' : ''
-              } ${isLocked ? 'ring-2 ring-yellow-500/50 ring-offset-1 ring-offset-white/50' : ''}`
+                isSelected && !isLocked ? 'outline-2 outline-primary outline-offset-1' : ''
+              } ${isLocked ? 'outline-2 outline-warning outline-offset-1' : ''}`
             ) : ''
           } rounded-sm overflow-visible`}
         >

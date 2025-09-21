@@ -1166,7 +1166,7 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
                       onDragEnd={() => handleDragEnd(photo.id)}
                     >
                       <div 
-                        className={`w-full h-full border-3 border-white/90 shadow-lg transition-all duration-200 ${
+                        className={`w-full h-full shadow-lg transition-all duration-200 ${
                           cardData.customization?.photoShape === 'circle' ? 'rounded-full' :
                           cardData.customization?.photoShape === 'square' ? 'rounded-none' :
                           'rounded-lg'
