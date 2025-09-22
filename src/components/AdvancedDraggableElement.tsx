@@ -675,15 +675,13 @@ const AdvancedDraggableElement = ({
         data-draggable-element={id}
       >
         <div 
-          className={`relative w-full h-full transition-all duration-100 ${
-            // Only apply photo element styles for non-text elements
-            !isTextElement() ? (
-              `${isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''} ${
-                isSelected && !isLocked ? 'outline-2 outline-primary outline-offset-1' : ''
-              } ${isLocked ? 'outline-2 outline-warning outline-offset-1' : ''}`
-            ) : ''
-          } rounded-sm overflow-visible`}
-        >
+  className="relative w-full h-full transition-all duration-100 rounded-sm overflow-visible"
+  style={{
+    border: isSelected && !isLocked ? '2px dashed #3b82f6' : '2px solid transparent',
+    borderRadius: '4px',
+    backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+  }}
+>
           {/* Apply text border framework for text elements, regular content for others */}
           {isTextElement() ? (
             <TextElementBorder
@@ -702,15 +700,6 @@ const AdvancedDraggableElement = ({
             children
           )}
           
-          {/* Selection Indicator - Only for photo elements (text elements have their own in TextElementBorder) */}
-          {isSelected && !isLocked && !isTextElement() && (
-            <div className="absolute -inset-2 border-2 border-primary/40 rounded-md bg-primary/5 pointer-events-none animate-pulse" />
-          )}
-          
-          {/* Lock Indicator - Only for photo elements (text elements have their own in TextElementBorder) */}
-          {isLocked && !isTextElement() && (
-            <div className="absolute -inset-2 border-2 border-yellow-500/40 rounded-md bg-yellow-500/5 pointer-events-none" />
-          )}
           
           {/* Rotation Handle */}
           {resizable && isSelected && !isLocked && (
