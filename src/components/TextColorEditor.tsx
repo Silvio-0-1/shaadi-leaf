@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,8 @@ interface TextColorEditorProps {
 
 const TextColorEditor = ({ customization, onCustomizationChange, templateId }: TextColorEditorProps) => {
   const [template, setTemplate] = useState<Template | null>(null);
+  const [localColors, setLocalColors] = useState<Record<string, string>>({});
+  const debounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
 
   // Fetch template data to get default colors
   useEffect(() => {
@@ -62,19 +64,50 @@ const TextColorEditor = ({ customization, onCustomizationChange, templateId }: T
     fetchTemplate();
   }, [templateId]);
 
-  const updateTextColor = (colorKey: string, value: string) => {
-    const updatedCustomization = {
-      ...customization,
-      textColors: {
-        ...customization.textColors,
-        [colorKey]: value
-      }
-    };
-    onCustomizationChange(updatedCustomization);
-  };
+  const debouncedUpdateTextColor = useCallback((colorKey: string, value: string) => {
+    // Clear existing timer for this color key
+    if (debounceTimers.current[colorKey]) {
+      clearTimeout(debounceTimers.current[colorKey]);
+    }
 
-  // Get effective color (custom color or template default)
+    // Set new timer
+    debounceTimers.current[colorKey] = setTimeout(() => {
+      const updatedCustomization = {
+        ...customization,
+        textColors: {
+          ...customization.textColors,
+          [colorKey]: value
+        }
+      };
+      onCustomizationChange(updatedCustomization);
+      delete debounceTimers.current[colorKey];
+    }, 100); // 100ms debounce
+  }, [customization, onCustomizationChange]);
+
+  const updateTextColor = useCallback((colorKey: string, value: string) => {
+    // Update local state immediately for responsive UI
+    setLocalColors(prev => ({
+      ...prev,
+      [colorKey]: value
+    }));
+
+    // Debounce the actual update
+    debouncedUpdateTextColor(colorKey, value);
+  }, [debouncedUpdateTextColor]);
+
+  // Clean up timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimers.current).forEach(timer => clearTimeout(timer));
+    };
+  }, []);
+
+  // Get effective color (local color, custom color, or template default)
   const getEffectiveColor = (textType: string) => {
+    // Check local state first for immediate feedback
+    const localColor = localColors[textType];
+    if (localColor) return localColor;
+    
     const customColor = customization.textColors?.[textType as keyof typeof customization.textColors];
     if (customColor) return customColor;
 
@@ -87,6 +120,7 @@ const TextColorEditor = ({ customization, onCustomizationChange, templateId }: T
   };
 
   const resetToDefaults = () => {
+    setLocalColors({});
     onCustomizationChange({ 
       ...customization,
       textColors: {}
