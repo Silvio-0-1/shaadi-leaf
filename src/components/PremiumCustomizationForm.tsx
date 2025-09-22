@@ -9,6 +9,7 @@ import { WeddingCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
 import TemplateEditor from './TemplateEditor';
+import PremiumFontEditor from './PremiumFontEditor';
 import TextColorEditor from './TextColorEditor';
 import BasicInfoForm from './BasicInfoForm';
 
@@ -63,9 +64,9 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
     },
     {
       id: 'design',
-      label: 'Text Fonts',
+      label: 'Fonts & Sizes',
       icon: Type,
-      description: 'Fonts & sizing',
+      description: 'Typography styling',
       color: 'bg-purple-500/10 text-purple-600 border-purple-200'
     },
     {
@@ -185,18 +186,11 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
 
 
           <TabsContent value="design" className="space-y-0 mt-0">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Type className="h-4 w-4 text-purple-500" />
-                <h3 className="font-medium">Text Fonts</h3>
-              </div>
-              
-              <TemplateEditor
-                customization={cardData.customization || {}}
-                onCustomizationChange={handleCustomizationChange}
-                templateId={cardData.templateId}
-              />
-            </div>
+            <PremiumFontEditor
+              customization={cardData.customization || {}}
+              onCustomizationChange={handleCustomizationChange}
+              templateId={cardData.templateId}
+            />
           </TabsContent>
 
           <TabsContent value="colors" className="space-y-0 mt-0">
