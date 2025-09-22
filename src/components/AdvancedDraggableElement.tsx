@@ -64,7 +64,9 @@ const AdvancedDraggableElement = ({
   fontSize = 16,
   onFontSizeChange,
   textBorderConfig,
-  onDoubleClick
+  onDoubleClick,
+  onDragStart,
+  onDragEnd
 }: AdvancedDraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -565,6 +567,9 @@ const AdvancedDraggableElement = ({
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
+    
+    // Call onDragEnd to clear snap guides
+    onDragEnd?.();
   };
 
   // Global event listeners - also listen for text element movement detection
