@@ -265,6 +265,42 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     }
   }, [template, cardData.uploadedImages, initialPositions]);
 
+  // Separate effect to handle dynamic photo changes during editing
+  useEffect(() => {
+    if (!template || initialPositions) return;
+    
+    setPositions(prevPositions => {
+      if (cardData.uploadedImages && Array.isArray(cardData.uploadedImages)) {
+        if (cardData.uploadedImages.length === 0) {
+          // No images - clear photos array
+          return { ...prevPositions, photos: [] };
+        } else if (cardData.uploadedImages.length === 1) {
+          // Single image - clear photos array  
+          return { ...prevPositions, photos: [] };
+        } else {
+          // Multiple images - create/update photos array
+          const currentPhotos = prevPositions.photos || [];
+          const photosArray = cardData.uploadedImages.map((_, index) => {
+            // Preserve existing position and size if photo already exists
+            const existingPhoto = currentPhotos.find(p => p.id === `photo-${index}`);
+            return existingPhoto || {
+              id: `photo-${index}`,
+              position: { 
+                x: (index % 2 === 0 ? -70 : 70) + (index * 15), 
+                y: -140 + (Math.floor(index / 2) * 160) 
+              },
+              size: { width: 100, height: 100 }
+            };
+          });
+          
+          return { ...prevPositions, photos: photosArray };
+        }
+      }
+      
+      return prevPositions;
+    });
+  }, [cardData.uploadedImages, template, initialPositions]);
+
   const [history, setHistory] = useState<CardElements[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
