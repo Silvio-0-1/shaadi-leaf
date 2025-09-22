@@ -822,8 +822,8 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
               width={textSizes.message.width}
               height={textSizes.message.height}
               minWidth={150}
-              maxWidth={400}
-              minHeight={40}
+              maxWidth={300}
+              minHeight={100}
               maxHeight={150}
               isSelected={selectedElement === 'message'}
               onSelect={setSelectedElement}
