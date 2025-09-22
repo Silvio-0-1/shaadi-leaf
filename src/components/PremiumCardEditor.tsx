@@ -119,7 +119,7 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
     groomName: { width: 200, height: 60 },
     weddingDate: { width: 180, height: 40 },
     venue: { width: 220, height: 50 },
-    message: { width: 300, height: 80 }
+    message: { width: 300, height: 100 }
   });
 
   // Update positions when template loads and has default positions
@@ -724,41 +724,61 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
               )}
             </div>
           </ResizableTextBox>
-          {/* Wedding Date */}
-          {cardData.weddingDate && (
-            <ResizableTextBox
-              id="weddingDate"
-              position={positions.weddingDate}
-              onMove={handleElementMove}
-              onResize={handleTextResize}
-              containerRef={cardRef}
-              width={textSizes.weddingDate.width}
-              height={textSizes.weddingDate.height}
-              minWidth={80}
-              maxWidth={300}
-              minHeight={25}
-              maxHeight={80}
-              isSelected={selectedElement === 'weddingDate'}
-              onSelect={setSelectedElement}
-              customization={cardData.customization}
-            >
-              <div 
-                className="flex items-center justify-center transition-all duration-200" 
-                style={{ color: colors.text }}
-              >
-                <Calendar className="h-4 w-4 mr-2 opacity-70" />
-                <span 
-                  className="font-medium"
-                  style={{ 
-                    fontFamily: getFontFamily('date'),
-                    fontSize: `${getFontSize('weddingDate')}px`
-                  }}
-                >
-                  {formatDate(cardData.weddingDate)}
-                </span>
-              </div>
-            </ResizableTextBox>
-          )}
+{/* Message */}
+{cardData.message && (
+  <ResizableTextBox
+    id="message"
+    position={positions.message}
+    onMove={handleElementMove}
+    onResize={handleTextResize}
+    containerRef={cardRef}
+    width={textSizes.message.width}
+    height={textSizes.message.height}
+    minWidth={150}
+    maxWidth={500}
+    minHeight={50}
+    maxHeight={200}
+    isSelected={selectedElement === 'message'}
+    onSelect={setSelectedElement}
+    customization={cardData.customization}
+  >
+    <div onDoubleClick={() => handleDoubleClick('message')}>
+      {editingElement === 'message' ? (
+        <InlineTextEditor
+          value={cardData.message}
+          onChange={(value) => handleTextChange('message', value)}
+          onComplete={() => setEditingElement(null)}
+          isMultiline={true}
+          className="italic text-center w-full h-full"
+          style={{ 
+            color: colors.text,
+            fontFamily: getFontFamily('message'),
+            fontSize: `${getFontSize('message')}px`,
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        />
+      ) : (
+        <p 
+          className="text-center italic leading-relaxed w-full h-full transition-all duration-200 cursor-pointer flex items-center justify-center"
+          style={{ 
+            color: colors.text,
+            fontFamily: getFontFamily('message'),
+            fontSize: `${getFontSize('message')}px`,
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+            padding: '8px'
+          }}
+        >
+          {cardData.message}
+        </p>
+      )}
+    </div>
+  </ResizableTextBox>
+)}
 
           {/* Venue */}
           {cardData.venue && (
