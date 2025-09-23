@@ -78,16 +78,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
     }
   ];
 
-  const getTabCount = () => {
-    let count = 0;
-    if (cardData.brideName || cardData.groomName) count++;
-    if (cardData.uploadedImages?.length) count++;
-    if (cardData.logoImage) count++;
-    if (cardData.customization?.fonts) count++;
-    if (cardData.customization?.textColors) count++;
-    return count;
-  };
-
   return (
     <div className="space-y-6">
       {/* Usage Instructions */}
@@ -125,11 +115,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
           <TabsList className="grid w-full grid-cols-4 h-12 p-1 bg-muted/50">
             {tabConfig.map((tab) => {
               const Icon = tab.icon;
-              const isCompleted = 
-                (tab.id === 'basic' && (cardData.brideName || cardData.groomName)) ||
-                (tab.id === 'photos' && (cardData.uploadedImages?.length || cardData.logoImage)) ||
-                (tab.id === 'design' && cardData.customization?.fonts) ||
-                (tab.id === 'colors' && cardData.customization?.textColors);
 
               return (
                 <TabsTrigger 
@@ -139,9 +124,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
                 >
                   <Icon className="h-4 w-4" />
                   <span className="text-xs font-medium">{tab.label}</span>
-                  {isCompleted && (
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                  )}
                 </TabsTrigger>
               );
             })}
