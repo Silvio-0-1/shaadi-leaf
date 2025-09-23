@@ -115,7 +115,7 @@ const PremiumFontEditor = ({ customization, onCustomizationChange, templateId }:
   const textElements = [
     {
       key: 'heading',
-      label: 'Names',
+      label: 'Bride & Groom Names',
       sizeKey: 'brideNameSize',
       defaultSize: 32,
       minSize: 16,
@@ -124,7 +124,7 @@ const PremiumFontEditor = ({ customization, onCustomizationChange, templateId }:
     },
     {
       key: 'date',
-      label: 'Date',
+      label: 'Wedding Date',
       sizeKey: 'dateSize',
       defaultSize: 24,
       minSize: 12,
@@ -142,7 +142,7 @@ const PremiumFontEditor = ({ customization, onCustomizationChange, templateId }:
     },
     {
       key: 'message',
-      label: 'Message',
+      label: ' Personal Message',
       sizeKey: 'messageSize',
       defaultSize: 16,
       minSize: 12,
