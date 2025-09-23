@@ -5,8 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Type, Sparkles, Crown, Palette, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { TemplateCustomization, Template } from '@/types';
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,34 +63,12 @@ const PremiumFontEditor = ({ customization, onCustomizationChange, templateId }:
     fetchTemplate();
   }, [templateId]);
 
-  const fontCategories = {
-    elegant: {
-      name: 'Elegant Serif',
-      icon: Crown,
-      fonts: ['Playfair Display', 'Cormorant Garamond', 'Crimson Text', 'Libre Baskerville', 'Merriweather', 'Lora', 'Cinzel', 'Times New Roman', 'Georgia', 'Garamond']
-    },
-    romantic: {
-      name: 'Romantic Script',
-      icon: Sparkles,
-      fonts: ['Dancing Script', 'Great Vibes', 'Pacifico', 'Alex Brush', 'Allura', 'Sacramento', 'Satisfy', 'Cookie', 'Kaushan Script', 'Caveat', 'Pinyon Script', 'Tangerine']
-    },
-    modern: {
-      name: 'Modern Clean',
-      icon: Type,
-      fonts: ['Montserrat', 'Poppins', 'Inter', 'Work Sans', 'Raleway', 'Source Sans Pro', 'Roboto', 'Open Sans', 'Nunito', 'Quicksand', 'Comfortaa']
-    },
-    decorative: {
-      name: 'Decorative',
-      icon: Palette,
-      fonts: ['Berkshire Swash', 'Mr Dafoe', 'Niconne', 'Petit Formal Script', 'Rochester', 'Italianno', 'Engagement', 'Clicker Script', 'Courgette', 'Grand Hotel', 'Lobster']
-    }
-  };
-
-  const allFonts = Object.values(fontCategories).flatMap(category => category.fonts);
-  const getFilteredFonts = () => {
-    if (selectedCategory === 'all') return allFonts;
-    return fontCategories[selectedCategory as keyof typeof fontCategories]?.fonts || [];
-  };
+  const availableFonts = [
+    'Playfair Display', 'Cormorant Garamond', 'Crimson Text', 'Libre Baskerville', 'Merriweather', 'Lora', 'Cinzel', 'Times New Roman', 'Georgia', 'Garamond',
+    'Dancing Script', 'Great Vibes', 'Pacifico', 'Alex Brush', 'Allura', 'Sacramento', 'Satisfy', 'Cookie', 'Kaushan Script', 'Caveat', 'Pinyon Script', 'Tangerine',
+    'Montserrat', 'Poppins', 'Inter', 'Work Sans', 'Raleway', 'Source Sans Pro', 'Roboto', 'Open Sans', 'Nunito', 'Quicksand', 'Comfortaa',
+    'Berkshire Swash', 'Mr Dafoe', 'Niconne', 'Petit Formal Script', 'Rochester', 'Italianno', 'Engagement', 'Clicker Script', 'Courgette', 'Grand Hotel', 'Lobster'
+  ];
 
   const updateFonts = useCallback((fontKey: string, value: string) => {
     const updatedCustomization = {
@@ -138,25 +115,21 @@ const PremiumFontEditor = ({ customization, onCustomizationChange, templateId }:
   const textElements = [
     {
       key: 'heading',
-      label: 'Bride & Groom Names',
+      label: 'Names',
       sizeKey: 'brideNameSize',
       defaultSize: 32,
       minSize: 16,
       maxSize: 72,
-      step: 2,
-      preview: 'Sarah & Michael',
-      gradient: 'from-rose-500 to-pink-500'
+      step: 2
     },
     {
       key: 'date',
-      label: 'Wedding Date',
+      label: 'Date',
       sizeKey: 'dateSize',
       defaultSize: 24,
       minSize: 12,
       maxSize: 48,
-      step: 2,
-      preview: 'June 15, 2024',
-      gradient: 'from-blue-500 to-cyan-500'
+      step: 2
     },
     {
       key: 'venue',
@@ -165,167 +138,86 @@ const PremiumFontEditor = ({ customization, onCustomizationChange, templateId }:
       defaultSize: 20,
       minSize: 12,
       maxSize: 40,
-      step: 2,
-      preview: 'Garden Pavilion',
-      gradient: 'from-green-500 to-emerald-500'
+      step: 2
     },
     {
       key: 'message',
-      label: 'Personal Message',
+      label: 'Message',
       sizeKey: 'messageSize',
       defaultSize: 16,
       minSize: 12,
       maxSize: 32,
-      step: 1,
-      preview: 'Join us as we begin our journey together...',
-      gradient: 'from-purple-500 to-violet-500'
+      step: 1
     }
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <div className="p-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10">
-            <Type className="h-5 w-5 text-primary" />
-          </div>
-          <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Fonts & Sizes
-          </h2>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Customize typography to match your wedding style
-        </p>
-      </div>
+    <div className="space-y-4">
+      {textElements.map((element) => (
+        <Card key={element.key} className="p-4 border border-border/60 bg-card/50 backdrop-blur-sm">
+          <div className="space-y-4">
+            {/* Element Label */}
+            <Label className="text-sm font-medium text-foreground">{element.label}</Label>
 
-      {/* Font Categories */}
-      <Card className="p-4">
-        <Label className="text-sm font-medium mb-3 block">Font Categories</Label>
-        <div className="flex flex-wrap gap-2">
-          <Badge 
-            variant={selectedCategory === 'all' ? 'default' : 'outline'}
-            className="cursor-pointer transition-all hover:scale-105"
-            onClick={() => setSelectedCategory('all')}
-          >
-            All Fonts
-          </Badge>
-          {Object.entries(fontCategories).map(([key, category]) => {
-            const IconComponent = category.icon;
-            return (
-              <Badge 
-                key={key}
-                variant={selectedCategory === key ? 'default' : 'outline'}
-                className="cursor-pointer transition-all hover:scale-105 flex items-center gap-1"
-                onClick={() => setSelectedCategory(key)}
-              >
-                <IconComponent className="h-3 w-3" />
-                {category.name}
-              </Badge>
-            );
-          })}
-        </div>
-      </Card>
+            {/* Font Selection */}
+            <Select 
+              value={customization.fonts?.[element.key as keyof typeof customization.fonts] || (element.key === 'heading' ? 'Playfair Display' : 'Inter')} 
+              onValueChange={(value) => updateFonts(element.key, value)}
+            >
+              <SelectTrigger className="h-11 bg-background/80 border-border/60 hover:border-border transition-colors">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover/95 backdrop-blur-sm border-border/60">
+                {availableFonts.map((font) => (
+                  <SelectItem key={font} value={font} className="hover:bg-accent/50">
+                    <span style={{ fontFamily: font }} className="text-sm">
+                      {font}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-      {/* Text Elements */}
-      <div className="space-y-4">
-        {textElements.map((element, index) => (
-          <Card key={element.key} className="p-6 transition-all hover:shadow-md">
-            <div className="space-y-4">
-              {/* Element Header */}
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-gradient-to-r ${element.gradient} bg-opacity-10`}>
-                  <Type className={`h-4 w-4 text-transparent bg-gradient-to-r ${element.gradient} bg-clip-text`} />
-                </div>
-                <div>
-                  <Label className="text-base font-medium">{element.label}</Label>
-                  <p className="text-xs text-muted-foreground">Choose font and adjust size</p>
-                </div>
+            {/* Size Control */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Size</span>
+                <Badge variant="secondary" className="text-xs bg-secondary/60 text-secondary-foreground">
+                  {customization.fontSizes?.[element.sizeKey as keyof typeof customization.fontSizes] || element.defaultSize}px
+                </Badge>
               </div>
-
-              {/* Font Selection */}
-              <div className="space-y-3">
-                <Select 
-                  value={customization.fonts?.[element.key as keyof typeof customization.fonts] || (element.key === 'heading' ? 'Playfair Display' : 'Inter')} 
-                  onValueChange={(value) => updateFonts(element.key, value)}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder={`Select font for ${element.label.toLowerCase()}`} />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    {getFilteredFonts().map((font) => (
-                      <SelectItem key={font} value={font}>
-                        <div className="flex items-center justify-between w-full">
-                          <span style={{ fontFamily: font }} className="text-sm">
-                            {font}
-                          </span>
-                          <span className="text-xs text-muted-foreground ml-4" style={{ fontFamily: font }}>
-                            Aa
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Live Preview */}
-                <div className="p-4 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
-                  <p 
-                    className="text-center text-foreground transition-all"
-                    style={{ 
-                      fontFamily: customization.fonts?.[element.key as keyof typeof customization.fonts] || (element.key === 'heading' ? 'Playfair Display' : 'Inter'),
-                      fontSize: `${customization.fontSizes?.[element.sizeKey as keyof typeof customization.fontSizes] || element.defaultSize}px`
-                    }}
-                  >
-                    {element.preview}
-                  </p>
-                </div>
-
-                {/* Size Control */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Font Size</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {customization.fontSizes?.[element.sizeKey as keyof typeof customization.fontSizes] || element.defaultSize}px
-                    </Badge>
-                  </div>
-                  <Slider
-                    value={[customization.fontSizes?.[element.sizeKey as keyof typeof customization.fontSizes] || element.defaultSize]}
-                    onValueChange={(value) => {
-                      if (element.key === 'heading') {
-                        updateNamesSize(value[0]);
-                      } else {
-                        updateFontSize(element.sizeKey, value[0]);
-                      }
-                    }}
-                    min={element.minSize}
-                    max={element.maxSize}
-                    step={element.step}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{element.minSize}px</span>
-                    <span>{element.maxSize}px</span>
-                  </div>
-                </div>
+              <Slider
+                value={[customization.fontSizes?.[element.sizeKey as keyof typeof customization.fontSizes] || element.defaultSize]}
+                onValueChange={(value) => {
+                  if (element.key === 'heading') {
+                    updateNamesSize(value[0]);
+                  } else {
+                    updateFontSize(element.sizeKey, value[0]);
+                  }
+                }}
+                min={element.minSize}
+                max={element.maxSize}
+                step={element.step}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{element.minSize}px</span>
+                <span>{element.maxSize}px</span>
               </div>
             </div>
-            {index < textElements.length - 1 && <Separator className="mt-6" />}
-          </Card>
-        ))}
-      </div>
+          </div>
+        </Card>
+      ))}
 
       {/* Reset Button */}
-      <Card className="p-4">
-        <Button
-          variant="outline"
-          onClick={resetToDefaults}
-          className="w-full h-12 text-base font-medium transition-all hover:scale-[1.02]"
-        >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Reset to Default Fonts
-        </Button>
-      </Card>
+      <Button
+        variant="outline"
+        onClick={resetToDefaults}
+        className="w-full mt-6 bg-background/60 hover:bg-accent/60 border-border/60 transition-colors"
+      >
+        <RotateCcw className="h-4 w-4 mr-2" />
+        Reset Fonts
+      </Button>
     </div>
   );
 };
