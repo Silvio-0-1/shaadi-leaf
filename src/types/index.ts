@@ -47,6 +47,7 @@ export interface TemplateCustomization {
   backgroundPattern?: string;
   layout?: string;
   photoShape?: 'square' | 'circle' | 'rounded';
+  venueStyle?: string; // ID of the selected venue style
 }
 
 export interface ElementPosition {

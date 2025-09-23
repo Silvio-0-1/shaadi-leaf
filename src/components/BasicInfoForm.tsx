@@ -11,6 +11,7 @@ import { useState } from 'react';
 import CreditActionButton from './CreditActionButton';
 import { useCredits } from '@/hooks/useCredits';
 import { validateName, validateVenue, validateMessage, validateWeddingDate, sanitizeInput } from '@/lib/security';
+import VenueStyleSelector from './VenueStyleSelector';
 
 interface BasicInfoFormProps {
   cardData: WeddingCardData;
@@ -138,6 +139,15 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {}, onValida
     }
   };
 
+  const handleVenueStyleSelect = (styleId: string) => {
+    onDataChange({ 
+      customization: {
+        ...cardData.customization,
+        venueStyle: styleId
+      }
+    });
+  };
+
   const getFieldError = (field: string) => validationErrors[field];
 
   return (
@@ -221,6 +231,17 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {}, onValida
               placeholder="Enter wedding venue"
               value={cardData.venue}
               onChange={(e) => handleChange('venue', e.target.value)}
+              className={`${getFieldError('venue') ? 'border-destructive' : ''}`}
+            />
+            {getFieldError('venue') && (
+              <p className="text-sm text-destructive">{getFieldError('venue')}</p>
+            )}
+            
+            {/* Venue Style Selector */}
+            <VenueStyleSelector
+              venue={cardData.venue}
+              selectedStyleId={cardData.customization?.venueStyle}
+              onStyleSelect={handleVenueStyleSelect}
             />
           </div>
         </div>
