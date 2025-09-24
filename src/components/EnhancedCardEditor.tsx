@@ -1484,64 +1484,65 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
             </DynamicTextBox>
           )}
 
-          {/* Message */}
-          {cardData.message && (
-            <DynamicTextBox
-              id="message"
-              position={positions.message}
-              onMove={handleElementMove}
-              onResize={handleElementResize}
-              containerRef={cardRef}
-              fontSize={getFontSize('message')}
-              fontFamily={getFontFamily('message')}
-              text={cardData.message}
-              minWidth={180}
-              maxWidth={600}
-              minHeight={60}
-              maxHeight={250}
-              isSelected={selectedElement === 'message'}
-              onSelect={handleElementSelect}
-              customization={cardData.customization}
-              rotation={elementRotations.message || 0}
-              onRotate={handleElementRotate}
-              onDragStart={() => handleDragStart('message')}
-              onDragEnd={() => handleDragEnd('message')}
-              isLocked={elementLockStates.message || false}
-              onTextChange={(value) => handleTextChange('message', value)}
-              autoSize={true}
-            >
-              <div 
-                className="w-full h-full flex items-center justify-center"
-                data-draggable-element="message"
-              >
-                {editingElement === 'message' ? (
-                  <InlineTextEditor
-                    value={cardData.message}
-                    onChange={(value) => handleTextChange('message', value)}
-                    onComplete={() => setEditingElement(null)}
-                    isMultiline={true}
-                    className="text-sm italic text-center max-w-xs"
-                    style={{ 
-                      color: getTextColor('message'),
-                      fontFamily: getFontFamily('message')
-                    }}
-                  />
-                ) : (
-                  <p 
-                    className="text-center italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
-                    style={{ 
-                      color: getTextColor('message'),
-                      fontFamily: getFontFamily('message'),
-                      fontSize: `${elementFontSizes.message || 16}px`
-                    }}
-                    onDoubleClick={() => handleDoubleClick('message')}
-                  >
-                    {cardData.message}
-                  </p>
-                )}
-              </div>
-            </DynamicTextBox>
-          )}
+{/* Message */}
+{cardData.message && (
+  <DynamicTextBox
+    id="message"
+    position={positions.message}
+    onMove={handleElementMove}
+    onResize={handleElementResize}
+    containerRef={cardRef}
+    fontSize={getFontSize('message')}
+    fontFamily={getFontFamily('message')}
+    text={cardData.message}
+    minWidth={150}  // Your custom constraints
+    maxWidth={400}  // Your custom constraints  
+    minHeight={40}  // Your custom constraints
+    maxHeight={150} // Your custom constraints
+    isSelected={selectedElement === 'message'}
+    onSelect={handleElementSelect}
+    customization={cardData.customization}
+    rotation={elementRotations.message || 0}
+    onRotate={handleElementRotate}
+    onDragStart={() => handleDragStart('message')}
+    onDragEnd={() => handleDragEnd('message')}
+    isLocked={elementLockStates.message || false}
+    onTextChange={(value) => handleTextChange('message', value)}
+    autoSize={false} // CHANGE THIS TO FALSE to respect manual constraints
+  >
+    <div 
+      className="w-full h-full flex items-center justify-center p-2" // Add padding for better text spacing
+      data-draggable-element="message"
+    >
+      {editingElement === 'message' ? (
+        <InlineTextEditor
+          value={cardData.message}
+          onChange={(value) => handleTextChange('message', value)}
+          onComplete={() => setEditingElement(null)}
+          isMultiline={true}
+          className="text-sm italic text-center w-full h-full resize-none"
+          style={{ 
+            color: getTextColor('message'),
+            fontFamily: getFontFamily('message'),
+            fontSize: `${getFontSize('message')}px` // Use the hook function
+          }}
+        />
+      ) : (
+        <p 
+          className="text-center italic leading-relaxed transition-all duration-200 cursor-pointer w-full h-full flex items-center justify-center"
+          style={{ 
+            color: getTextColor('message'),
+            fontFamily: getFontFamily('message'),
+            fontSize: `${getFontSize('message')}px` // Use the hook function
+          }}
+          onDoubleClick={() => handleDoubleClick('message')}
+        >
+          {cardData.message}
+        </p>
+      )}
+    </div>
+  </DynamicTextBox>
+)}
         </div>
       </Card>
     </div>
