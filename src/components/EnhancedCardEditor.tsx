@@ -60,7 +60,7 @@ const [textSizes, setTextSizes] = useState<Record<string, { width: number; heigh
   groomName: { width: 200, height: 60 },
   weddingDate: { width: 180, height: 40 },
   venue: { width: 220, height: 50 },
-  message: { width: 300, height: 200 } // Increase initial height for better message display
+  message: { width: 300, height: 100 } // Increase initial height for better message display
 });
   
   // Handle element selection with timing protection
@@ -412,6 +412,9 @@ useEffect(() => {
     snapController.clearGuides();
   }, [snapController]);
 
+// Update the handleElementResize function in EnhancedCardEditor.tsx
+// Replace your existing handleElementResize function with this improved version:
+
 const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
   setPositions(prev => {
     let newPositions: CardElements;
@@ -431,10 +434,35 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
         photo: { ...prev.photo, size: newSize }
       };
     } else {
-      // For text elements, update font size based on new width
+      // For text elements, calculate font size based on current element size vs new size
       const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(elementId);
       if (isTextElement) {
-        const newFontSize = updateFontSizeFromResize(elementId, newSize);
+        // Get current element size
+        const currentSize = elementSizes[elementId] || textSizes[elementId] || { width: 100, height: 50 };
+        const currentFontSize = elementFontSizes[elementId] || getFontSize(elementId);
+        
+        // Calculate scale ratio based on the smaller dimension change
+        const widthRatio = newSize.width / currentSize.width;
+        const heightRatio = newSize.height / currentSize.height;
+        const scaleRatio = Math.min(widthRatio, heightRatio);
+        
+        // Calculate new font size
+        let newFontSize = currentFontSize * scaleRatio;
+        
+        // Set element-specific bounds with more flexibility
+        const elementBounds = {
+          'brideName': { min: 12, max: 80 },
+          'groomName': { min: 12, max: 80 },
+          'weddingDate': { min: 8, max: 32 },
+          'venue': { min: 8, max: 28 },
+          'message': { min: 8, max: 24 }
+        };
+        
+        const bounds = elementBounds[elementId as keyof typeof elementBounds] || { min: 8, max: 72 };
+        newFontSize = Math.max(bounds.min, Math.min(bounds.max, Math.round(newFontSize)));
+        
+        // Update the font size in the hook
+        setFontSize(elementId, newFontSize);
         
         // Update customization to reflect the new font size
         const fontSizeKey = elementId === 'brideName' ? 'brideNameSize' :
@@ -464,7 +492,7 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
     addToHistory(newPositions);
     return newPositions;
   });
-}, [addToHistory, updateFontSizeFromResize, cardData.customization, onDataChange]);
+}, [addToHistory, elementSizes, textSizes, elementFontSizes, getFontSize, setFontSize, cardData.customization, onDataChange]);
 
   const handleElementRotate = useCallback((elementId: string, rotation: number) => {
     setElementRotations(prev => ({
@@ -1495,10 +1523,10 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     fontSize={getFontSize('message')}
     fontFamily={getFontFamily('message')}
     text={cardData.message}
-    minWidth={300}  // Your custom constraints
-    maxWidth={600}  // Your custom constraints  
+    minWidth={150}  // Your custom constraints
+    maxWidth={400}  // Your custom constraints  
     minHeight={40}  // Your custom constraints
-    maxHeight={400} // Your custom constraints
+    maxHeight={150} // Your custom constraints
     isSelected={selectedElement === 'message'}
     onSelect={handleElementSelect}
     customization={cardData.customization}
