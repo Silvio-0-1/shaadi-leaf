@@ -64,14 +64,13 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
-  // Store initial font size when resizing starts
-  const handleResizeStart = useCallback(() => {
-    setInitialSize(elementSize);
-    setInitialFontSize(fontSize);
-  }, [elementSize, fontSize]);
-
   // Calculate font size based on resize ratio with more flexible scaling
   const calculateFontSizeFromResize = useCallback((newSize: { width: number; height: number }) => {
+    // Ensure we have valid initial values
+    if (initialSize.width <= 0 || initialSize.height <= 0 || initialFontSize <= 0) {
+      return fontSize; // Fallback to current font size
+    }
+    
     // Use the smaller dimension change for scaling to maintain readability
     const widthRatio = newSize.width / initialSize.width;
     const heightRatio = newSize.height / initialSize.height;
@@ -82,28 +81,28 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
     
     // Set more reasonable bounds based on element type
     const elementMinFontSize = {
-      'brideName': 12,
-      'groomName': 12,
-      'weddingDate': 8,
-      'venue': 8,
-      'message': 8
+      'brideName': 8,
+      'groomName': 8,
+      'weddingDate': 6,
+      'venue': 6,
+      'message': 6
     };
     
     const elementMaxFontSize = {
-      'brideName': 80,
-      'groomName': 80,
-      'weddingDate': 32,
-      'venue': 28,
-      'message': 24
+      'brideName': 100,
+      'groomName': 100,
+      'weddingDate': 40,
+      'venue': 36,
+      'message': 32
     };
     
-    const minFont = elementMinFontSize[id as keyof typeof elementMinFontSize] || 8;
-    const maxFont = elementMaxFontSize[id as keyof typeof elementMaxFontSize] || 72;
+    const minFont = elementMinFontSize[id as keyof typeof elementMinFontSize] || 6;
+    const maxFont = elementMaxFontSize[id as keyof typeof elementMaxFontSize] || 100;
     
     newFontSize = Math.max(minFont, Math.min(maxFont, newFontSize));
     
     return Math.round(newFontSize);
-  }, [initialSize, initialFontSize, id]);
+  }, [initialSize, initialFontSize, fontSize, id]);
 
   // Auto-sizing effect - only when text content changes, not during manual resize
   useEffect(() => {
@@ -159,8 +158,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
       setIsResizing(true);
       setResizeHandle(handleType);
       onSelect(id);
-      handleResizeStart(); // Store initial values for font scaling
       
+      // Store initial values for proper font scaling
+      setInitialSize({ ...elementSize });
+      setInitialFontSize(fontSize);
+      
+      // Store the initial mouse position (don't update this during resize)
       setDragStart({
         x: e.clientX,
         y: e.clientY
@@ -176,34 +179,35 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
         y: e.clientY - (position.y + containerBounds.height / 2)
       });
     }
-  }, [isLocked, position, id, onSelect, onDragStart, getContainerBounds, handleResizeStart]);
+  }, [isLocked, position, id, onSelect, onDragStart, getContainerBounds, elementSize, fontSize]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isLocked) return;
 
     if (isResizing && resizeHandle) {
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
+      // Calculate new size based on initial size and total mouse movement from start
+      const totalDeltaX = e.clientX - dragStart.x;
+      const totalDeltaY = e.clientY - dragStart.y;
       
-      let newWidth = elementSize.width;
-      let newHeight = elementSize.height;
+      let newWidth = initialSize.width;
+      let newHeight = initialSize.height;
       
       switch (resizeHandle) {
         case 'nw':
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
+          newWidth = Math.max(minWidth, Math.min(maxWidth, initialSize.width - totalDeltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, initialSize.height - totalDeltaY));
           break;
         case 'ne':
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height - deltaY));
+          newWidth = Math.max(minWidth, Math.min(maxWidth, initialSize.width + totalDeltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, initialSize.height - totalDeltaY));
           break;
         case 'sw':
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width - deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
+          newWidth = Math.max(minWidth, Math.min(maxWidth, initialSize.width - totalDeltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, initialSize.height + totalDeltaY));
           break;
         case 'se':
-          newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
-          newHeight = Math.max(minHeight, Math.min(maxHeight, elementSize.height + deltaY));
+          newWidth = Math.max(minWidth, Math.min(maxWidth, initialSize.width + totalDeltaX));
+          newHeight = Math.max(minHeight, Math.min(maxHeight, initialSize.height + totalDeltaY));
           break;
       }
       
@@ -221,7 +225,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
         // This will be handled by the parent component's font size update logic
       }
       
-      setDragStart({ x: e.clientX, y: e.clientY });
+      // Don't update dragStart during resize - keep it as the initial mouse position
     } else if (isDragging) {
       const containerBounds = getContainerBounds();
       const newX = e.clientX - dragStart.x - containerBounds.width / 2;
