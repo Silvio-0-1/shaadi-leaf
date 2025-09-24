@@ -54,14 +54,14 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [lastSelectionTime, setLastSelectionTime] = useState<number>(0);
   
-  // State for text element sizes
-  const [textSizes, setTextSizes] = useState<Record<string, { width: number; height: number }>>({
-    brideName: { width: 200, height: 60 },
-    groomName: { width: 200, height: 60 },
-    weddingDate: { width: 180, height: 40 },
-    venue: { width: 220, height: 50 },
-    message: { width: 300, height: 80 }
-  });
+// State for text element sizes
+const [textSizes, setTextSizes] = useState<Record<string, { width: number; height: number }>>({
+  brideName: { width: 200, height: 60 },
+  groomName: { width: 200, height: 60 },
+  weddingDate: { width: 180, height: 40 },
+  venue: { width: 220, height: 50 },
+  message: { width: 300, height: 100 } // Increase initial height for better message display
+});
   
   // Handle element selection with timing protection
   const handleElementSelect = useCallback((elementId: string) => {

@@ -62,8 +62,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
-  // Auto-size based on text content and font size
-  // Disable auto-sizing when manually resizing
+// Disable auto-sizing when manually resizing
 useEffect(() => {
   // Only auto-size when text content changes, not when resizing manually
   if (autoSize && textContentRef.current && !isResizing && !isDragging) {
@@ -74,10 +73,11 @@ useEffect(() => {
       const tempElement = document.createElement('div');
       tempElement.style.position = 'absolute';
       tempElement.style.visibility = 'hidden';
-      tempElement.style.whiteSpace = 'nowrap';
+      tempElement.style.whiteSpace = id === 'message' ? 'pre-wrap' : 'nowrap'; // Allow wrapping for message
       tempElement.style.fontSize = `${fontSize}px`;
       tempElement.style.fontFamily = fontFamily;
       tempElement.style.fontWeight = textElement.style.fontWeight || 'normal';
+      tempElement.style.maxWidth = `${maxWidth}px`; // Respect max width for wrapping
       tempElement.textContent = text;
       
       document.body.appendChild(tempElement);
@@ -92,7 +92,7 @@ useEffect(() => {
       setElementSize(newSize);
     }
   }
-}, [text, isResizing, isDragging]); // Only depend on text changes and resize states
+}, [text, isResizing, isDragging, autoSize, minWidth, maxWidth, minHeight, maxHeight, fontSize, fontFamily, id]);
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
