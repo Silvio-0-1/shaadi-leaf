@@ -44,7 +44,7 @@ const Index = () => {
   }, [templateParam, navigate]);
 
   const handleTemplateSelect = (templateId: string) => {
-    navigate(`/customize?template=${templateId}`);
+    navigate(`/customize/${templateId}`);
   };
 
   const handleDataChange = (newData: Partial<WeddingCardData>) => {
