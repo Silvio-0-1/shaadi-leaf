@@ -60,7 +60,7 @@ const [textSizes, setTextSizes] = useState<Record<string, { width: number; heigh
   groomName: { width: 200, height: 60 },
   weddingDate: { width: 180, height: 40 },
   venue: { width: 220, height: 50 },
-  message: { width: 300, height: 100 } // Increase initial height for better message display
+  message: { width: 300, height: 200 } // Increase initial height for better message display
 });
   
   // Handle element selection with timing protection
@@ -1495,10 +1495,10 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     fontSize={getFontSize('message')}
     fontFamily={getFontFamily('message')}
     text={cardData.message}
-    minWidth={150}  // Your custom constraints
-    maxWidth={400}  // Your custom constraints  
+    minWidth={300}  // Your custom constraints
+    maxWidth={600}  // Your custom constraints  
     minHeight={40}  // Your custom constraints
-    maxHeight={150} // Your custom constraints
+    maxHeight={400} // Your custom constraints
     isSelected={selectedElement === 'message'}
     onSelect={handleElementSelect}
     customization={cardData.customization}
