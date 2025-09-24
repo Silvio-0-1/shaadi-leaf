@@ -54,14 +54,14 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [lastSelectionTime, setLastSelectionTime] = useState<number>(0);
   
-// State for text element sizes
-const [textSizes, setTextSizes] = useState<Record<string, { width: number; height: number }>>({
-  brideName: { width: 200, height: 60 },
-  groomName: { width: 200, height: 60 },
-  weddingDate: { width: 180, height: 40 },
-  venue: { width: 220, height: 50 },
-  message: { width: 300, height: 100 } // Increase initial height for better message display
-});
+  // State for text element sizes
+  const [textSizes, setTextSizes] = useState<Record<string, { width: number; height: number }>>({
+    brideName: { width: 200, height: 60 },
+    groomName: { width: 200, height: 60 },
+    weddingDate: { width: 180, height: 40 },
+    venue: { width: 220, height: 50 },
+    message: { width: 300, height: 80 }
+  });
   
   // Handle element selection with timing protection
   const handleElementSelect = useCallback((elementId: string) => {
@@ -412,9 +412,6 @@ useEffect(() => {
     snapController.clearGuides();
   }, [snapController]);
 
-// Update the handleElementResize function in EnhancedCardEditor.tsx
-// Replace your existing handleElementResize function with this improved version:
-
 const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
   setPositions(prev => {
     let newPositions: CardElements;
@@ -434,35 +431,10 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
         photo: { ...prev.photo, size: newSize }
       };
     } else {
-      // For text elements, calculate font size based on current element size vs new size
+      // For text elements, update font size based on new width
       const isTextElement = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'].includes(elementId);
       if (isTextElement) {
-        // Get current element size
-        const currentSize = elementSizes[elementId] || textSizes[elementId] || { width: 100, height: 50 };
-        const currentFontSize = elementFontSizes[elementId] || getFontSize(elementId);
-        
-        // Calculate scale ratio based on the smaller dimension change
-        const widthRatio = newSize.width / currentSize.width;
-        const heightRatio = newSize.height / currentSize.height;
-        const scaleRatio = Math.min(widthRatio, heightRatio);
-        
-        // Calculate new font size
-        let newFontSize = currentFontSize * scaleRatio;
-        
-        // Set element-specific bounds with more flexibility
-        const elementBounds = {
-          'brideName': { min: 12, max: 80 },
-          'groomName': { min: 12, max: 80 },
-          'weddingDate': { min: 8, max: 32 },
-          'venue': { min: 8, max: 28 },
-          'message': { min: 8, max: 24 }
-        };
-        
-        const bounds = elementBounds[elementId as keyof typeof elementBounds] || { min: 8, max: 72 };
-        newFontSize = Math.max(bounds.min, Math.min(bounds.max, Math.round(newFontSize)));
-        
-        // Update the font size in the hook
-        setFontSize(elementId, newFontSize);
+        const newFontSize = updateFontSizeFromResize(elementId, newSize);
         
         // Update customization to reflect the new font size
         const fontSizeKey = elementId === 'brideName' ? 'brideNameSize' :
@@ -492,7 +464,7 @@ const handleElementResize = useCallback((elementId: string, newSize: { width: nu
     addToHistory(newPositions);
     return newPositions;
   });
-}, [addToHistory, elementSizes, textSizes, elementFontSizes, getFontSize, setFontSize, cardData.customization, onDataChange]);
+}, [addToHistory, updateFontSizeFromResize, cardData.customization, onDataChange]);
 
   const handleElementRotate = useCallback((elementId: string, rotation: number) => {
     setElementRotations(prev => ({
@@ -1512,65 +1484,64 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
             </DynamicTextBox>
           )}
 
-{/* Message */}
-{cardData.message && (
-  <DynamicTextBox
-    id="message"
-    position={positions.message}
-    onMove={handleElementMove}
-    onResize={handleElementResize}
-    containerRef={cardRef}
-    fontSize={getFontSize('message')}
-    fontFamily={getFontFamily('message')}
-    text={cardData.message}
-    minWidth={150}  // Your custom constraints
-    maxWidth={400}  // Your custom constraints  
-    minHeight={40}  // Your custom constraints
-    maxHeight={150} // Your custom constraints
-    isSelected={selectedElement === 'message'}
-    onSelect={handleElementSelect}
-    customization={cardData.customization}
-    rotation={elementRotations.message || 0}
-    onRotate={handleElementRotate}
-    onDragStart={() => handleDragStart('message')}
-    onDragEnd={() => handleDragEnd('message')}
-    isLocked={elementLockStates.message || false}
-    onTextChange={(value) => handleTextChange('message', value)}
-    autoSize={false} // CHANGE THIS TO FALSE to respect manual constraints
-  >
-    <div 
-      className="w-full h-full flex items-center justify-center p-2" // Add padding for better text spacing
-      data-draggable-element="message"
-    >
-      {editingElement === 'message' ? (
-        <InlineTextEditor
-          value={cardData.message}
-          onChange={(value) => handleTextChange('message', value)}
-          onComplete={() => setEditingElement(null)}
-          isMultiline={true}
-          className="text-sm italic text-center w-full h-full resize-none"
-          style={{ 
-            color: getTextColor('message'),
-            fontFamily: getFontFamily('message'),
-            fontSize: `${getFontSize('message')}px` // Use the hook function
-          }}
-        />
-      ) : (
-        <p 
-          className="text-center italic leading-relaxed transition-all duration-200 cursor-pointer w-full h-full flex items-center justify-center"
-          style={{ 
-            color: getTextColor('message'),
-            fontFamily: getFontFamily('message'),
-            fontSize: `${getFontSize('message')}px` // Use the hook function
-          }}
-          onDoubleClick={() => handleDoubleClick('message')}
-        >
-          {cardData.message}
-        </p>
-      )}
-    </div>
-  </DynamicTextBox>
-)}
+          {/* Message */}
+          {cardData.message && (
+            <DynamicTextBox
+              id="message"
+              position={positions.message}
+              onMove={handleElementMove}
+              onResize={handleElementResize}
+              containerRef={cardRef}
+              fontSize={getFontSize('message')}
+              fontFamily={getFontFamily('message')}
+              text={cardData.message}
+              minWidth={180}
+              maxWidth={600}
+              minHeight={60}
+              maxHeight={250}
+              isSelected={selectedElement === 'message'}
+              onSelect={handleElementSelect}
+              customization={cardData.customization}
+              rotation={elementRotations.message || 0}
+              onRotate={handleElementRotate}
+              onDragStart={() => handleDragStart('message')}
+              onDragEnd={() => handleDragEnd('message')}
+              isLocked={elementLockStates.message || false}
+              onTextChange={(value) => handleTextChange('message', value)}
+              autoSize={true}
+            >
+              <div 
+                className="w-full h-full flex items-center justify-center"
+                data-draggable-element="message"
+              >
+                {editingElement === 'message' ? (
+                  <InlineTextEditor
+                    value={cardData.message}
+                    onChange={(value) => handleTextChange('message', value)}
+                    onComplete={() => setEditingElement(null)}
+                    isMultiline={true}
+                    className="text-sm italic text-center max-w-xs"
+                    style={{ 
+                      color: getTextColor('message'),
+                      fontFamily: getFontFamily('message')
+                    }}
+                  />
+                ) : (
+                  <p 
+                    className="text-center italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
+                    style={{ 
+                      color: getTextColor('message'),
+                      fontFamily: getFontFamily('message'),
+                      fontSize: `${elementFontSizes.message || 16}px`
+                    }}
+                    onDoubleClick={() => handleDoubleClick('message')}
+                  >
+                    {cardData.message}
+                  </p>
+                )}
+              </div>
+            </DynamicTextBox>
+          )}
         </div>
       </Card>
     </div>
