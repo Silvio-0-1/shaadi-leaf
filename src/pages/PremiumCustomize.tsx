@@ -106,37 +106,38 @@ const PremiumCustomize = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen h-screen bg-background flex flex-col overflow-hidden">
       <Header />
       
-      {/* Top Bar */}
-      <div className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+      {/* Top Toolbar - Sticky */}
+      <div className="border-b bg-card/50 backdrop-blur-sm z-50 shrink-0">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/templates')}
+                className="shrink-0"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
               <Separator orientation="vertical" className="h-6" />
-              <div>
-                <h1 className="text-lg font-premium-serif font-semibold">
+              <div className="min-w-0">
+                <h1 className="text-base md:text-lg font-premium-serif font-semibold truncate">
                   {selectedTemplate.name}
                 </h1>
                 <p className="text-xs text-muted-foreground">
-                  Template #{currentTemplateId.slice(-5).toUpperCase()}
+                  #{currentTemplateId.slice(-5).toUpperCase()}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Design Tools */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Design Tools - Desktop Only */}
               <TooltipProvider>
-                <div className="hidden md:flex items-center gap-1 mr-2">
+                <div className="hidden lg:flex items-center gap-1 mr-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -186,7 +187,7 @@ const PremiumCustomize = () => {
                   className="wedding-gradient"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save'}
+                  <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save'}</span>
                 </Button>
               )}
             </div>
@@ -194,56 +195,63 @@ const PremiumCustomize = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
         {isMobile ? (
-          /* Mobile Layout */
-          <div className="flex-1 flex flex-col">
-            {/* Card Preview - Takes most of the screen */}
-            <div className="flex-1 p-4">
-              <PremiumCardPreview
-                cardData={cardData}
-                onDataChange={handleDataChange}
-                isPreviewMode={designState.isPreviewMode}
-                showGrid={designState.showGrid}
-                showGuides={designState.showGuides}
-              />
+          /* ========== Mobile Layout ========== */
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Card Preview Area */}
+            <div className="flex-1 overflow-auto min-h-0">
+              <div className="h-full flex items-center justify-center p-4">
+                <PremiumCardPreview
+                  cardData={cardData}
+                  onDataChange={handleDataChange}
+                  isPreviewMode={designState.isPreviewMode}
+                  showGrid={designState.showGrid}
+                  showGuides={designState.showGuides}
+                />
+              </div>
             </div>
 
-            {/* Mobile Bottom Controls */}
-            <div className="border-t bg-card p-4 space-y-3">
-              <div className="flex gap-2 mb-2">
-                <Button
-                  variant={designState.isPreviewMode ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setDesignState(prev => ({ ...prev, isPreviewMode: !prev.isPreviewMode }))}
-                  className="flex-1"
-                >
-                  {designState.isPreviewMode ? <Eye className="h-4 w-4 mr-2" /> : <EyeOff className="h-4 w-4 mr-2" />}
-                  {designState.isPreviewMode ? 'Preview' : 'Design'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDesignState(prev => ({ ...prev, showGrid: !prev.showGrid }))}
-                >
-                  <Grid3x3 className="h-4 w-4" />
-                </Button>
+            {/* Mobile Bottom Drawer */}
+            <div className="border-t bg-card shadow-[0_-4px_12px_rgba(0,0,0,0.1)] max-h-[50vh] overflow-y-auto shrink-0">
+              <div className="p-4 space-y-4">
+                {/* Quick Actions */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={designState.isPreviewMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setDesignState(prev => ({ ...prev, isPreviewMode: !prev.isPreviewMode }))}
+                    className="flex-1"
+                  >
+                    {designState.isPreviewMode ? <Eye className="h-4 w-4 mr-2" /> : <EyeOff className="h-4 w-4 mr-2" />}
+                    {designState.isPreviewMode ? 'Preview' : 'Design'}
+                  </Button>
+                  <Button
+                    variant={designState.showGrid ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setDesignState(prev => ({ ...prev, showGrid: !prev.showGrid }))}
+                  >
+                    <Grid3x3 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Customization Form */}
+                <PremiumCustomizationForm
+                  cardData={cardData}
+                  onDataChange={handleDataChange}
+                />
+
+                {/* Download Section */}
+                <DownloadSection cardId="card-preview" cardData={cardData} />
               </div>
-
-              <PremiumCustomizationForm
-                cardData={cardData}
-                onDataChange={handleDataChange}
-              />
-
-              <DownloadSection cardId="card-preview" cardData={cardData} />
             </div>
           </div>
         ) : (
-          /* Desktop Layout */
+          /* ========== Desktop Layout ========== */
           <>
             {/* Left Sidebar - Customization */}
-            <div className="w-80 border-r bg-card/30 overflow-y-auto">
+            <aside className="w-80 border-r bg-card/30 overflow-y-auto shrink-0">
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-xl font-premium-serif font-semibold mb-1">Customize</h2>
@@ -257,23 +265,25 @@ const PremiumCustomize = () => {
                   onDataChange={handleDataChange}
                 />
               </div>
-            </div>
+            </aside>
 
             {/* Center - Card Preview */}
-            <div className="flex-1 p-8 overflow-auto">
-              <div className="max-w-4xl mx-auto h-full">
-                <PremiumCardPreview
-                  cardData={cardData}
-                  onDataChange={handleDataChange}
-                  isPreviewMode={designState.isPreviewMode}
-                  showGrid={designState.showGrid}
-                  showGuides={designState.showGuides}
-                />
+            <main className="flex-1 overflow-auto min-w-0 bg-muted/20">
+              <div className="h-full w-full flex items-center justify-center p-8">
+                <div className="w-full max-w-4xl">
+                  <PremiumCardPreview
+                    cardData={cardData}
+                    onDataChange={handleDataChange}
+                    isPreviewMode={designState.isPreviewMode}
+                    showGrid={designState.showGrid}
+                    showGuides={designState.showGuides}
+                  />
+                </div>
               </div>
-            </div>
+            </main>
 
-            {/* Right Sidebar - Actions */}
-            <div className="w-80 border-l bg-card/30 overflow-y-auto">
+            {/* Right Sidebar - Export Actions */}
+            <aside className="w-80 border-l bg-card/30 overflow-y-auto shrink-0">
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-xl font-premium-serif font-semibold mb-1">Export</h2>
@@ -293,7 +303,7 @@ const PremiumCustomize = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </aside>
           </>
         )}
       </div>

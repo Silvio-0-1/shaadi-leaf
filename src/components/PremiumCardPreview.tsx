@@ -22,10 +22,10 @@ export const PremiumCardPreview: React.FC<PremiumCardPreviewProps> = ({
   className
 }) => {
   return (
-    <div className={cn("h-full flex items-center justify-center", className)}>
-      {/* Card Container with Scale to Fit */}
-      <div className="relative max-w-full max-h-full flex items-center justify-center p-4">
-        <Card className="w-[400px] h-[600px] overflow-hidden elegant-shadow bg-card relative">
+    <div className={cn("w-full h-full flex items-center justify-center", className)}>
+      {/* Card Container - Responsive Sizing */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        <Card className="w-full max-w-[400px] aspect-[2/3] overflow-hidden shadow-2xl bg-card relative transition-all duration-300">
           {/* Grid Overlay */}
           {showGrid && !isPreviewMode && (
             <div className="absolute inset-0 pointer-events-none z-10">
@@ -64,8 +64,8 @@ export const PremiumCardPreview: React.FC<PremiumCardPreviewProps> = ({
           {/* Guides - Center Lines */}
           {showGuides && !isPreviewMode && (
             <>
-              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20 pointer-events-none z-10" />
-              <div className="absolute top-1/2 left-0 right-0 h-px bg-primary/20 pointer-events-none z-10" />
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 pointer-events-none z-10 transition-opacity duration-200" />
+              <div className="absolute top-1/2 left-0 right-0 h-px bg-primary/30 pointer-events-none z-10 transition-opacity duration-200" />
             </>
           )}
         </Card>
