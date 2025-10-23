@@ -85,7 +85,7 @@ const Templates = () => {
   };
 
   const handleTemplateSelect = (templateId: string) => {
-    navigate(`/customize/${templateId}`);
+    navigate(`/customize?template=${templateId}`);
   };
 
   const handleTemplateCreated = (template: Template) => {

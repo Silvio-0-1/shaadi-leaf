@@ -2,7 +2,7 @@ import { Template } from '@/types';
 
 export const templates: Template[] = [
   {
-    id: '10001', // 5-digit ID
+    id: 'floral-elegant',
     name: 'Elegant Floral',
     category: 'floral',
     thumbnail: '/placeholder.svg',
@@ -21,7 +21,7 @@ export const templates: Template[] = [
     supportsVideo: false
   },
   {
-    id: '10002', // 5-digit ID
+    id: 'floral-garden',
     name: 'Garden Romance',
     category: 'floral',
     thumbnail: '/placeholder.svg',
@@ -40,7 +40,7 @@ export const templates: Template[] = [
     supportsVideo: true
   },
   {
-    id: '10003', // 5-digit ID
+    id: 'classic-timeless',
     name: 'Timeless Classic',
     category: 'classic',
     thumbnail: '/placeholder.svg',
@@ -59,7 +59,7 @@ export const templates: Template[] = [
     supportsVideo: false
   },
   {
-    id: '10004', // 5-digit ID
+    id: 'classic-vintage',
     name: 'Vintage Charm',
     category: 'classic',
     thumbnail: '/placeholder.svg',
@@ -78,7 +78,7 @@ export const templates: Template[] = [
     supportsVideo: true
   },
   {
-    id: '10005', // 5-digit ID
+    id: 'modern-sleek',
     name: 'Modern Sleek',
     category: 'modern',
     thumbnail: '/placeholder.svg',
@@ -97,7 +97,7 @@ export const templates: Template[] = [
     supportsVideo: false
   },
   {
-    id: '10006', // 5-digit ID
+    id: 'modern-geometric',
     name: 'Geometric Modern',
     category: 'modern',
     thumbnail: '/placeholder.svg',
@@ -116,7 +116,7 @@ export const templates: Template[] = [
     supportsVideo: true
   },
   {
-    id: '10007', // 5-digit ID
+    id: 'minimal-clean',
     name: 'Clean Minimal',
     category: 'minimal',
     thumbnail: '/placeholder.svg',
@@ -135,7 +135,7 @@ export const templates: Template[] = [
     supportsVideo: false
   },
   {
-    id: '10008', // 5-digit ID
+    id: 'minimal-nordic',
     name: 'Nordic Minimal',
     category: 'minimal',
     thumbnail: '/placeholder.svg',
@@ -155,7 +155,7 @@ export const templates: Template[] = [
   },
   // Custom template examples
   {
-    id: '20001', // 5-digit ID for custom templates
+    id: 'custom-invitation-1',
     name: 'Royal Invitation',
     category: 'custom',
     thumbnail: '/placeholder.svg',
@@ -184,12 +184,11 @@ export const templates: Template[] = [
         position: { x: -100, y: -100 },
         size: { width: 120, height: 120 }
       },
-      photos: [],
       logo: { x: 100, y: -150 },
     }
   },
   {
-    id: '20002', // 5-digit ID for custom templates
+    id: 'custom-invitation-2',
     name: 'Garden Party',
     category: 'custom',
     thumbnail: '/placeholder.svg',
@@ -218,7 +217,6 @@ export const templates: Template[] = [
         position: { x: 0, y: -140 },
         size: { width: 120, height: 120 }
       },
-      photos: [],
       logo: { x: 0, y: -180 },
     }
   }
