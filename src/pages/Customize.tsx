@@ -171,7 +171,7 @@ const Customize = () => {
             {/* Center - Live Preview */}
             <main className="flex-1 overflow-auto bg-muted/10">
               <div className="h-full flex items-center justify-center p-8">
-                <div className="w-full max-w-[480px]">
+                <div className="w-full max-w-[440px]">
                   <EnhancedCardEditor cardData={cardData} onDataChange={handleDataChange} />
                 </div>
               </div>
