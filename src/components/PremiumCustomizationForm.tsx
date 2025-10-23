@@ -1,10 +1,10 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Heart, Image, Palette, Type, Sparkles, Settings, ChevronDown } from 'lucide-react';
+import { Heart, Image, Palette, Type, Sparkles, Settings } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
@@ -21,7 +21,6 @@ interface PremiumCustomizationFormProps {
 const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizationFormProps) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('basic');
-  const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   const handleValidationChange = (errors: Record<string, string>) => {
     setValidationErrors(errors);
@@ -81,6 +80,24 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
 
   return (
     <div className="space-y-6">
+      {/* Usage Instructions */}
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <Settings className="h-4 w-4 text-blue-600" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-medium text-blue-900">How to customize your card:</h3>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• <strong>Drag</strong> any element to move it around</li>
+              <li>• <strong>Double-click</strong> on text to edit it directly</li>
+              <li>• <strong>Resize</strong> photos by dragging the corners</li>
+              <li>• Use controls to undo, redo, or reset changes</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+
       <Card className="overflow-hidden bg-white border shadow-lg">
         {/* Simplified Header */}
         <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
@@ -90,34 +107,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
               Customize Card
             </h2>
           </div>
-        </div>
-
-        {/* Collapsible Usage Instructions */}
-        <div className="px-4 pt-4">
-          <Collapsible open={instructionsOpen} onOpenChange={setInstructionsOpen}>
-            <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
-              <span className="font-medium text-blue-900">👉 How to customize your card?</span>
-              <ChevronDown className={`h-5 w-5 text-blue-600 transition-transform duration-200 ${instructionsOpen ? 'rotate-180' : ''}`} />
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent className="border-x border-b border-blue-200 rounded-b-lg overflow-hidden mt-[-4px]">
-              <div className="p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Settings className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="space-y-2">
-                    <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• <strong>Drag</strong> any element to move it around</li>
-                      <li>• <strong>Double-click</strong> on text to edit it directly</li>
-                      <li>• <strong>Resize</strong> photos by dragging the corners</li>
-                      <li>• Use controls to undo, redo, or reset changes</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
         </div>
 
       {/* Simplified Navigation Tabs */}
