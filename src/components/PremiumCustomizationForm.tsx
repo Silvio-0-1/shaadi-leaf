@@ -4,7 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Heart, Image, Palette, Type, Sparkles, Settings } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Heart, Image, Palette, Type, Sparkles, Settings, ChevronDown } from 'lucide-react';
 import { WeddingCardData } from '@/types';
 import MultiPhotoUpload from './MultiPhotoUpload';
 import LogoUpload from './LogoUpload';
@@ -21,6 +22,7 @@ interface PremiumCustomizationFormProps {
 const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizationFormProps) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('basic');
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   const handleValidationChange = (errors: Record<string, string>) => {
     setValidationErrors(errors);
@@ -80,24 +82,6 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
 
   return (
     <div className="space-y-6">
-      {/* Usage Instructions */}
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <Settings className="h-4 w-4 text-blue-600" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-medium text-blue-900">How to customize your card:</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• <strong>Drag</strong> any element to move it around</li>
-              <li>• <strong>Double-click</strong> on text to edit it directly</li>
-              <li>• <strong>Resize</strong> photos by dragging the corners</li>
-              <li>• Use controls to undo, redo, or reset changes</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
-
       <Card className="overflow-hidden bg-white border shadow-lg">
         {/* Simplified Header */}
         <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
@@ -107,6 +91,48 @@ const PremiumCustomizationForm = ({ cardData, onDataChange }: PremiumCustomizati
               Customize Card
             </h2>
           </div>
+        </div>
+
+        {/* Collapsible Instructions */}
+        <div className="p-4 border-b">
+          <Collapsible open={instructionsOpen} onOpenChange={setInstructionsOpen}>
+            <CollapsibleTrigger className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-200/60 rounded-lg hover:bg-blue-50/70 transition-all duration-200 shadow-sm hover:shadow-md group">
+              <span className="font-medium text-blue-900 flex items-center gap-2">
+                <span>👉</span>
+                <span>How to customize your card?</span>
+              </span>
+              <ChevronDown 
+                className={`h-5 w-5 text-blue-600 transition-transform duration-300 ease-in-out ${
+                  instructionsOpen ? 'rotate-180' : ''
+                }`} 
+              />
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+              <div className="mt-2 p-4 bg-gradient-to-r from-blue-50/30 to-indigo-50/30 border border-blue-200/40 rounded-lg">
+                <div className="space-y-2">
+                  <ul className="text-sm text-blue-700 space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="font-semibold mt-0.5">•</span>
+                      <span><strong>Drag</strong> any element to move it around</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-semibold mt-0.5">•</span>
+                      <span><strong>Double-click</strong> on text to edit it directly</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-semibold mt-0.5">•</span>
+                      <span><strong>Resize</strong> photos by dragging the corners</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-semibold mt-0.5">•</span>
+                      <span>Use controls to undo, redo, or reset changes</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
       {/* Simplified Navigation Tabs */}
