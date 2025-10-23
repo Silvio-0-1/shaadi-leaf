@@ -98,7 +98,7 @@ export const AdminTemplates = () => {
   };
 
   const handlePreviewTemplate = (templateId: string) => {
-    navigate(`/customize?template=${templateId}`);
+    navigate(`/customize/${templateId}`);
   };
 
   // Combine static and custom templates

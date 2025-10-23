@@ -32,19 +32,21 @@ const Index = () => {
   // Redirect to customize page if editing
   useEffect(() => {
     if (editId) {
-      navigate(`/customize?edit=${editId}`);
+      // We need to get the template ID from the card being edited
+      // For now, redirect without template ID, the customize page will load it
+      navigate(`/customize/00000?edit=${editId}`);
     }
   }, [editId, navigate]);
 
   // Redirect to customize page if template is selected
   useEffect(() => {
     if (templateParam) {
-      navigate(`/customize?template=${templateParam}`);
+      navigate(`/customize/${templateParam}`);
     }
   }, [templateParam, navigate]);
 
   const handleTemplateSelect = (templateId: string) => {
-    navigate(`/customize?template=${templateId}`);
+    navigate(`/customize/${templateId}`);
   };
 
   const handleDataChange = (newData: Partial<WeddingCardData>) => {
