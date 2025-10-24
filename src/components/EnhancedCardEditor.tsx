@@ -976,27 +976,12 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     return colorMapping[textType as keyof typeof colorMapping];
   };
 
-  const getBackgroundStyle = () => {
-    if (template?.backgroundImage) {
-      return {
-        backgroundImage: `url(${template.backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      };
-    }
-    
-    return {
-      background: `linear-gradient(135deg, ${colors.secondary}15 0%, ${colors.primary}08 100%)`
-    };
-  };
-
-  // Update toolbar state for parent component
+  // Update toolbar state for parent component - MUST be before getBackgroundStyle
   useEffect(() => {
-    if (onToolbarStateChange) {
+    if (onToolbarStateChange && !hideToolbar) {
       const toolbarState: ToolbarState = {
         selectedElement,
-        isElementLocked: elementLockStates[selectedElement] || false,
+        isElementLocked: elementLockStates[selectedElement || ''] || false,
         fontSize: selectedElement ? elementFontSizes[selectedElement] || 
           (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
            selectedElement === 'weddingDate' ? 24 :
@@ -1037,7 +1022,22 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
       onToolbarStateChange(toolbarState);
     }
   }, [selectedElement, elementLockStates, elementFontSizes, historyIndex, history.length, 
-      showGridlines, snapToGrid, showAlignmentGuides, snapToCenter, onToolbarStateChange]);
+      showGridlines, snapToGrid, showAlignmentGuides, snapToCenter, hideToolbar]);
+
+  const getBackgroundStyle = () => {
+    if (template?.backgroundImage) {
+      return {
+        backgroundImage: `url(${template.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      };
+    }
+    
+    return {
+      background: `linear-gradient(135deg, ${colors.secondary}15 0%, ${colors.primary}08 100%)`
+    };
+  };
 
   return (
     <div className="space-y-6">
