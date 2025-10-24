@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Download, Save } from "lucide-react";
 import Header from "@/components/Header";
 import PremiumCustomizationForm from "@/components/PremiumCustomizationForm";
-import EnhancedCardEditor, { ToolbarState } from "@/components/EnhancedCardEditor";
+import EnhancedCardEditor, { EditorToolbarHandles } from "@/components/EnhancedCardEditor";
 import DownloadSection from "@/components/DownloadSection";
 import ObjectToolbar from "@/components/ObjectToolbar";
 import { WeddingCardData } from "@/types";
@@ -33,7 +33,18 @@ const Customize = () => {
     uploadedImage: "",
   });
 
-  const [toolbarState, setToolbarState] = useState<ToolbarState | null>(null);
+  const toolbarRef = useRef<EditorToolbarHandles | null>(null);
+  const [toolbarKey, setToolbarKey] = useState(0);
+
+  // Force toolbar update on interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (toolbarRef.current) {
+        setToolbarKey(prev => prev + 1);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   // Load card for editing if editId is provided
   useEffect(() => {
@@ -135,8 +146,6 @@ const Customize = () => {
               <EnhancedCardEditor 
                 cardData={cardData} 
                 onDataChange={handleDataChange}
-                hideToolbar={true}
-                onToolbarStateChange={setToolbarState}
               />
             </div>
           </div>
@@ -184,7 +193,7 @@ const Customize = () => {
                     cardData={cardData} 
                     onDataChange={handleDataChange}
                     hideToolbar={true}
-                    onToolbarStateChange={setToolbarState}
+                    toolbarRef={toolbarRef}
                   />
                 </div>
               </div>
@@ -194,38 +203,38 @@ const Customize = () => {
             <aside className="w-[400px] border-l bg-card/30 backdrop-blur-sm overflow-auto">
               <div className="p-6 space-y-4">
                 {/* Toolbar Section */}
-                {toolbarState && (
-                  <div className="p-3 bg-muted/30 rounded-lg border">
+                {toolbarRef.current && (
+                  <div key={toolbarKey} className="p-3 bg-muted/30 rounded-lg border">
                     <ObjectToolbar
-                      selectedElement={toolbarState.selectedElement}
-                      isElementLocked={toolbarState.isElementLocked}
+                      selectedElement={toolbarRef.current.selectedElement}
+                      isElementLocked={toolbarRef.current.isElementLocked}
                       visible={true}
                       position={{ x: 0, y: 0 }}
-                      onDuplicate={toolbarState.handlers.onDuplicate}
-                      onBringForward={toolbarState.handlers.onBringForward}
-                      onSendBackward={toolbarState.handlers.onSendBackward}
-                      onToggleLock={toolbarState.handlers.onToggleLock}
-                      onDelete={toolbarState.handlers.onDelete}
-                      fontSize={toolbarState.fontSize}
-                      fontFamily={toolbarState.fontFamily}
-                      onFontSizeChange={toolbarState.handlers.onFontSizeChange}
-                      onFontFamilyChange={toolbarState.handlers.onFontFamilyChange}
-                      canUndo={toolbarState.canUndo}
-                      canRedo={toolbarState.canRedo}
-                      onUndo={toolbarState.handlers.onUndo}
-                      onRedo={toolbarState.handlers.onRedo}
-                      onReset={toolbarState.handlers.onReset}
-                      showGridlines={toolbarState.showGridlines}
-                      onToggleGridlines={toolbarState.handlers.onToggleGridlines}
-                      snapToGrid={toolbarState.snapToGrid}
-                      onToggleSnapToGrid={toolbarState.handlers.onToggleSnapToGrid}
-                      showAlignmentGuides={toolbarState.showAlignmentGuides}
-                      onToggleAlignmentGuides={toolbarState.handlers.onToggleAlignmentGuides}
-                      snapToCenter={toolbarState.snapToCenter}
-                      onToggleSnapToCenter={toolbarState.handlers.onToggleSnapToCenter}
-                      onCenterHorizontally={toolbarState.handlers.onCenterHorizontally}
-                      onCenterVertically={toolbarState.handlers.onCenterVertically}
-                      onCenterBoth={toolbarState.handlers.onCenterBoth}
+                      onDuplicate={toolbarRef.current.handlers.onDuplicate}
+                      onBringForward={toolbarRef.current.handlers.onBringForward}
+                      onSendBackward={toolbarRef.current.handlers.onSendBackward}
+                      onToggleLock={toolbarRef.current.handlers.onToggleLock}
+                      onDelete={toolbarRef.current.handlers.onDelete}
+                      fontSize={toolbarRef.current.fontSize}
+                      fontFamily={toolbarRef.current.fontFamily}
+                      onFontSizeChange={toolbarRef.current.handlers.onFontSizeChange}
+                      onFontFamilyChange={toolbarRef.current.handlers.onFontFamilyChange}
+                      canUndo={toolbarRef.current.canUndo}
+                      canRedo={toolbarRef.current.canRedo}
+                      onUndo={toolbarRef.current.handlers.onUndo}
+                      onRedo={toolbarRef.current.handlers.onRedo}
+                      onReset={toolbarRef.current.handlers.onReset}
+                      showGridlines={toolbarRef.current.showGridlines}
+                      onToggleGridlines={toolbarRef.current.handlers.onToggleGridlines}
+                      snapToGrid={toolbarRef.current.snapToGrid}
+                      onToggleSnapToGrid={toolbarRef.current.handlers.onToggleSnapToGrid}
+                      showAlignmentGuides={toolbarRef.current.showAlignmentGuides}
+                      onToggleAlignmentGuides={toolbarRef.current.handlers.onToggleAlignmentGuides}
+                      snapToCenter={toolbarRef.current.snapToCenter}
+                      onToggleSnapToCenter={toolbarRef.current.handlers.onToggleSnapToCenter}
+                      onCenterHorizontally={toolbarRef.current.handlers.onCenterHorizontally}
+                      onCenterVertically={toolbarRef.current.handlers.onCenterVertically}
+                      onCenterBoth={toolbarRef.current.handlers.onCenterBoth}
                     />
                   </div>
                 )}

@@ -30,10 +30,10 @@ interface EnhancedCardEditorProps {
   onPositionsUpdate?: (positions: CardElements) => void;
   onDataChange?: (data: Partial<WeddingCardData>) => void;
   hideToolbar?: boolean;
-  onToolbarStateChange?: (state: ToolbarState) => void;
+  toolbarRef?: React.MutableRefObject<EditorToolbarHandles | null>;
 }
 
-export interface ToolbarState {
+export interface EditorToolbarHandles {
   selectedElement: string | null;
   isElementLocked: boolean;
   fontSize?: number;
@@ -80,7 +80,7 @@ const defaultPositions: CardElements = {
   logo: { x: 0, y: -200 },
 };
 
-const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDataChange, hideToolbar = false, onToolbarStateChange }: EnhancedCardEditorProps) => {
+const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDataChange, hideToolbar = false, toolbarRef }: EnhancedCardEditorProps) => {
   const [template, setTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -976,54 +976,6 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     return colorMapping[textType as keyof typeof colorMapping];
   };
 
-  // Update toolbar state for parent component - MUST be before getBackgroundStyle
-  useEffect(() => {
-    if (onToolbarStateChange && !hideToolbar) {
-      const toolbarState: ToolbarState = {
-        selectedElement,
-        isElementLocked: elementLockStates[selectedElement || ''] || false,
-        fontSize: selectedElement ? elementFontSizes[selectedElement] || 
-          (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
-           selectedElement === 'weddingDate' ? 24 :
-           selectedElement === 'venue' ? 20 :
-           selectedElement === 'message' ? 16 : 16) : undefined,
-        fontFamily: selectedElement ? getFontFamily(
-          selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
-          selectedElement === 'weddingDate' ? 'date' :
-          selectedElement === 'venue' ? 'venue' :
-          selectedElement === 'message' ? 'message' : 'heading'
-        ) : undefined,
-        canUndo: historyIndex > 0,
-        canRedo: historyIndex < history.length - 1,
-        showGridlines,
-        snapToGrid,
-        showAlignmentGuides,
-        snapToCenter,
-        handlers: {
-          onDuplicate: () => selectedElement && handleDuplicateElement(selectedElement),
-          onBringForward: () => selectedElement && handleBringToFront(selectedElement),
-          onSendBackward: () => selectedElement && handleSendToBack(selectedElement),
-          onToggleLock: () => selectedElement && handleToggleLock(selectedElement),
-          onDelete: () => selectedElement && handleDeleteElement(selectedElement),
-          onFontSizeChange: (size) => selectedElement && handleFontSizeChange(selectedElement, size),
-          onFontFamilyChange: (family) => selectedElement && handleFontFamilyChange(selectedElement, family),
-          onUndo: undo,
-          onRedo: redo,
-          onReset: reset,
-          onToggleGridlines: () => setShowGridlines(!showGridlines),
-          onToggleSnapToGrid: () => setSnapToGrid(!snapToGrid),
-          onToggleAlignmentGuides: () => setShowAlignmentGuides(!showAlignmentGuides),
-          onToggleSnapToCenter: () => setSnapToCenter(!snapToCenter),
-          onCenterHorizontally: () => selectedElement && handleCenterHorizontally(selectedElement),
-          onCenterVertically: () => selectedElement && handleCenterVertically(selectedElement),
-          onCenterBoth: () => selectedElement && handleCenterBoth(selectedElement),
-        }
-      };
-      onToolbarStateChange(toolbarState);
-    }
-  }, [selectedElement, elementLockStates, elementFontSizes, historyIndex, history.length, 
-      showGridlines, snapToGrid, showAlignmentGuides, snapToCenter, hideToolbar]);
-
   const getBackgroundStyle = () => {
     if (template?.backgroundImage) {
       return {
@@ -1038,6 +990,50 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
       background: `linear-gradient(135deg, ${colors.secondary}15 0%, ${colors.primary}08 100%)`
     };
   };
+
+  // Expose toolbar handles via ref
+  if (toolbarRef) {
+    toolbarRef.current = {
+      selectedElement,
+      isElementLocked: elementLockStates[selectedElement || ''] || false,
+      fontSize: selectedElement ? elementFontSizes[selectedElement] || 
+        (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
+         selectedElement === 'weddingDate' ? 24 :
+         selectedElement === 'venue' ? 20 :
+         selectedElement === 'message' ? 16 : 16) : undefined,
+      fontFamily: selectedElement ? getFontFamily(
+        selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
+        selectedElement === 'weddingDate' ? 'date' :
+        selectedElement === 'venue' ? 'venue' :
+        selectedElement === 'message' ? 'message' : 'heading'
+      ) : undefined,
+      canUndo: historyIndex > 0,
+      canRedo: historyIndex < history.length - 1,
+      showGridlines,
+      snapToGrid,
+      showAlignmentGuides,
+      snapToCenter,
+      handlers: {
+        onDuplicate: () => selectedElement && handleDuplicateElement(selectedElement),
+        onBringForward: () => selectedElement && handleBringToFront(selectedElement),
+        onSendBackward: () => selectedElement && handleSendToBack(selectedElement),
+        onToggleLock: () => selectedElement && handleToggleLock(selectedElement),
+        onDelete: () => selectedElement && handleDeleteElement(selectedElement),
+        onFontSizeChange: (size) => selectedElement && handleFontSizeChange(selectedElement, size),
+        onFontFamilyChange: (family) => selectedElement && handleFontFamilyChange(selectedElement, family),
+        onUndo: undo,
+        onRedo: redo,
+        onReset: reset,
+        onToggleGridlines: () => setShowGridlines(!showGridlines),
+        onToggleSnapToGrid: () => setSnapToGrid(!snapToGrid),
+        onToggleAlignmentGuides: () => setShowAlignmentGuides(!showAlignmentGuides),
+        onToggleSnapToCenter: () => setSnapToCenter(!snapToCenter),
+        onCenterHorizontally: () => selectedElement && handleCenterHorizontally(selectedElement),
+        onCenterVertically: () => selectedElement && handleCenterVertically(selectedElement),
+        onCenterBoth: () => selectedElement && handleCenterBoth(selectedElement),
+      }
+    };
+  }
 
   return (
     <div className="space-y-6">
