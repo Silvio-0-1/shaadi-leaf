@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Download, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Download, Save, Wrench } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import PremiumCustomizationForm from "@/components/PremiumCustomizationForm";
 import EnhancedCardEditor, { EditorToolbarHandles } from "@/components/EnhancedCardEditor";
@@ -190,44 +191,50 @@ const Customize = () => {
               <div className="p-6 space-y-4">
                 {/* Toolbar Section */}
                 {toolbarRef.current && (
-                  <div className="p-3 bg-muted/30 rounded-lg border">
-                    <ObjectToolbar
-                      selectedElement={toolbarRef.current.selectedElement}
-                      isElementLocked={toolbarRef.current.isElementLocked}
-                      visible={true}
-                      position={{ x: 0, y: 0 }}
-                      onDuplicate={toolbarRef.current.handlers.onDuplicate}
-                      onBringForward={toolbarRef.current.handlers.onBringForward}
-                      onSendBackward={toolbarRef.current.handlers.onSendBackward}
-                      onToggleLock={toolbarRef.current.handlers.onToggleLock}
-                      onDelete={toolbarRef.current.handlers.onDelete}
-                      fontSize={toolbarRef.current.fontSize}
-                      fontFamily={toolbarRef.current.fontFamily}
-                      onFontSizeChange={toolbarRef.current.handlers.onFontSizeChange}
-                      onFontFamilyChange={toolbarRef.current.handlers.onFontFamilyChange}
-                      canUndo={toolbarRef.current.canUndo}
-                      canRedo={toolbarRef.current.canRedo}
-                      onUndo={toolbarRef.current.handlers.onUndo}
-                      onRedo={toolbarRef.current.handlers.onRedo}
-                      onReset={toolbarRef.current.handlers.onReset}
-                      showGridlines={toolbarRef.current.showGridlines}
-                      onToggleGridlines={toolbarRef.current.handlers.onToggleGridlines}
-                      snapToGrid={toolbarRef.current.snapToGrid}
-                      onToggleSnapToGrid={toolbarRef.current.handlers.onToggleSnapToGrid}
-                      showAlignmentGuides={toolbarRef.current.showAlignmentGuides}
-                      onToggleAlignmentGuides={toolbarRef.current.handlers.onToggleAlignmentGuides}
-                      snapToCenter={toolbarRef.current.snapToCenter}
-                      onToggleSnapToCenter={toolbarRef.current.handlers.onToggleSnapToCenter}
-                      onCenterHorizontally={toolbarRef.current.handlers.onCenterHorizontally}
-                      onCenterVertically={toolbarRef.current.handlers.onCenterVertically}
-                      onCenterBoth={toolbarRef.current.handlers.onCenterBoth}
-                    />
-                  </div>
+                  <Card>
+                    <CardHeader className="pb-4">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Wrench className="h-5 w-5" />
+                        Toolbar
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ObjectToolbar
+                        selectedElement={toolbarRef.current.selectedElement}
+                        isElementLocked={toolbarRef.current.isElementLocked}
+                        visible={true}
+                        position={{ x: 0, y: 0 }}
+                        onDuplicate={toolbarRef.current.handlers.onDuplicate}
+                        onBringForward={toolbarRef.current.handlers.onBringForward}
+                        onSendBackward={toolbarRef.current.handlers.onSendBackward}
+                        onToggleLock={toolbarRef.current.handlers.onToggleLock}
+                        onDelete={toolbarRef.current.handlers.onDelete}
+                        fontSize={toolbarRef.current.fontSize}
+                        fontFamily={toolbarRef.current.fontFamily}
+                        onFontSizeChange={toolbarRef.current.handlers.onFontSizeChange}
+                        onFontFamilyChange={toolbarRef.current.handlers.onFontFamilyChange}
+                        canUndo={toolbarRef.current.canUndo}
+                        canRedo={toolbarRef.current.canRedo}
+                        onUndo={toolbarRef.current.handlers.onUndo}
+                        onRedo={toolbarRef.current.handlers.onRedo}
+                        onReset={toolbarRef.current.handlers.onReset}
+                        showGridlines={toolbarRef.current.showGridlines}
+                        onToggleGridlines={toolbarRef.current.handlers.onToggleGridlines}
+                        snapToGrid={toolbarRef.current.snapToGrid}
+                        onToggleSnapToGrid={toolbarRef.current.handlers.onToggleSnapToGrid}
+                        showAlignmentGuides={toolbarRef.current.showAlignmentGuides}
+                        onToggleAlignmentGuides={toolbarRef.current.handlers.onToggleAlignmentGuides}
+                        snapToCenter={toolbarRef.current.snapToCenter}
+                        onToggleSnapToCenter={toolbarRef.current.handlers.onToggleSnapToCenter}
+                        onCenterHorizontally={toolbarRef.current.handlers.onCenterHorizontally}
+                        onCenterVertically={toolbarRef.current.handlers.onCenterVertically}
+                        onCenterBoth={toolbarRef.current.handlers.onCenterBoth}
+                      />
+                    </CardContent>
+                  </Card>
                 )}
 
                 <div className="space-y-3">
-                  <h3 className="font-semibold text-lg">Actions</h3>
-
                   {user && (
                     <Button
                       onClick={handleSaveCard}
