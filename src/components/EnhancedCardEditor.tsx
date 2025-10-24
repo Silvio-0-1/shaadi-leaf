@@ -901,6 +901,71 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [editingElement, undo, redo, selectedElement, handleDeleteElement]);
 
+  // Expose toolbar handles via ref - must be before early returns
+  useEffect(() => {
+    if (toolbarRef && template) {
+      const getFontFamilyForElement = (element: 'heading' | 'date' | 'venue' | 'message') => {
+        const fonts = cardData.customization?.fonts;
+        if (!fonts) return template?.fonts?.heading || 'Playfair Display';
+        
+        switch (element) {
+          case 'heading':
+            return fonts.heading || template?.fonts?.heading || 'Playfair Display';
+          case 'date':
+            return fonts.date || fonts.body || template?.fonts?.body || 'Inter';
+          case 'venue':
+            return fonts.venue || fonts.body || template?.fonts?.body || 'Inter';
+          case 'message':
+            return fonts.message || fonts.body || template?.fonts?.body || 'Inter';
+          default:
+            return template?.fonts?.heading || 'Playfair Display';
+        }
+      };
+
+      toolbarRef.current = {
+        selectedElement,
+        isElementLocked: elementLockStates[selectedElement || ''] || false,
+        fontSize: selectedElement ? elementFontSizes[selectedElement] || 
+          (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
+           selectedElement === 'weddingDate' ? 24 :
+           selectedElement === 'venue' ? 20 :
+           selectedElement === 'message' ? 16 : 16) : undefined,
+        fontFamily: selectedElement ? getFontFamilyForElement(
+          selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
+          selectedElement === 'weddingDate' ? 'date' :
+          selectedElement === 'venue' ? 'venue' :
+          selectedElement === 'message' ? 'message' : 'heading'
+        ) : undefined,
+        canUndo: historyIndex > 0,
+        canRedo: historyIndex < history.length - 1,
+        showGridlines,
+        snapToGrid,
+        showAlignmentGuides,
+        snapToCenter,
+        handlers: {
+          onDuplicate: () => selectedElement && handleDuplicateElement(selectedElement),
+          onBringForward: () => selectedElement && handleBringToFront(selectedElement),
+          onSendBackward: () => selectedElement && handleSendToBack(selectedElement),
+          onToggleLock: () => selectedElement && handleToggleLock(selectedElement),
+          onDelete: () => selectedElement && handleDeleteElement(selectedElement),
+          onFontSizeChange: (size) => selectedElement && handleFontSizeChange(selectedElement, size),
+          onFontFamilyChange: (family) => selectedElement && handleFontFamilyChange(selectedElement, family),
+          onUndo: undo,
+          onRedo: redo,
+          onReset: reset,
+          onToggleGridlines: () => setShowGridlines(!showGridlines),
+          onToggleSnapToGrid: () => setSnapToGrid(!snapToGrid),
+          onToggleAlignmentGuides: () => setShowAlignmentGuides(!showAlignmentGuides),
+          onToggleSnapToCenter: () => setSnapToCenter(!snapToCenter),
+          onCenterHorizontally: () => selectedElement && handleCenterHorizontally(selectedElement),
+          onCenterVertically: () => selectedElement && handleCenterVertically(selectedElement),
+          onCenterBoth: () => selectedElement && handleCenterBoth(selectedElement),
+        }
+      };
+      onToolbarUpdate?.();
+    }
+  }, [toolbarRef, template, selectedElement, elementLockStates, elementFontSizes, historyIndex, history.length, showGridlines, snapToGrid, showAlignmentGuides, snapToCenter, cardData.customization?.fonts, onToolbarUpdate, handleDuplicateElement, handleBringToFront, handleSendToBack, handleToggleLock, handleDeleteElement, handleFontSizeChange, handleFontFamilyChange, undo, redo, reset, handleCenterHorizontally, handleCenterVertically, handleCenterBoth]);
+
   if (loading) {
     return (
       <Card className="aspect-[3/4] p-8 flex items-center justify-center bg-gradient-to-br from-muted/20 to-muted/40">
@@ -992,52 +1057,6 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     };
   };
 
-  // Expose toolbar handles via ref
-  useEffect(() => {
-    if (toolbarRef) {
-      toolbarRef.current = {
-        selectedElement,
-        isElementLocked: elementLockStates[selectedElement || ''] || false,
-        fontSize: selectedElement ? elementFontSizes[selectedElement] || 
-          (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
-           selectedElement === 'weddingDate' ? 24 :
-           selectedElement === 'venue' ? 20 :
-           selectedElement === 'message' ? 16 : 16) : undefined,
-        fontFamily: selectedElement ? getFontFamily(
-          selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
-          selectedElement === 'weddingDate' ? 'date' :
-          selectedElement === 'venue' ? 'venue' :
-          selectedElement === 'message' ? 'message' : 'heading'
-        ) : undefined,
-        canUndo: historyIndex > 0,
-        canRedo: historyIndex < history.length - 1,
-        showGridlines,
-        snapToGrid,
-        showAlignmentGuides,
-        snapToCenter,
-        handlers: {
-          onDuplicate: () => selectedElement && handleDuplicateElement(selectedElement),
-          onBringForward: () => selectedElement && handleBringToFront(selectedElement),
-          onSendBackward: () => selectedElement && handleSendToBack(selectedElement),
-          onToggleLock: () => selectedElement && handleToggleLock(selectedElement),
-          onDelete: () => selectedElement && handleDeleteElement(selectedElement),
-          onFontSizeChange: (size) => selectedElement && handleFontSizeChange(selectedElement, size),
-          onFontFamilyChange: (family) => selectedElement && handleFontFamilyChange(selectedElement, family),
-          onUndo: undo,
-          onRedo: redo,
-          onReset: reset,
-          onToggleGridlines: () => setShowGridlines(!showGridlines),
-          onToggleSnapToGrid: () => setSnapToGrid(!snapToGrid),
-          onToggleAlignmentGuides: () => setShowAlignmentGuides(!showAlignmentGuides),
-          onToggleSnapToCenter: () => setSnapToCenter(!snapToCenter),
-          onCenterHorizontally: () => selectedElement && handleCenterHorizontally(selectedElement),
-          onCenterVertically: () => selectedElement && handleCenterVertically(selectedElement),
-          onCenterBoth: () => selectedElement && handleCenterBoth(selectedElement),
-        }
-      };
-      onToolbarUpdate?.();
-    }
-  }, [selectedElement, elementLockStates, elementFontSizes, historyIndex, history.length, showGridlines, snapToGrid, showAlignmentGuides, snapToCenter, onToolbarUpdate]);
 
   return (
     <div className="space-y-6">
