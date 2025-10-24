@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Download, Save } from "lucide-react";
 import Header from "@/components/Header";
 import PremiumCustomizationForm from "@/components/PremiumCustomizationForm";
-import EnhancedCardEditor from "@/components/EnhancedCardEditor";
+import EnhancedCardEditor, { ToolbarState } from "@/components/EnhancedCardEditor";
 import DownloadSection from "@/components/DownloadSection";
+import ObjectToolbar from "@/components/ObjectToolbar";
 import { WeddingCardData } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWeddingCards } from "@/hooks/useWeddingCards";
@@ -31,6 +32,8 @@ const Customize = () => {
     templateId: templateId || "",
     uploadedImage: "",
   });
+
+  const [toolbarState, setToolbarState] = useState<ToolbarState | null>(null);
 
   // Load card for editing if editId is provided
   useEffect(() => {
@@ -129,7 +132,12 @@ const Customize = () => {
           {/* Preview Area */}
           <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-muted/20">
             <div className="w-full max-w-md">
-              <EnhancedCardEditor cardData={cardData} onDataChange={handleDataChange} />
+              <EnhancedCardEditor 
+                cardData={cardData} 
+                onDataChange={handleDataChange}
+                hideToolbar={true}
+                onToolbarStateChange={setToolbarState}
+              />
             </div>
           </div>
 
@@ -172,7 +180,12 @@ const Customize = () => {
             <main className="flex-1 overflow-auto bg-muted/10">
               <div className="h-full flex items-center justify-center p-8">
                 <div className="w-full max-w-[440px]">
-                  <EnhancedCardEditor cardData={cardData} onDataChange={handleDataChange} />
+                  <EnhancedCardEditor 
+                    cardData={cardData} 
+                    onDataChange={handleDataChange}
+                    hideToolbar={true}
+                    onToolbarStateChange={setToolbarState}
+                  />
                 </div>
               </div>
             </main>
@@ -180,6 +193,43 @@ const Customize = () => {
             {/* Right Sidebar - Actions */}
             <aside className="w-[400px] border-l bg-card/30 backdrop-blur-sm overflow-auto">
               <div className="p-6 space-y-4">
+                {/* Toolbar Section */}
+                {toolbarState && (
+                  <div className="p-3 bg-muted/30 rounded-lg border">
+                    <ObjectToolbar
+                      selectedElement={toolbarState.selectedElement}
+                      isElementLocked={toolbarState.isElementLocked}
+                      visible={true}
+                      position={{ x: 0, y: 0 }}
+                      onDuplicate={toolbarState.handlers.onDuplicate}
+                      onBringForward={toolbarState.handlers.onBringForward}
+                      onSendBackward={toolbarState.handlers.onSendBackward}
+                      onToggleLock={toolbarState.handlers.onToggleLock}
+                      onDelete={toolbarState.handlers.onDelete}
+                      fontSize={toolbarState.fontSize}
+                      fontFamily={toolbarState.fontFamily}
+                      onFontSizeChange={toolbarState.handlers.onFontSizeChange}
+                      onFontFamilyChange={toolbarState.handlers.onFontFamilyChange}
+                      canUndo={toolbarState.canUndo}
+                      canRedo={toolbarState.canRedo}
+                      onUndo={toolbarState.handlers.onUndo}
+                      onRedo={toolbarState.handlers.onRedo}
+                      onReset={toolbarState.handlers.onReset}
+                      showGridlines={toolbarState.showGridlines}
+                      onToggleGridlines={toolbarState.handlers.onToggleGridlines}
+                      snapToGrid={toolbarState.snapToGrid}
+                      onToggleSnapToGrid={toolbarState.handlers.onToggleSnapToGrid}
+                      showAlignmentGuides={toolbarState.showAlignmentGuides}
+                      onToggleAlignmentGuides={toolbarState.handlers.onToggleAlignmentGuides}
+                      snapToCenter={toolbarState.snapToCenter}
+                      onToggleSnapToCenter={toolbarState.handlers.onToggleSnapToCenter}
+                      onCenterHorizontally={toolbarState.handlers.onCenterHorizontally}
+                      onCenterVertically={toolbarState.handlers.onCenterVertically}
+                      onCenterBoth={toolbarState.handlers.onCenterBoth}
+                    />
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <h3 className="font-semibold text-lg">Actions</h3>
 

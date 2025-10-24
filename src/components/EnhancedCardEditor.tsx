@@ -29,6 +29,40 @@ interface EnhancedCardEditorProps {
   initialPositions?: CardElements | null;
   onPositionsUpdate?: (positions: CardElements) => void;
   onDataChange?: (data: Partial<WeddingCardData>) => void;
+  hideToolbar?: boolean;
+  onToolbarStateChange?: (state: ToolbarState) => void;
+}
+
+export interface ToolbarState {
+  selectedElement: string | null;
+  isElementLocked: boolean;
+  fontSize?: number;
+  fontFamily?: string;
+  canUndo: boolean;
+  canRedo: boolean;
+  showGridlines: boolean;
+  snapToGrid: boolean;
+  showAlignmentGuides: boolean;
+  snapToCenter: boolean;
+  handlers: {
+    onDuplicate: () => void;
+    onBringForward: () => void;
+    onSendBackward: () => void;
+    onToggleLock: () => void;
+    onDelete: () => void;
+    onFontSizeChange: (size: number) => void;
+    onFontFamilyChange: (family: string) => void;
+    onUndo: () => void;
+    onRedo: () => void;
+    onReset: () => void;
+    onToggleGridlines: () => void;
+    onToggleSnapToGrid: () => void;
+    onToggleAlignmentGuides: () => void;
+    onToggleSnapToCenter: () => void;
+    onCenterHorizontally: () => void;
+    onCenterVertically: () => void;
+    onCenterBoth: () => void;
+  };
 }
 
 const defaultPositions: CardElements = {
@@ -46,7 +80,7 @@ const defaultPositions: CardElements = {
   logo: { x: 0, y: -200 },
 };
 
-const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDataChange }: EnhancedCardEditorProps) => {
+const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDataChange, hideToolbar = false, onToolbarStateChange }: EnhancedCardEditorProps) => {
   const [template, setTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -957,61 +991,113 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
     };
   };
 
+  // Update toolbar state for parent component
+  useEffect(() => {
+    if (onToolbarStateChange) {
+      const toolbarState: ToolbarState = {
+        selectedElement,
+        isElementLocked: elementLockStates[selectedElement] || false,
+        fontSize: selectedElement ? elementFontSizes[selectedElement] || 
+          (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
+           selectedElement === 'weddingDate' ? 24 :
+           selectedElement === 'venue' ? 20 :
+           selectedElement === 'message' ? 16 : 16) : undefined,
+        fontFamily: selectedElement ? getFontFamily(
+          selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
+          selectedElement === 'weddingDate' ? 'date' :
+          selectedElement === 'venue' ? 'venue' :
+          selectedElement === 'message' ? 'message' : 'heading'
+        ) : undefined,
+        canUndo: historyIndex > 0,
+        canRedo: historyIndex < history.length - 1,
+        showGridlines,
+        snapToGrid,
+        showAlignmentGuides,
+        snapToCenter,
+        handlers: {
+          onDuplicate: () => selectedElement && handleDuplicateElement(selectedElement),
+          onBringForward: () => selectedElement && handleBringToFront(selectedElement),
+          onSendBackward: () => selectedElement && handleSendToBack(selectedElement),
+          onToggleLock: () => selectedElement && handleToggleLock(selectedElement),
+          onDelete: () => selectedElement && handleDeleteElement(selectedElement),
+          onFontSizeChange: (size) => selectedElement && handleFontSizeChange(selectedElement, size),
+          onFontFamilyChange: (family) => selectedElement && handleFontFamilyChange(selectedElement, family),
+          onUndo: undo,
+          onRedo: redo,
+          onReset: reset,
+          onToggleGridlines: () => setShowGridlines(!showGridlines),
+          onToggleSnapToGrid: () => setSnapToGrid(!snapToGrid),
+          onToggleAlignmentGuides: () => setShowAlignmentGuides(!showAlignmentGuides),
+          onToggleSnapToCenter: () => setSnapToCenter(!snapToCenter),
+          onCenterHorizontally: () => selectedElement && handleCenterHorizontally(selectedElement),
+          onCenterVertically: () => selectedElement && handleCenterVertically(selectedElement),
+          onCenterBoth: () => selectedElement && handleCenterBoth(selectedElement),
+        }
+      };
+      onToolbarStateChange(toolbarState);
+    }
+  }, [selectedElement, elementLockStates, elementFontSizes, historyIndex, history.length, 
+      showGridlines, snapToGrid, showAlignmentGuides, snapToCenter, onToolbarStateChange]);
+
   return (
     <div className="space-y-6">
-      {/* Enhanced Control Panel */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs font-medium">
-            <Move className="h-3 w-3 mr-1" />
-            Enhanced Editor
-          </Badge>
-        </div>
-        
-        {/* Object Toolbar - always displayed in editor section */}
-        <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
-          <ObjectToolbar
-            selectedElement={selectedElement}
-            isElementLocked={elementLockStates[selectedElement] || false}
-            visible={true}
-            position={{ x: 0, y: 0 }} // Not used in this context
-            onDuplicate={() => selectedElement && handleDuplicateElement(selectedElement)}
-            onBringForward={() => selectedElement && handleBringToFront(selectedElement)}
-            onSendBackward={() => selectedElement && handleSendToBack(selectedElement)}
-            onToggleLock={() => selectedElement && handleToggleLock(selectedElement)}
-            onDelete={() => selectedElement && handleDeleteElement(selectedElement)}
-            fontSize={selectedElement ? elementFontSizes[selectedElement] || 
-              (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
-               selectedElement === 'weddingDate' ? 24 :
-               selectedElement === 'venue' ? 20 :
-               selectedElement === 'message' ? 16 : 16) : undefined}
-            fontFamily={selectedElement ? getFontFamily(
-              selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
-              selectedElement === 'weddingDate' ? 'date' :
-              selectedElement === 'venue' ? 'venue' :
-              selectedElement === 'message' ? 'message' : 'heading'
-            ) : undefined}
-            onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
-            onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
-            canUndo={historyIndex > 0}
-            canRedo={historyIndex < history.length - 1}
-            onUndo={undo}
-            onRedo={redo}
-            onReset={reset}
-            showGridlines={showGridlines}
-            onToggleGridlines={() => setShowGridlines(!showGridlines)}
-            snapToGrid={snapToGrid}
-            onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
-            showAlignmentGuides={showAlignmentGuides}
-            onToggleAlignmentGuides={() => setShowAlignmentGuides(!showAlignmentGuides)}
-            snapToCenter={snapToCenter}
-            onToggleSnapToCenter={() => setSnapToCenter(!snapToCenter)}
-            onCenterHorizontally={() => selectedElement && handleCenterHorizontally(selectedElement)}
-            onCenterVertically={() => selectedElement && handleCenterVertically(selectedElement)}
-            onCenterBoth={() => selectedElement && handleCenterBoth(selectedElement)}
-          />
-        </div>
-      </div>
+      {!hideToolbar && (
+        <>
+          {/* Enhanced Control Panel */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs font-medium">
+                <Move className="h-3 w-3 mr-1" />
+                Enhanced Editor
+              </Badge>
+            </div>
+            
+            {/* Object Toolbar - always displayed in editor section */}
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
+              <ObjectToolbar
+                selectedElement={selectedElement}
+                isElementLocked={elementLockStates[selectedElement] || false}
+                visible={true}
+                position={{ x: 0, y: 0 }} // Not used in this context
+                onDuplicate={() => selectedElement && handleDuplicateElement(selectedElement)}
+                onBringForward={() => selectedElement && handleBringToFront(selectedElement)}
+                onSendBackward={() => selectedElement && handleSendToBack(selectedElement)}
+                onToggleLock={() => selectedElement && handleToggleLock(selectedElement)}
+                onDelete={() => selectedElement && handleDeleteElement(selectedElement)}
+                fontSize={selectedElement ? elementFontSizes[selectedElement] || 
+                  (selectedElement === 'brideName' || selectedElement === 'groomName' ? 32 :
+                   selectedElement === 'weddingDate' ? 24 :
+                   selectedElement === 'venue' ? 20 :
+                   selectedElement === 'message' ? 16 : 16) : undefined}
+                fontFamily={selectedElement ? getFontFamily(
+                  selectedElement === 'brideName' || selectedElement === 'groomName' ? 'heading' :
+                  selectedElement === 'weddingDate' ? 'date' :
+                  selectedElement === 'venue' ? 'venue' :
+                  selectedElement === 'message' ? 'message' : 'heading'
+                ) : undefined}
+                onFontSizeChange={(size) => selectedElement && handleFontSizeChange(selectedElement, size)}
+                onFontFamilyChange={(family) => selectedElement && handleFontFamilyChange(selectedElement, family)}
+                canUndo={historyIndex > 0}
+                canRedo={historyIndex < history.length - 1}
+                onUndo={undo}
+                onRedo={redo}
+                onReset={reset}
+                showGridlines={showGridlines}
+                onToggleGridlines={() => setShowGridlines(!showGridlines)}
+                snapToGrid={snapToGrid}
+                onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
+                showAlignmentGuides={showAlignmentGuides}
+                onToggleAlignmentGuides={() => setShowAlignmentGuides(!showAlignmentGuides)}
+                snapToCenter={snapToCenter}
+                onToggleSnapToCenter={() => setSnapToCenter(!snapToCenter)}
+                onCenterHorizontally={() => selectedElement && handleCenterHorizontally(selectedElement)}
+                onCenterVertically={() => selectedElement && handleCenterVertically(selectedElement)}
+                onCenterBoth={() => selectedElement && handleCenterBoth(selectedElement)}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Enhanced Card Preview */}
       <Card 

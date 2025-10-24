@@ -171,11 +171,11 @@ const ObjectToolbar = ({
   }
 
   return (
-    <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 space-y-3">
-      {/* Line 1: History Controls, Grid Controls, and Alignment Controls */}
-      <div className="flex items-center justify-start gap-4 pb-2 border-b border-border">
+    <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-sm p-2 space-y-2">
+      {/* Line 1: History & Grid/Snap Controls (Compact) */}
+      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-border/50">
         {/* History Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           {historyActions.map((action) => {
             const Icon = action.icon;
             return (
@@ -188,39 +188,42 @@ const ObjectToolbar = ({
                   action.onClick?.();
                 }}
                 disabled={action.disabled}
-                className="h-9 w-9 p-0 hover:bg-accent"
+                className="h-7 w-7 p-0 hover:bg-accent"
                 title={action.label}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-3.5 w-3.5" />
               </Button>
             );
           })}
         </div>
 
-        {/* Grid Controls */}
+        {/* Grid & Snap Controls */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">Grid Lines</span>
-          <Switch
-            checked={showGridlines}
-            onCheckedChange={onToggleGridlines}
-            className="data-[state=checked]:bg-primary"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-muted-foreground">Grid</span>
+            <Switch
+              checked={showGridlines}
+              onCheckedChange={onToggleGridlines}
+              className="data-[state=checked]:bg-primary scale-75"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-muted-foreground">Snap</span>
+            <Switch
+              checked={snapToCenter}
+              onCheckedChange={onToggleSnapToCenter}
+              className="data-[state=checked]:bg-blue-500 scale-75"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
         </div>
+      </div>
 
-        {/* Snap Controls */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">Snap to Center</span>
-          <Switch
-            checked={snapToCenter}
-            onCheckedChange={onToggleSnapToCenter}
-            className="data-[state=checked]:bg-blue-500"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-
+      {/* Line 2: Alignment & Element Actions */}
+      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-border/50">
         {/* Alignment Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <Button
             variant="ghost"
             size="sm"
@@ -229,10 +232,10 @@ const ObjectToolbar = ({
               onCenterHorizontally?.();
             }}
             disabled={!hasSelection || isElementLocked}
-            className="h-9 w-9 p-0 hover:bg-accent"
+            className="h-7 w-7 p-0 hover:bg-accent"
             title="Center Horizontally"
           >
-            <AlignCenter className="h-4 w-4" />
+            <AlignCenter className="h-3.5 w-3.5" />
           </Button>
           <Button
             variant="ghost"
@@ -242,10 +245,10 @@ const ObjectToolbar = ({
               onCenterVertically?.();
             }}
             disabled={!hasSelection || isElementLocked}
-            className="h-9 w-9 p-0 hover:bg-accent"
+            className="h-7 w-7 p-0 hover:bg-accent"
             title="Center Vertically"
           >
-            <AlignVerticalJustifyCenter className="h-4 w-4" />
+            <AlignVerticalJustifyCenter className="h-3.5 w-3.5" />
           </Button>
           <Button
             variant="ghost"
@@ -255,18 +258,15 @@ const ObjectToolbar = ({
               onCenterBoth?.();
             }}
             disabled={!hasSelection || isElementLocked}
-            className="h-9 w-9 p-0 hover:bg-accent"
-            title="Center Both Axes"
+            className="h-7 w-7 p-0 hover:bg-accent"
+            title="Center Both"
           >
-            <Move3D className="h-4 w-4" />
+            <Move3D className="h-3.5 w-3.5" />
           </Button>
         </div>
-      </div>
 
-      {/* Line 2: Element Actions & Font Controls */}
-      <div className="flex items-center justify-start gap-4 pb-2 border-b border-border">
         {/* Element Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           {elementActions.map((action) => {
             const Icon = action.icon;
             return (
@@ -280,116 +280,108 @@ const ObjectToolbar = ({
                   action.onClick?.();
                 }}
                 disabled={action.disabled}
-                className="h-9 w-9 p-0 hover:bg-accent"
+                className="h-7 w-7 p-0 hover:bg-accent"
                 title={action.label}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-3.5 w-3.5" />
               </Button>
             );
           })}
         </div>
-
-        {/* Font Controls for Text Elements */}
-        <div className="flex items-center gap-2">
-          {/* Font Family */}
-          <div className="flex items-center gap-1">
-            <Type className="h-4 w-4 text-muted-foreground" />
-            <Select 
-              value={fontFamily || 'Playfair Display'} 
-              onValueChange={(value) => {
-                onFontFamilyChange?.(value);
-              }}
-              disabled={!hasSelection || !isTextElement || isElementLocked}
-              onOpenChange={(open) => {
-                if (open) {
-                  // Prevent deselection when dropdown opens
-                  document.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
-                }
-              }}
-            >
-              <SelectTrigger 
-                className="h-9 text-sm w-36 bg-background hover:bg-accent"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent 
-                className="max-h-40 bg-background border border-border"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {fontOptions.map((font) => (
-                  <SelectItem 
-                    key={font} 
-                    value={font} 
-                    className="text-sm" 
-                    style={{ fontFamily: font }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {font}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Font Size */}
-          <div className="flex items-center gap-1">
-            <span className="text-sm text-muted-foreground font-medium">Size</span>
-            <Select 
-              value={fontSize?.toString() || '16'} 
-              onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
-              disabled={!hasSelection || !isTextElement || isElementLocked}
-              onOpenChange={(open) => {
-                if (open) {
-                  // Prevent deselection when dropdown opens
-                  document.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
-                }
-              }}
-            >
-              <SelectTrigger 
-                className="h-9 text-sm w-20 bg-background hover:bg-accent"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent 
-                className="bg-background border border-border"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {[10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 64, 68, 72, 80, 88, 96].map((size) => (
-                  <SelectItem 
-                    key={size} 
-                    value={size.toString()} 
-                    className="text-sm"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {size}px
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </div>
 
-      {/* Line 3: Selection Status */}
-      <div className="flex items-center justify-start min-h-[28px]">
+      {/* Line 3: Font Controls (Compact) */}
+      {isTextElement && hasSelection && (
+        <div className="flex items-center gap-1.5 pb-1.5 border-b border-border/50">
+          <Type className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+          <Select 
+            value={fontFamily || 'Playfair Display'} 
+            onValueChange={(value) => {
+              onFontFamilyChange?.(value);
+            }}
+            disabled={isElementLocked}
+            onOpenChange={(open) => {
+              if (open) {
+                document.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
+              }
+            }}
+          >
+            <SelectTrigger 
+              className="h-7 text-xs flex-1 min-w-0 bg-background hover:bg-accent"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent 
+              className="max-h-40 bg-background border border-border"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {fontOptions.map((font) => (
+                <SelectItem 
+                  key={font} 
+                  value={font} 
+                  className="text-xs" 
+                  style={{ fontFamily: font }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {font}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select 
+            value={fontSize?.toString() || '16'} 
+            onValueChange={(value) => onFontSizeChange?.(parseInt(value))}
+            disabled={isElementLocked}
+            onOpenChange={(open) => {
+              if (open) {
+                document.addEventListener('click', (e) => e.stopPropagation(), { capture: true, once: true });
+              }
+            }}
+          >
+            <SelectTrigger 
+              className="h-7 text-xs w-16 bg-background hover:bg-accent"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent 
+              className="bg-background border border-border"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {[10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 64, 68, 72, 80, 88, 96].map((size) => (
+                <SelectItem 
+                  key={size} 
+                  value={size.toString()} 
+                  className="text-xs"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {size}px
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Line 4: Selection Status (Compact) */}
+      <div className="flex items-center justify-start min-h-[24px]">
         {hasSelection ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground font-medium">Selected:</span>
-            <Badge variant="secondary" className="text-sm px-3 py-1 font-medium">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Selected:</span>
+            <Badge variant="secondary" className="text-xs px-2 py-0.5 h-5">
               {getSelectedElementName()}
             </Badge>
             {isElementLocked && (
-              <Badge variant="outline" className="text-sm px-2 py-1">
-                <Lock className="h-3 w-3 mr-1" />
+              <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-5">
+                <Lock className="h-2.5 w-2.5 mr-1" />
                 Locked
               </Badge>
             )}
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground font-medium">
-            Click on an object to access tools
+          <span className="text-xs text-muted-foreground">
+            Click on an element to edit
           </span>
         )}
       </div>
