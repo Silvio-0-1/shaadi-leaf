@@ -34,17 +34,7 @@ const Customize = () => {
   });
 
   const toolbarRef = useRef<EditorToolbarHandles | null>(null);
-  const [toolbarKey, setToolbarKey] = useState(0);
-
-  // Force toolbar update on interval
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (toolbarRef.current) {
-        setToolbarKey(prev => prev + 1);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
+  const [, forceUpdate] = useState({});
 
   // Load card for editing if editId is provided
   useEffect(() => {
@@ -176,11 +166,6 @@ const Customize = () => {
             {/* Left Sidebar - Customization */}
             <aside className="w-[400px] border-r bg-card/30 backdrop-blur-sm overflow-auto">
               <div className="p-6 space-y-6">
-                <Button variant="ghost" onClick={() => navigate("/templates")} className="w-full justify-start">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Templates
-                </Button>
-
                 <PremiumCustomizationForm cardData={cardData} onDataChange={handleDataChange} />
               </div>
             </aside>
@@ -194,6 +179,7 @@ const Customize = () => {
                     onDataChange={handleDataChange}
                     hideToolbar={true}
                     toolbarRef={toolbarRef}
+                    onToolbarUpdate={() => forceUpdate({})}
                   />
                 </div>
               </div>
@@ -204,7 +190,7 @@ const Customize = () => {
               <div className="p-6 space-y-4">
                 {/* Toolbar Section */}
                 {toolbarRef.current && (
-                  <div key={toolbarKey} className="p-3 bg-muted/30 rounded-lg border">
+                  <div className="p-3 bg-muted/30 rounded-lg border">
                     <ObjectToolbar
                       selectedElement={toolbarRef.current.selectedElement}
                       isElementLocked={toolbarRef.current.isElementLocked}
