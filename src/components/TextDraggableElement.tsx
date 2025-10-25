@@ -74,8 +74,8 @@ const TextDraggableElement = ({
     const height = Math.ceil(rect.height);
     
     setElementDimensions({
-      width: `${Math.max(width, 50)}px`,
-      height: `${Math.max(height, 20)}px`
+      width: `${Math.max(width, 30)}px`,  // Reduced minimum to allow smaller text
+      height: `${Math.max(height, 15)}px`  // Reduced minimum to allow smaller text
     });
   }, []);
 
@@ -353,8 +353,8 @@ const TextDraggableElement = ({
           // Dynamic sizing based on content - this makes the border adapt!
           width: elementDimensions.width,
           height: elementDimensions.height,
-          minWidth: '50px',
-          minHeight: '20px',
+          minWidth: '30px',  // Reduced to allow smaller font sizes
+          minHeight: '15px',  // Reduced to allow smaller font sizes
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
