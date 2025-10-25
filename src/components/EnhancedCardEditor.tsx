@@ -427,10 +427,9 @@ useEffect(() => {
         };
       }
 
-      addToHistory(newPositions);
       return newPositions;
     });
-  }, [addToHistory, snapToCenter, snapController, elementSizes, textSizes]);
+  }, [snapToCenter, snapController, elementSizes, textSizes]);
 
   // Handle drag start - set dragging state and initialize guides
   const handleDragStart = useCallback((elementId: string) => {
@@ -445,7 +444,9 @@ useEffect(() => {
     setIsDragging(false);
     setDraggingElementId(null);
     snapController.clearGuides();
-  }, [snapController]);
+    // Add to history only when drag ends, not during every move
+    addToHistory(positions);
+  }, [snapController, addToHistory, positions]);
 
 const handleElementResize = useCallback((elementId: string, newSize: { width: number; height: number }) => {
   setPositions(prev => {
