@@ -13,7 +13,6 @@ import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
 import AuthRequiredModal from './AuthRequiredModal';
 import InteractiveCardPreview from './InteractiveCardPreview';
-import { PrivacyToggle } from './PrivacyToggle';
 import { toast } from 'sonner';
 
 interface CardPreviewProps {
@@ -634,12 +633,6 @@ const CardPreview = ({ cardData }: CardPreviewProps) => {
               {loadingStates.video ? 'Creating...' : 'Video (50 Credits)'}
             </Button>
           </div>
-          
-          <PrivacyToggle
-            isPublic={isSharePublic}
-            onToggle={setIsSharePublic}
-            disabled={loadingStates.share}
-          />
           
           <Button 
             onClick={generateShareableLink}

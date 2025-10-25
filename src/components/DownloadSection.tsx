@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import CreditActionButton from './CreditActionButton';
-import { PrivacyToggle } from './PrivacyToggle';
 import { useCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import { downloadAsImage, downloadAsPDF } from '@/utils/downloadUtils';
@@ -189,12 +188,6 @@ const DownloadSection = ({ cardId, cardData }: DownloadSectionProps) => {
 
           {/* Create Magic Link */}
           <div className="space-y-3">
-            <PrivacyToggle
-              isPublic={isSharePublic}
-              onToggle={setIsSharePublic}
-              disabled={shareLoading}
-            />
-            
             <div className="p-4 border rounded-xl bg-gradient-to-r from-purple-50/50 to-purple-100/30 hover:shadow-sm transition-all">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-3 flex-1">

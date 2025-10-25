@@ -269,18 +269,21 @@ const ObjectToolbar = ({
         <div className="flex items-center gap-0.5">
           {elementActions.map((action) => {
             const Icon = action.icon;
+            const isLockButton = action.id === 'toggle-lock';
+            const isLocked = isLockButton && isElementLocked;
+            
             return (
               <Button
                 key={action.id}
                 variant={action.id === 'delete' ? 'destructive' : 
-                        action.id === 'toggle-lock' && isElementLocked ? 'default' : 'ghost'}
+                        isLocked ? 'default' : 'ghost'}
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   action.onClick?.();
                 }}
                 disabled={action.disabled}
-                className="h-7 w-7 p-0 hover:bg-accent"
+                className={`h-7 w-7 p-0 ${isLocked ? 'hover:bg-primary/80' : 'hover:bg-accent'}`}
                 title={action.label}
               >
                 <Icon className="h-3.5 w-3.5" />
