@@ -1337,9 +1337,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
             fontSize={getFontSize('brideName')}
             fontFamily={getFontFamily('heading')}
             text={cardData.brideName || "Bride's Name"}
-            minWidth={275}
+            minWidth={80}
             maxWidth={600}
-            minHeight={60}
+            minHeight={30}
             maxHeight={200}
             isSelected={selectedElement === 'brideName'}
             onSelect={handleElementSelect}
@@ -1433,9 +1433,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
             fontSize={getFontSize('groomName')}
             fontFamily={getFontFamily('heading')}
             text={cardData.groomName || "Groom's Name"}
-            minWidth={275}
+            minWidth={80}
             maxWidth={600}
-            minHeight={60}
+            minHeight={30}
             maxHeight={200}
             isSelected={selectedElement === 'groomName'}
             onSelect={handleElementSelect}
@@ -1493,9 +1493,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               fontSize={getFontSize('weddingDate')}
               fontFamily={getFontFamily('date')}
               text={formatDate(cardData.weddingDate)}
-              minWidth={150}
+              minWidth={60}
               maxWidth={500}
-              minHeight={40}
+              minHeight={25}
               maxHeight={150}
               isSelected={selectedElement === 'weddingDate'}
               onSelect={handleElementSelect}
@@ -1538,9 +1538,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               fontSize={getFontSize('venue')}
               fontFamily={getFontFamily('venue')}
               text={cardData.venue}
-              minWidth={140}
+              minWidth={60}
               maxWidth={500}
-              minHeight={40}
+              minHeight={25}
               maxHeight={150}
               isSelected={selectedElement === 'venue'}
               onSelect={handleElementSelect}
@@ -1601,9 +1601,9 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               fontSize={getFontSize('message')}
               fontFamily={getFontFamily('message')}
               text={cardData.message}
-              minWidth={180}
+              minWidth={70}
               maxWidth={600}
-              minHeight={60}
+              minHeight={30}
               maxHeight={250}
               isSelected={selectedElement === 'message'}
               onSelect={handleElementSelect}
