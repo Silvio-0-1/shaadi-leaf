@@ -4,20 +4,22 @@
 export const sanitizeInput = (input: string): string => {
   if (!input) return '';
   
-  // Remove potentially dangerous characters and HTML tags while preserving ALL spaces
-  let sanitized = input
-    .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+=/gi, '') // Remove event handlers like onclick=
-    .replace(/data:/gi, '') // Remove data: protocol
-    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
-    .replace(/script:/gi, '') // Remove script: protocol
-    .replace(/&lt;script/gi, '') // Remove encoded script tags
-    .replace(/&gt;/gi, ''); // Remove encoded > characters
+  console.log('Input before sanitization:', JSON.stringify(input));
   
-  // Preserve all spaces including internal ones, only trim edges
-  // This allows "Grand Hotel" and keeps the space between words
-  return sanitized.replace(/^\s+|\s+$/g, '');
+  let sanitized = input
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .replace(/script:/gi, '')
+    .replace(/&lt;script/gi, '')
+    .replace(/&gt;/gi, '');
+  
+  const result = sanitized.replace(/^\s+|\s+$/g, '');
+  console.log('Output after sanitization:', JSON.stringify(result));
+  
+  return result;
 };
 
 // Enhanced sanitization for rich text content
