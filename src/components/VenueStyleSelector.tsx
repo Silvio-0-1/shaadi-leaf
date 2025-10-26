@@ -83,10 +83,7 @@ const VenueStyleSelector = ({ venue, selectedStyleId, onStyleSelect }: VenueStyl
                     ? 'border-primary bg-primary/5 shadow-md' 
                     : 'border-border hover:border-primary/50'
                 )}
-                onClick={() => {
-                  onStyleSelect(style.id);
-                  setIsExpanded(false);
-                }}
+                onClick={() => onStyleSelect(style.id)}
               >
                 {renderIconPreview(style, isSelected)}
                 {isSelected && (

@@ -4,7 +4,7 @@
 export const sanitizeInput = (input: string): string => {
   if (!input) return '';
   
-  // Remove potentially dangerous characters and HTML tags while preserving spaces
+  // Remove potentially dangerous characters and HTML tags while preserving ALL spaces
   let sanitized = input
     .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
     .replace(/javascript:/gi, '') // Remove javascript: protocol
@@ -15,8 +15,9 @@ export const sanitizeInput = (input: string): string => {
     .replace(/&lt;script/gi, '') // Remove encoded script tags
     .replace(/&gt;/gi, ''); // Remove encoded > characters
   
-  // Only trim leading/trailing whitespace, preserve internal spaces
-  return sanitized.trim();
+  // Preserve all spaces including internal ones, only trim edges
+  // This allows "Grand Hotel" and keeps the space between words
+  return sanitized.replace(/^\s+|\s+$/g, '');
 };
 
 // Enhanced sanitization for rich text content
