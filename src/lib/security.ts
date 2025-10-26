@@ -3,18 +3,22 @@
 // Enhanced input sanitization function to prevent XSS attacks
 export const sanitizeInput = (input: string): string => {
   if (!input) return '';
-
-  return input
-    .replace(/[<>]/g, '')                // Remove < and >
-    .replace(/javascript:/gi, '')        // Remove javascript:
-    .replace(/vbscript:/gi, '')          // Remove vbscript:
-    .replace(/data:/gi, '')              // Remove data:
-    .replace(/script:/gi, '')            // Remove script:
-    .replace(/&lt;script/gi, '')         // Remove encoded script
-    .replace(/&gt;/gi, '')               // Remove encoded >
-    .replace(/^\s+|\s+$/g, '');          // Trim only edges, keep internal spaces
+  
+  // Remove potentially dangerous characters and HTML tags while preserving ALL spaces
+  let sanitized = input
+    .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers like onclick=
+    .replace(/data:/gi, '') // Remove data: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .replace(/script:/gi, '') // Remove script: protocol
+    .replace(/&lt;script/gi, '') // Remove encoded script tags
+    .replace(/&gt;/gi, ''); // Remove encoded > characters
+  
+  // Preserve all spaces including internal ones, only trim edges
+  // This allows "Grand Hotel" and keeps the space between words
+  return sanitized.replace(/^\s+|\s+$/g, '');
 };
-
 
 // Enhanced sanitization for rich text content
 export const sanitizeRichText = (input: string): string => {
