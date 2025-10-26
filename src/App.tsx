@@ -23,6 +23,7 @@ import { AdminCredits } from "./pages/admin/AdminCredits";
 import { AdminUsers } from "./pages/admin/AdminUsers";
 import { AdminOrders } from "./pages/admin/AdminOrders";
 import { AdminSettings } from "./pages/admin/AdminSettings";
+import AdminVenueIcons from "./pages/admin/AdminVenueIcons";
 import SharedCard from "./pages/SharedCard";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/venue-icons" element={<AdminVenueIcons />} />
               <Route path="/shared/:token" element={<SharedCard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -349,6 +349,45 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_icons: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          is_filled: boolean
+          name: string
+          svg_path: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_filled?: boolean
+          name: string
+          svg_path: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_filled?: boolean
+          name?: string
+          svg_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       wedding_cards: {
         Row: {
           bride_name: string
@@ -414,23 +453,26 @@ export type Database = {
         }
         Returns: undefined
       }
-      admin_manage_credits: {
-        Args:
-          | {
+      admin_manage_credits:
+        | {
+            Args: {
               p_admin_user_id: string
               p_amount: number
               p_description: string
               p_operation: string
               p_target_user_id: string
             }
-          | {
+            Returns: boolean
+          }
+        | {
+            Args: {
               p_amount: number
               p_description: string
               p_operation: string
               p_target_user_id: string
             }
-        Returns: boolean
-      }
+            Returns: boolean
+          }
       admin_remove_user_role: {
         Args: { admin_user_id?: string; target_user_email: string }
         Returns: boolean
@@ -471,7 +513,7 @@ export type Database = {
         }[]
       }
       get_user_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       has_role: {
@@ -489,10 +531,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      set_user_as_admin: {
-        Args: { user_email: string }
-        Returns: undefined
-      }
+      set_user_as_admin: { Args: { user_email: string }; Returns: undefined }
       validate_credit_operation: {
         Args: { p_amount: number; p_operation_type: string; p_user_id?: string }
         Returns: boolean
