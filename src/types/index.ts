@@ -47,7 +47,10 @@ export interface TemplateCustomization {
   backgroundPattern?: string;
   layout?: string;
   photoShape?: 'square' | 'circle' | 'rounded';
-  venueStyle?: string; // ID of the selected venue style
+  venueStyle?: string; // Legacy field - kept for backwards compatibility
+  venueIconId?: string; // ID from venue_icons table
+  venueIconPath?: string; // SVG path for the icon
+  venueIconFilled?: boolean; // Whether the icon is filled or outlined
 }
 
 export interface ElementPosition {

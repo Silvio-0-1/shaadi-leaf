@@ -1571,16 +1571,39 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
                   />
                 ) : (
                   <div 
-                    className="flex items-center justify-center transition-all duration-200 cursor-pointer" 
+                    className="flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer" 
                     style={{ color: getTextColor('venue') }}
                     onDoubleClick={() => handleDoubleClick('venue')}
                   >
                     {(() => {
-                      const venueStyle = cardData.customization?.venueStyle 
-                        ? getVenueStyleById(cardData.customization.venueStyle)
-                        : null;
-                      const VenueIcon = venueStyle?.icon || MapPin;
-                      return <VenueIcon className="h-4 w-4 mr-2 opacity-70" />;
+                      // Calculate icon size proportionally to font size
+                      const venueFontSize = elementFontSizes.venue || 14;
+                      const iconSize = Math.max(16, Math.min(32, venueFontSize * 1.2)); // Icon scales with text
+                      
+                      const venueIconId = cardData.customization?.venueIconId;
+                      
+                      if (venueIconId) {
+                        // Render SVG from database
+                        return (
+                          <svg
+                            viewBox="0 0 24 24"
+                            style={{
+                              width: `${iconSize}px`,
+                              height: `${iconSize}px`,
+                              fill: cardData.customization?.venueIconFilled ? 'currentColor' : 'none',
+                              stroke: cardData.customization?.venueIconFilled ? 'none' : 'currentColor',
+                              strokeWidth: cardData.customization?.venueIconFilled ? 0 : 2,
+                              flexShrink: 0,
+                              opacity: 0.85,
+                            }}
+                          >
+                            <path d={cardData.customization.venueIconPath || ''} />
+                          </svg>
+                        );
+                      }
+                      
+                      // Fallback to default MapPin icon
+                      return <MapPin style={{ width: `${iconSize}px`, height: `${iconSize}px`, flexShrink: 0, opacity: 0.85 }} />;
                     })()}
                     <span 
                       className="font-medium"
