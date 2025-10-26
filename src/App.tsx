@@ -23,9 +23,9 @@ import { AdminCredits } from "./pages/admin/AdminCredits";
 import { AdminUsers } from "./pages/admin/AdminUsers";
 import { AdminOrders } from "./pages/admin/AdminOrders";
 import { AdminSettings } from "./pages/admin/AdminSettings";
-import AdminVenueIcons from "./pages/admin/AdminVenueIcons";
 import SharedCard from "./pages/SharedCard";
 import NotFound from "./pages/NotFound";
+import AdminVenueIcons from "./pages/admin/AdminVenueIcons";
 
 const queryClient = new QueryClient();
 
