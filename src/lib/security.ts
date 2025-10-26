@@ -4,8 +4,8 @@
 export const sanitizeInput = (input: string): string => {
   if (!input) return '';
   
-  // Remove potentially dangerous characters and HTML tags
-  return input
+  // Remove potentially dangerous characters and HTML tags while preserving spaces
+  let sanitized = input
     .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
     .replace(/javascript:/gi, '') // Remove javascript: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers like onclick=
@@ -13,8 +13,10 @@ export const sanitizeInput = (input: string): string => {
     .replace(/vbscript:/gi, '') // Remove vbscript: protocol
     .replace(/script:/gi, '') // Remove script: protocol
     .replace(/&lt;script/gi, '') // Remove encoded script tags
-    .replace(/&gt;/gi, '') // Remove encoded > characters
-    .trim();
+    .replace(/&gt;/gi, ''); // Remove encoded > characters
+  
+  // Only trim leading/trailing whitespace, preserve internal spaces
+  return sanitized.trim();
 };
 
 // Enhanced sanitization for rich text content

@@ -19,65 +19,28 @@ const VenueStyleSelector = ({ venue, selectedStyleId, onStyleSelect }: VenueStyl
 
   const selectedStyle = selectedStyleId ? getVenueStyleById(selectedStyleId) : null;
 
-  const renderVenuePreview = (style: VenueStyle, isSelected: boolean = false) => {
+  const renderIconPreview = (style: VenueStyle, isSelected: boolean = false) => {
     const Icon = style.icon;
     
-    const getFlexDirection = () => {
-      switch (style.alignment) {
-        case 'top': return 'flex-col';
-        case 'bottom': return 'flex-col-reverse';
-        case 'right': return 'flex-row-reverse';
-        default: return 'flex-row';
-      }
-    };
-
-    const getAlignment = () => {
-      switch (style.alignment) {
-        case 'top':
-        case 'bottom': return 'items-center text-center';
-        default: return 'items-center';
-      }
-    };
-
     return (
-      <div 
-        className={cn(
-          'flex',
-          getFlexDirection(),
-          getAlignment(),
-          style.spacing
-        )}
-      >
+      <div className="flex items-center justify-center p-3">
         <Icon 
           className={cn(
-            'text-muted-foreground flex-shrink-0',
-            isSelected ? 'text-primary' : ''
+            'transition-colors',
+            isSelected ? 'text-primary' : 'text-muted-foreground'
           )} 
           size={style.iconSize} 
         />
-        <span 
-          className={cn(
-            style.fontSize,
-            style.fontWeight,
-            style.textTransform,
-            style.letterSpacing,
-            'text-foreground truncate',
-            isSelected ? 'text-primary' : ''
-          )}
-        >
-          {venue}
-        </span>
       </div>
     );
   };
 
   return (
     <div className="space-y-3">
-      {/* Current Selection Display */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-foreground">
-            Venue Style
+            Location Icon
           </label>
           <Button
             variant="ghost"
@@ -94,22 +57,20 @@ const VenueStyleSelector = ({ venue, selectedStyleId, onStyleSelect }: VenueStyl
         </div>
         
         {selectedStyle && (
-          <Card className="p-3 bg-muted/50 border-primary/20">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                {renderVenuePreview(selectedStyle, true)}
-              </div>
-              <Badge variant="secondary" className="ml-2 text-xs">
+          <Card className="p-2 bg-muted/50 border-primary/20">
+            <div className="flex items-center gap-3">
+              {renderIconPreview(selectedStyle, true)}
+              <span className="text-sm font-medium text-foreground">
                 {selectedStyle.name}
-              </Badge>
+              </span>
             </div>
           </Card>
         )}
       </div>
 
-      {/* Style Options Grid */}
+      {/* Icon Options Grid */}
       {isExpanded && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-80 overflow-y-auto p-1">
           {VENUE_STYLES.map((style) => {
             const isSelected = selectedStyleId === style.id;
             
@@ -117,7 +78,7 @@ const VenueStyleSelector = ({ venue, selectedStyleId, onStyleSelect }: VenueStyl
               <Card
                 key={style.id}
                 className={cn(
-                  'p-3 cursor-pointer transition-all duration-200 hover:shadow-md border-2',
+                  'cursor-pointer transition-all duration-200 hover:shadow-md border-2 relative group',
                   isSelected 
                     ? 'border-primary bg-primary/5 shadow-md' 
                     : 'border-border hover:border-primary/50'
@@ -127,23 +88,12 @@ const VenueStyleSelector = ({ venue, selectedStyleId, onStyleSelect }: VenueStyl
                   setIsExpanded(false);
                 }}
               >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium text-foreground">
-                      {style.name}
-                    </h4>
-                    {isSelected && (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
-                  </div>
-                  
-                  <p className="text-xs text-muted-foreground mb-2">
-                    {style.description}
-                  </p>
-                  
-                  <div className="flex justify-center py-2">
-                    {renderVenuePreview(style)}
-                  </div>
+                {renderIconPreview(style, isSelected)}
+                {isSelected && (
+                  <Check className="h-3 w-3 text-primary absolute top-1 right-1" />
+                )}
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none z-10 shadow-md">
+                  {style.name}
                 </div>
               </Card>
             );

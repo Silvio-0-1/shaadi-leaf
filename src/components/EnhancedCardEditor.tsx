@@ -11,6 +11,7 @@ import {
 import { WeddingCardData, CardElements, ElementPosition, Template, IndividualPhotoElement } from '@/types';
 import { templates } from '@/data/templates';
 import { supabase } from '@/integrations/supabase/client';
+import { getVenueStyleById } from '@/data/venueStyles';
 import AdvancedDraggableElement from './AdvancedDraggableElement';
 import DynamicTextBox from './DynamicTextBox';
 import InlineTextEditor from './InlineTextEditor';
@@ -1574,7 +1575,13 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
                     style={{ color: getTextColor('venue') }}
                     onDoubleClick={() => handleDoubleClick('venue')}
                   >
-                    <MapPin className="h-4 w-4 mr-2 opacity-70" />
+                    {(() => {
+                      const venueStyle = cardData.customization?.venueStyle 
+                        ? getVenueStyleById(cardData.customization.venueStyle)
+                        : null;
+                      const VenueIcon = venueStyle?.icon || MapPin;
+                      return <VenueIcon className="h-4 w-4 mr-2 opacity-70" />;
+                    })()}
                     <span 
                       className="font-medium"
                       style={{ 
