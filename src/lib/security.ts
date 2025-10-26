@@ -1,10 +1,8 @@
 // Security utilities for input validation and sanitization
 
 // Enhanced input sanitization function to prevent XSS attacks
-export const sanitizeInput = (input: string): string => {
+export const sanitizeInput = (input: string, trimSpaces: boolean = false): string => {
   if (!input) return '';
-  
-  console.log('Input before sanitization:', JSON.stringify(input));
   
   let sanitized = input
     .replace(/[<>]/g, '')
@@ -16,10 +14,12 @@ export const sanitizeInput = (input: string): string => {
     .replace(/&lt;script/gi, '')
     .replace(/&gt;/gi, '');
   
-  const result = sanitized.replace(/^\s+|\s+$/g, '');
-  console.log('Output after sanitization:', JSON.stringify(result));
+  // Only trim if explicitly requested (e.g., on blur or form submission)
+  if (trimSpaces) {
+    return sanitized.replace(/^\s+|\s+$/g, '');
+  }
   
-  return result;
+  return sanitized;
 };
 
 // Enhanced sanitization for rich text content
