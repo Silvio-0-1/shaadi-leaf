@@ -25,7 +25,7 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   // Map database categories to premium UI categories
   const categoryMapping: Record<string, string> = {
     'location': 'Minimal',
-    'venue': 'Decorative',
+    'building': 'Decorative',
     'nature': 'Modern',
     'decorative': 'Gold & Premium'
   };
