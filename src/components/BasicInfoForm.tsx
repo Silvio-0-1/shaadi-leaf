@@ -12,7 +12,6 @@ import CreditActionButton from './CreditActionButton';
 import { useCredits } from '@/hooks/useCredits';
 import { validateName, validateVenue, validateMessage, validateWeddingDate, sanitizeInput } from '@/lib/security';
 import VenueStyleSelector from './VenueStyleSelector';
-import { useVenueIcons } from '@/hooks/useVenueIcons';
 
 interface BasicInfoFormProps {
   cardData: WeddingCardData;
@@ -140,20 +139,15 @@ const BasicInfoForm = ({ cardData, onDataChange, validationErrors = {}, onValida
     }
   };
 
-  const { venueIcons } = useVenueIcons();
-  
-  const handleVenueStyleSelect = (iconId: string) => {
-    const icon = venueIcons.find(i => i.id === iconId);
-    if (icon) {
-      onDataChange({ 
-        customization: {
-          ...cardData.customization,
-          venueIconId: icon.id,
-          venueIconPath: icon.svg_path,
-          venueIconFilled: icon.is_filled,
-        }
-      });
-    }
+  const handleVenueStyleSelect = (iconId: string, iconPath: string, isFilled: boolean) => {
+    onDataChange({ 
+      customization: {
+        ...cardData.customization,
+        venueIconId: iconId,
+        venueIconPath: iconPath,
+        venueIconFilled: isFilled,
+      }
+    });
   };
 
   const getFieldError = (field: string) => validationErrors[field];
