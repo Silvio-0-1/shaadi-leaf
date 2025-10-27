@@ -19,8 +19,14 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
 
   if (!venue.trim()) return null;
 
+  console.log('VenueIcons total:', venueIcons.length);
+  console.log('ShowFilled:', showFilled);
+  
   // Filter icons by filled/outline preference
   const filteredIcons = venueIcons.filter(icon => icon.is_filled === showFilled);
+  
+  console.log('Filtered icons:', filteredIcons.length);
+  console.log('Sample icons:', filteredIcons.slice(0, 3));
 
   // Map database categories to premium UI categories
   const categoryMapping: Record<string, string> = {
