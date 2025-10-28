@@ -17,14 +17,6 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const [isOpen, setIsOpen] = useState(false);
   const { venueIcons, isLoading } = useVenueIcons();
 
-  if (!venue.trim()) return null;
-
-  // Filter icons by filled/outline preference
-  const filteredIcons = useMemo(
-    () => venueIcons.filter(icon => icon.is_filled === showFilled),
-    [venueIcons, showFilled]
-  );
-
   // Map database categories to premium UI categories
   const categoryMapping: Record<string, string> = {
     'location': 'Minimal',
@@ -32,6 +24,12 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
     'nature': 'Modern',
     'decorative': 'Gold & Premium'
   };
+
+  // Filter icons by filled/outline preference
+  const filteredIcons = useMemo(
+    () => venueIcons.filter(icon => icon.is_filled === showFilled),
+    [venueIcons, showFilled]
+  );
 
   // Group icons by mapped category
   const categorizedIcons = useMemo(
@@ -45,6 +43,9 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
     }, {} as Record<string, typeof venueIcons>),
     [filteredIcons]
   );
+
+  // Early return AFTER all hooks
+  if (!venue.trim()) return null;
 
   // Define category order for consistent display
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
