@@ -17,20 +17,6 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const [isOpen, setIsOpen] = useState(false);
   const { venueIcons, isLoading } = useVenueIcons();
 
-  // 🧩 Step 1 — Deep Inspection: Log icon data
-  console.log("🔍 Icon data being rendered:", {
-    totalIcons: venueIcons.length,
-    isLoading,
-    showFilled,
-    venueIcons: venueIcons.map(icon => ({
-      id: icon.id,
-      name: icon.name,
-      category: icon.category,
-      is_filled: icon.is_filled,
-      svg_path: icon.svg_path?.substring(0, 50) + '...',
-      has_svg_path: !!icon.svg_path
-    }))
-  });
 
   // Map database categories to premium UI categories
   const categoryMapping: Record<string, string> = {
@@ -51,13 +37,6 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
       return icon.is_filled === showFilled;
     });
     
-    console.log("🔍 Filtered icons:", {
-      showFilled,
-      filteredCount: filtered.length,
-      totalCount: venueIcons.length,
-      filtered: filtered.map(i => ({ name: i.name, category: i.category }))
-    });
-    
     return filtered;
   }, [venueIcons, showFilled]);
 
@@ -72,11 +51,6 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
       return acc;
     }, {} as Record<string, typeof venueIcons>);
     
-    console.log("🔍 Categorized icons:", {
-      categories: Object.keys(categorized),
-      counts: Object.entries(categorized).map(([cat, icons]) => ({ category: cat, count: icons.length }))
-    });
-    
     return categorized;
   }, [filteredIcons, categoryMapping]);
 
@@ -87,15 +61,6 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
 
   const renderIconPreview = (icon: typeof venueIcons[0], isSelected: boolean = false) => {
-    // 🧩 Step 2 — Rendering Verification
-    console.log("🧩 Rendering icon:", {
-      name: icon.name,
-      is_filled: icon.is_filled,
-      has_svg_path: !!icon.svg_path,
-      svg_path_length: icon.svg_path?.length,
-      isSelected
-    });
-
     // Validate icon data
     if (!icon.svg_path) {
       console.error("❌ Missing SVG path for icon:", icon.name);
@@ -114,27 +79,21 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
     const strokeColor = isSelected ? 'hsl(221.2 83.2% 53.3%)' : 'hsl(222.2 84% 4.9%)';
     
     return (
-      <div className="relative group">
+      <div className="flex flex-col items-center gap-1.5">
         <div
           className={cn(
-            "aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center p-4",
-            "hover:border-primary hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1",
-            "cursor-pointer bg-card",
+            "w-16 h-16 rounded-lg border-2 transition-all duration-200 flex items-center justify-center",
+            "hover:border-primary hover:bg-primary/5 hover:shadow-md cursor-pointer",
             isSelected
-              ? "border-primary bg-primary/10 shadow-md scale-105"
-              : "border-border"
+              ? "border-primary bg-primary/10 shadow-sm"
+              : "border-border bg-card"
           )}
-          style={{
-            // 🎨 Step 3 — CSS & Visibility Debugging: Add visible outline temporarily
-            outline: '1px dashed rgba(255, 0, 0, 0.2)'
-          }}
         >
           <svg
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-10 h-10 transition-all duration-300"
+            className="w-8 h-8"
             style={{
-              // 🧰 Step 4 & 🌈 Step 5 — Use explicit colors for visibility
               fill: icon.is_filled ? fillColor : 'none',
               stroke: icon.is_filled ? 'none' : strokeColor,
               strokeWidth: icon.is_filled ? 0 : 2,
@@ -146,7 +105,7 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
           </svg>
         </div>
         <p className={cn(
-          "text-xs text-center mt-2 font-medium transition-colors duration-200",
+          "text-[10px] text-center font-medium transition-colors duration-200 max-w-[64px] line-clamp-2",
           isSelected ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
         )}>
           {icon.name}
@@ -159,20 +118,8 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
 
   // Show nothing if no venue entered
   if (!venue || !venue.trim()) {
-    console.log("ℹ️ VenueStyleSelector: No venue entered, hiding component");
     return null;
   }
-
-  // 🧪 Step 6 — Verification logging
-  console.log("✅ VenueStyleSelector rendering:", {
-    venue,
-    selectedIconId,
-    isOpen,
-    showFilled,
-    totalIcons: venueIcons.length,
-    filteredIcons: filteredIcons.length,
-    categories: Object.keys(categorizedIcons)
-  });
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-4">
@@ -266,29 +213,16 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
                         </h4>
                         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
                       </div>
-                      <div 
-                        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
-                        style={{
-                          display: 'grid',
-                          alignItems: 'center',
-                          justifyItems: 'center'
-                        }}
-                      >
-                        {icons.map((icon, index) => {
-                          console.log(`🎨 Rendering icon ${index + 1}/${icons.length}:`, icon.name);
-                          return (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                        {icons.map((icon) => (
                             <button
                               key={icon.id}
-                              onClick={() => {
-                                console.log("🖱️ Icon clicked:", icon.name);
-                                onIconSelect(icon.id, icon.svg_path, icon.is_filled);
-                              }}
-                              className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl venue-icon-item"
+                              onClick={() => onIconSelect(icon.id, icon.svg_path, icon.is_filled)}
+                              className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg venue-icon-item"
                             >
                               {renderIconPreview(icon, selectedIconId === icon.id)}
                             </button>
-                          );
-                        })}
+                          ))}
                       </div>
                     </div>
                   );

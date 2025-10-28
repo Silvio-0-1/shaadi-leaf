@@ -211,23 +211,69 @@ export const VenueIconManager = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {allVenueIcons.map((icon) => (
-          <Card key={icon.id} className={!icon.is_active ? 'opacity-60' : ''}>
+          <Card key={icon.id} className={!icon.is_active ? 'opacity-60 border-dashed' : ''}>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  {renderIcon(icon.svg_path, icon.is_filled)}
                   <div>
-                    <CardTitle className="text-base">{icon.name}</CardTitle>
-                    <p className="text-xs text-muted-foreground">{icon.category}</p>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      {icon.name}
+                      {!icon.is_active && <EyeOff className="h-4 w-4 text-muted-foreground" />}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground capitalize">{icon.category}</p>
                   </div>
                 </div>
-                {!icon.is_active && <EyeOff className="h-4 w-4 text-muted-foreground" />}
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               {icon.description && (
                 <p className="text-sm text-muted-foreground">{icon.description}</p>
               )}
+              
+              {/* Preview both versions side by side */}
+              <div className="flex gap-4 items-center justify-center p-4 bg-muted/30 rounded-lg">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 flex items-center justify-center border-2 border-border rounded-lg bg-background">
+                    {renderIcon(icon.svg_path, false)}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">Outline</span>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 flex items-center justify-center border-2 border-border rounded-lg bg-background">
+                    {renderIcon(icon.svg_path, true)}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">Filled</span>
+                </div>
+              </div>
+
+              {/* Quick toggles */}
+              <div className="flex flex-col gap-2 p-3 bg-muted/20 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`active-${icon.id}`} className="text-xs cursor-pointer flex items-center gap-2">
+                    {icon.is_active ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                    Visible to users
+                  </Label>
+                  <Switch
+                    id={`active-${icon.id}`}
+                    checked={icon.is_active}
+                    onCheckedChange={(checked) => {
+                      updateVenueIcon({ id: icon.id, updates: { is_active: checked } });
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`filled-${icon.id}`} className="text-xs cursor-pointer">
+                    Display as {icon.is_filled ? 'Filled' : 'Outline'}
+                  </Label>
+                  <Switch
+                    id={`filled-${icon.id}`}
+                    checked={icon.is_filled}
+                    onCheckedChange={(checked) => {
+                      updateVenueIcon({ id: icon.id, updates: { is_filled: checked } });
+                    }}
+                  />
+                </div>
+              </div>
               
               <div className="flex gap-2">
                 <Button
