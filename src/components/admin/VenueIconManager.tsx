@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVenueIcons } from '@/hooks/useVenueIcons';
-import { Plus, Trash2, Edit, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Edit, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const VenueIconManager = () => {
@@ -16,35 +17,65 @@ export const VenueIconManager = () => {
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingIcon, setEditingIcon] = useState<string | null>(null);
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  
+  const [categories, setCategories] = useState(['location', 'building', 'nature', 'decorative']);
+  const [newCategory, setNewCategory] = useState('');
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editCategoryValue, setEditCategoryValue] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    svg_path: '',
+    svg_path_outline: '',
+    svg_path_filled: '',
     category: 'location',
-    is_filled: false,
     is_active: true,
-    display_order: 0,
   });
 
   const handleCreate = () => {
-    if (!formData.name || !formData.svg_path) {
-      toast.error('Name and SVG path are required');
+    if (!formData.name || !formData.svg_path_outline || !formData.svg_path_filled) {
+      toast.error('Name and both SVG paths (outline & filled) are required');
       return;
     }
 
-    createVenueIcon(formData);
+    // Create both versions
+    const outlineIcon = {
+      name: formData.name,
+      svg_path: formData.svg_path_outline,
+      category: formData.category,
+      is_filled: false,
+      is_active: formData.is_active,
+    };
+    
+    const filledIcon = {
+      name: formData.name,
+      svg_path: formData.svg_path_filled,
+      category: formData.category,
+      is_filled: true,
+      is_active: formData.is_active,
+    };
+
+    createVenueIcon(outlineIcon);
+    createVenueIcon(filledIcon);
+    
     setIsCreateDialogOpen(false);
     resetForm();
   };
 
   const handleUpdate = (id: string) => {
-    if (!formData.name || !formData.svg_path) {
-      toast.error('Name and SVG path are required');
+    if (!formData.name) {
+      toast.error('Name is required');
       return;
     }
 
-    updateVenueIcon({ id, updates: formData });
+    updateVenueIcon({ 
+      id, 
+      updates: {
+        name: formData.name,
+        category: formData.category,
+        is_active: formData.is_active,
+      }
+    });
     setEditingIcon(null);
     resetForm();
   };
@@ -52,12 +83,10 @@ export const VenueIconManager = () => {
   const handleEdit = (icon: typeof allVenueIcons[0]) => {
     setFormData({
       name: icon.name,
-      description: icon.description || '',
-      svg_path: icon.svg_path,
+      svg_path_outline: '',
+      svg_path_filled: '',
       category: icon.category,
-      is_filled: icon.is_filled,
       is_active: icon.is_active,
-      display_order: icon.display_order,
     });
     setEditingIcon(icon.id);
   };
@@ -65,20 +94,61 @@ export const VenueIconManager = () => {
   const resetForm = () => {
     setFormData({
       name: '',
-      description: '',
-      svg_path: '',
+      svg_path_outline: '',
+      svg_path_filled: '',
       category: 'location',
-      is_filled: false,
       is_active: true,
-      display_order: 0,
     });
+  };
+
+  const handleAddCategory = () => {
+    if (!newCategory.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+    if (categories.includes(newCategory.toLowerCase())) {
+      toast.error('Category already exists');
+      return;
+    }
+    setCategories([...categories, newCategory.toLowerCase()]);
+    setNewCategory('');
+    toast.success('Category added');
+  };
+
+  const handleDeleteCategory = (cat: string) => {
+    if (allVenueIcons.some(icon => icon.category === cat)) {
+      toast.error('Cannot delete category with existing icons');
+      return;
+    }
+    setCategories(categories.filter(c => c !== cat));
+    toast.success('Category deleted');
+  };
+
+  const handleEditCategory = (oldCat: string) => {
+    setEditingCategory(oldCat);
+    setEditCategoryValue(oldCat);
+  };
+
+  const handleSaveCategoryEdit = () => {
+    if (!editCategoryValue.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+    if (categories.includes(editCategoryValue.toLowerCase()) && editCategoryValue.toLowerCase() !== editingCategory) {
+      toast.error('Category already exists');
+      return;
+    }
+    setCategories(categories.map(c => c === editingCategory ? editCategoryValue.toLowerCase() : c));
+    setEditingCategory(null);
+    setEditCategoryValue('');
+    toast.success('Category updated');
   };
 
   const renderIcon = (svgPath: string, isFilled: boolean) => {
     return (
       <svg
         viewBox="0 0 24 24"
-        className="w-8 h-8 text-primary"
+        className="w-10 h-10 text-primary"
         style={{
           fill: isFilled ? 'currentColor' : 'none',
           stroke: isFilled ? 'none' : 'currentColor',
@@ -94,18 +164,23 @@ export const VenueIconManager = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Venue Icon Management</h2>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => resetForm()}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Icon
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsCategoryDialogOpen(true)}>
+            <Tag className="h-4 w-4 mr-2" />
+            Manage Categories
+          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => resetForm()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Icon
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Venue Icon</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
                 <Label htmlFor="name">Icon Name *</Label>
                 <Input
@@ -117,70 +192,24 @@ export const VenueIconManager = () => {
               </div>
 
               <div>
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of the icon"
-                />
+                <Label htmlFor="category">Category *</Label>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div>
-                <Label htmlFor="svg_path">SVG Path * (24x24 viewBox)</Label>
-                <Textarea
-                  id="svg_path"
-                  value={formData.svg_path}
-                  onChange={(e) => setFormData({ ...formData, svg_path: e.target.value })}
-                  placeholder="M12 2C8.13 2 5 5.13 5 9c0 5.25..."
-                  rows={4}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Copy the 'd' attribute from an SVG path element
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="category">Category</Label>
-                  <Select 
-                    value={formData.category} 
-                    onValueChange={(value) => setFormData({ ...formData, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="location">Location</SelectItem>
-                      <SelectItem value="building">Building</SelectItem>
-                      <SelectItem value="nature">Nature</SelectItem>
-                      <SelectItem value="decorative">Decorative</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex-1">
-                  <Label htmlFor="display_order">Display Order</Label>
-                  <Input
-                    id="display_order"
-                    type="number"
-                    value={formData.display_order}
-                    onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_filled">Filled Icon Style</Label>
-                <Switch
-                  id="is_filled"
-                  checked={formData.is_filled}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_filled: checked })}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_active">Active</Label>
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <Label htmlFor="is_active">Visible to Users</Label>
                 <Switch
                   id="is_active"
                   checked={formData.is_active}
@@ -188,14 +217,41 @@ export const VenueIconManager = () => {
                 />
               </div>
 
-              {formData.svg_path && (
-                <div className="border rounded-lg p-4 bg-muted/30">
-                  <p className="text-sm font-medium mb-2">Preview:</p>
-                  <div className="flex justify-center">
-                    {renderIcon(formData.svg_path, formData.is_filled)}
-                  </div>
+              <div className="space-y-4">
+                <div className="border rounded-lg p-4 bg-muted/20">
+                  <Label htmlFor="svg_path_outline" className="text-base font-semibold">Outline Version *</Label>
+                  <p className="text-xs text-muted-foreground mb-3">SVG path for outline style (24x24 viewBox)</p>
+                  <Textarea
+                    id="svg_path_outline"
+                    value={formData.svg_path_outline}
+                    onChange={(e) => setFormData({ ...formData, svg_path_outline: e.target.value })}
+                    placeholder="M12 2C8.13 2 5 5.13 5 9c0 5.25..."
+                    rows={3}
+                  />
+                  {formData.svg_path_outline && (
+                    <div className="mt-3 flex justify-center p-3 bg-background rounded border">
+                      {renderIcon(formData.svg_path_outline, false)}
+                    </div>
+                  )}
                 </div>
-              )}
+
+                <div className="border rounded-lg p-4 bg-muted/20">
+                  <Label htmlFor="svg_path_filled" className="text-base font-semibold">Filled Version *</Label>
+                  <p className="text-xs text-muted-foreground mb-3">SVG path for filled style (24x24 viewBox)</p>
+                  <Textarea
+                    id="svg_path_filled"
+                    value={formData.svg_path_filled}
+                    onChange={(e) => setFormData({ ...formData, svg_path_filled: e.target.value })}
+                    placeholder="M12 2C8.13 2 5 5.13 5 9c0 5.25..."
+                    rows={3}
+                  />
+                  {formData.svg_path_filled && (
+                    <div className="mt-3 flex justify-center p-3 bg-background rounded border">
+                      {renderIcon(formData.svg_path_filled, true)}
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <Button
                 onClick={handleCreate}
@@ -207,72 +263,19 @@ export const VenueIconManager = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {allVenueIcons.map((icon) => (
           <Card key={icon.id} className={!icon.is_active ? 'opacity-60 border-dashed' : ''}>
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      {icon.name}
-                      {!icon.is_active && <EyeOff className="h-4 w-4 text-muted-foreground" />}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground capitalize">{icon.category}</p>
-                  </div>
-                </div>
-              </div>
+              <CardTitle className="text-base">{icon.name}</CardTitle>
+              <p className="text-xs text-muted-foreground capitalize">{icon.category}</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {icon.description && (
-                <p className="text-sm text-muted-foreground">{icon.description}</p>
-              )}
-              
-              {/* Preview both versions side by side */}
-              <div className="flex gap-4 items-center justify-center p-4 bg-muted/30 rounded-lg">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 flex items-center justify-center border-2 border-border rounded-lg bg-background">
-                    {renderIcon(icon.svg_path, false)}
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">Outline</span>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 flex items-center justify-center border-2 border-border rounded-lg bg-background">
-                    {renderIcon(icon.svg_path, true)}
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">Filled</span>
-                </div>
-              </div>
-
-              {/* Quick toggles */}
-              <div className="flex flex-col gap-2 p-3 bg-muted/20 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor={`active-${icon.id}`} className="text-xs cursor-pointer flex items-center gap-2">
-                    {icon.is_active ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                    Visible to users
-                  </Label>
-                  <Switch
-                    id={`active-${icon.id}`}
-                    checked={icon.is_active}
-                    onCheckedChange={(checked) => {
-                      updateVenueIcon({ id: icon.id, updates: { is_active: checked } });
-                    }}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor={`filled-${icon.id}`} className="text-xs cursor-pointer">
-                    Display as {icon.is_filled ? 'Filled' : 'Outline'}
-                  </Label>
-                  <Switch
-                    id={`filled-${icon.id}`}
-                    checked={icon.is_filled}
-                    onCheckedChange={(checked) => {
-                      updateVenueIcon({ id: icon.id, updates: { is_filled: checked } });
-                    }}
-                  />
-                </div>
+              <div className="flex justify-center p-6 bg-muted/30 rounded-lg">
+                {renderIcon(icon.svg_path, icon.is_filled)}
               </div>
               
               <div className="flex gap-2">
@@ -303,7 +306,7 @@ export const VenueIconManager = () => {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingIcon} onOpenChange={() => setEditingIcon(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Venue Icon</DialogTitle>
           </DialogHeader>
@@ -318,80 +321,30 @@ export const VenueIconManager = () => {
             </div>
 
             <div>
-              <Label htmlFor="edit-description">Description</Label>
-              <Input
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
+              <Label htmlFor="edit-category">Category *</Label>
+              <Select 
+                value={formData.category} 
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div>
-              <Label htmlFor="edit-svg_path">SVG Path *</Label>
-              <Textarea
-                id="edit-svg_path"
-                value={formData.svg_path}
-                onChange={(e) => setFormData({ ...formData, svg_path: e.target.value })}
-                rows={4}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <Label htmlFor="edit-category">Category</Label>
-                <Select 
-                  value={formData.category} 
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="location">Location</SelectItem>
-                    <SelectItem value="building">Building</SelectItem>
-                    <SelectItem value="nature">Nature</SelectItem>
-                    <SelectItem value="decorative">Decorative</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex-1">
-                <Label htmlFor="edit-display_order">Display Order</Label>
-                <Input
-                  id="edit-display_order"
-                  type="number"
-                  value={formData.display_order}
-                  onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="edit-is_filled">Filled Icon Style</Label>
-              <Switch
-                id="edit-is_filled"
-                checked={formData.is_filled}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_filled: checked })}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="edit-is_active">Active</Label>
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <Label htmlFor="edit-is_active">Visible to Users</Label>
               <Switch
                 id="edit-is_active"
                 checked={formData.is_active}
                 onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
               />
             </div>
-
-            {formData.svg_path && (
-              <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-2">Preview:</p>
-                <div className="flex justify-center">
-                  {renderIcon(formData.svg_path, formData.is_filled)}
-                </div>
-              </div>
-            )}
 
             <Button
               onClick={() => editingIcon && handleUpdate(editingIcon)}
@@ -400,6 +353,58 @@ export const VenueIconManager = () => {
             >
               {isUpdating ? 'Updating...' : 'Update Icon'}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Management Dialog */}
+      <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Manage Categories</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New category name"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+              />
+              <Button onClick={handleAddCategory}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {categories.map(cat => (
+                <div key={cat} className="flex items-center justify-between p-3 border rounded-lg">
+                  {editingCategory === cat ? (
+                    <>
+                      <Input
+                        value={editCategoryValue}
+                        onChange={(e) => setEditCategoryValue(e.target.value)}
+                        className="flex-1 mr-2"
+                      />
+                      <Button size="sm" onClick={handleSaveCategoryEdit}>Save</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingCategory(null)}>Cancel</Button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="capitalize font-medium">{cat}</span>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="ghost" onClick={() => handleEditCategory(cat)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeleteCategory(cat)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
