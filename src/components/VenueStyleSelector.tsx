@@ -17,6 +17,21 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const [isOpen, setIsOpen] = useState(false);
   const { venueIcons, isLoading } = useVenueIcons();
 
+  // 🧩 Step 1 — Deep Inspection: Log icon data
+  console.log("🔍 Icon data being rendered:", {
+    totalIcons: venueIcons.length,
+    isLoading,
+    showFilled,
+    venueIcons: venueIcons.map(icon => ({
+      id: icon.id,
+      name: icon.name,
+      category: icon.category,
+      is_filled: icon.is_filled,
+      svg_path: icon.svg_path?.substring(0, 50) + '...',
+      has_svg_path: !!icon.svg_path
+    }))
+  });
+
   // Map database categories to premium UI categories
   const categoryMapping: Record<string, string> = {
     'location': 'Minimal',
@@ -26,23 +41,44 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   };
 
   // Filter icons by filled/outline preference
-  const filteredIcons = useMemo(
-    () => venueIcons.filter(icon => icon.is_filled === showFilled),
-    [venueIcons, showFilled]
-  );
+  const filteredIcons = useMemo(() => {
+    const filtered = venueIcons.filter(icon => {
+      // Check for invalid icon entries
+      if (!icon || !icon.svg_path || !icon.name) {
+        console.warn("⚠️ Invalid icon entry found:", icon);
+        return false;
+      }
+      return icon.is_filled === showFilled;
+    });
+    
+    console.log("🔍 Filtered icons:", {
+      showFilled,
+      filteredCount: filtered.length,
+      totalCount: venueIcons.length,
+      filtered: filtered.map(i => ({ name: i.name, category: i.category }))
+    });
+    
+    return filtered;
+  }, [venueIcons, showFilled]);
 
   // Group icons by mapped category
-  const categorizedIcons = useMemo(
-    () => filteredIcons.reduce((acc, icon) => {
+  const categorizedIcons = useMemo(() => {
+    const categorized = filteredIcons.reduce((acc, icon) => {
       const mappedCategory = categoryMapping[icon.category] || 'Colorful';
       if (!acc[mappedCategory]) {
         acc[mappedCategory] = [];
       }
       acc[mappedCategory].push(icon);
       return acc;
-    }, {} as Record<string, typeof venueIcons>),
-    [filteredIcons]
-  );
+    }, {} as Record<string, typeof venueIcons>);
+    
+    console.log("🔍 Categorized icons:", {
+      categories: Object.keys(categorized),
+      counts: Object.entries(categorized).map(([cat, icons]) => ({ category: cat, count: icons.length }))
+    });
+    
+    return categorized;
+  }, [filteredIcons, categoryMapping]);
 
   // REMOVED: Early return that was blocking rendering
   // Now we just check if venue is empty to show a message
@@ -51,7 +87,31 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
 
   const renderIconPreview = (icon: typeof venueIcons[0], isSelected: boolean = false) => {
-    const iconColor = isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))';
+    // 🧩 Step 2 — Rendering Verification
+    console.log("🧩 Rendering icon:", {
+      name: icon.name,
+      is_filled: icon.is_filled,
+      has_svg_path: !!icon.svg_path,
+      svg_path_length: icon.svg_path?.length,
+      isSelected
+    });
+
+    // Validate icon data
+    if (!icon.svg_path) {
+      console.error("❌ Missing SVG path for icon:", icon.name);
+      return (
+        <div className="relative group">
+          <div className="aspect-square rounded-xl border-2 border-destructive bg-destructive/10 flex items-center justify-center p-4">
+            <div className="text-xs text-destructive text-center">Icon unavailable</div>
+          </div>
+          <p className="text-xs text-center mt-2 font-medium text-destructive">{icon.name}</p>
+        </div>
+      );
+    }
+
+    // Use explicit HSL color values for maximum visibility
+    const fillColor = isSelected ? 'hsl(221.2 83.2% 53.3%)' : 'hsl(222.2 84% 4.9%)';
+    const strokeColor = isSelected ? 'hsl(221.2 83.2% 53.3%)' : 'hsl(222.2 84% 4.9%)';
     
     return (
       <div className="relative group">
@@ -64,14 +124,19 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
               ? "border-primary bg-primary/10 shadow-md scale-105"
               : "border-border"
           )}
+          style={{
+            // 🎨 Step 3 — CSS & Visibility Debugging: Add visible outline temporarily
+            outline: '1px dashed rgba(255, 0, 0, 0.2)'
+          }}
         >
           <svg
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
             className="w-10 h-10 transition-all duration-300"
             style={{
-              fill: icon.is_filled ? iconColor : 'none',
-              stroke: icon.is_filled ? 'none' : iconColor,
+              // 🧰 Step 4 & 🌈 Step 5 — Use explicit colors for visibility
+              fill: icon.is_filled ? fillColor : 'none',
+              stroke: icon.is_filled ? 'none' : strokeColor,
               strokeWidth: icon.is_filled ? 0 : 2,
               strokeLinecap: 'round' as const,
               strokeLinejoin: 'round' as const,
@@ -94,8 +159,20 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
 
   // Show nothing if no venue entered
   if (!venue || !venue.trim()) {
+    console.log("ℹ️ VenueStyleSelector: No venue entered, hiding component");
     return null;
   }
+
+  // 🧪 Step 6 — Verification logging
+  console.log("✅ VenueStyleSelector rendering:", {
+    venue,
+    selectedIconId,
+    isOpen,
+    showFilled,
+    totalIcons: venueIcons.length,
+    filteredIcons: filteredIcons.length,
+    categories: Object.keys(categorizedIcons)
+  });
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-4">
@@ -189,18 +266,29 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
                         </h4>
                         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
                       </div>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-                        {icons.map((icon) => (
-                          <button
-                            key={icon.id}
-                            onClick={() => {
-                              onIconSelect(icon.id, icon.svg_path, icon.is_filled);
-                            }}
-                            className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
-                          >
-                            {renderIconPreview(icon, selectedIconId === icon.id)}
-                          </button>
-                        ))}
+                      <div 
+                        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
+                        style={{
+                          display: 'grid',
+                          alignItems: 'center',
+                          justifyItems: 'center'
+                        }}
+                      >
+                        {icons.map((icon, index) => {
+                          console.log(`🎨 Rendering icon ${index + 1}/${icons.length}:`, icon.name);
+                          return (
+                            <button
+                              key={icon.id}
+                              onClick={() => {
+                                console.log("🖱️ Icon clicked:", icon.name);
+                                onIconSelect(icon.id, icon.svg_path, icon.is_filled);
+                              }}
+                              className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl venue-icon-item"
+                            >
+                              {renderIconPreview(icon, selectedIconId === icon.id)}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   );
