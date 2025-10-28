@@ -62,20 +62,20 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
               : "border-border bg-card"
           )}
         >
-          <svg
-            viewBox="0 0 24 24"
-            className={cn(
-              "w-8 h-8 transition-all duration-300",
-              isSelected ? "text-primary scale-110" : "text-foreground group-hover:text-primary group-hover:scale-110"
-            )}
-            fill={showFilled ? "currentColor" : "none"}
-            stroke={showFilled ? "none" : "currentColor"}
-            strokeWidth={showFilled ? 0 : 2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d={icon.svg_path} />
-          </svg>
+        <svg
+          viewBox="0 0 24 24"
+          className={cn(
+            "w-8 h-8 transition-all duration-300",
+            isSelected ? "text-primary scale-110" : "text-foreground group-hover:text-primary group-hover:scale-110"
+          )}
+          fill={icon.is_filled ? "currentColor" : "none"}
+          stroke={icon.is_filled ? "none" : "currentColor"}
+          strokeWidth={icon.is_filled ? 0 : 2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d={icon.svg_path} />
+        </svg>
         </div>
         <p className={cn(
           "text-xs text-center mt-2 font-medium transition-colors duration-200",
