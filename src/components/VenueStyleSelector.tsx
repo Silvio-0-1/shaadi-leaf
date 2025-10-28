@@ -44,9 +44,9 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
     [filteredIcons]
   );
 
-  // REMOVED: Early return that was blocking rendering
-  // Now we just check if venue is empty to show a message
-  
+  // Early return AFTER all hooks
+  if (!venue.trim()) return null;
+
   // Define category order for consistent display
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
 
@@ -91,11 +91,6 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   };
 
   const selectedIcon = venueIcons.find(icon => icon.id === selectedIconId);
-
-  // Show nothing if no venue entered
-  if (!venue || !venue.trim()) {
-    return null;
-  }
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-4">
@@ -164,61 +159,40 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
               <div className="text-center py-12 text-muted-foreground">
                 <div className="animate-pulse">Loading icons...</div>
               </div>
-            ) : venueIcons.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="font-medium">No venue icons available</p>
-                <p className="text-sm mt-2">Icons need to be added to the database</p>
-              </div>
             ) : filteredIcons.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                <p className="font-medium">No {showFilled ? 'filled' : 'outline'} icons available</p>
-                <p className="text-sm mt-2">Try switching to {showFilled ? 'outline' : 'filled'} icons</p>
+                No {showFilled ? 'filled' : 'outline'} icons available
               </div>
             ) : (
-              <>
-                {categoryOrder.map((category) => {
-                  const icons = categorizedIcons[category];
-                  if (!icons || icons.length === 0) return null;
-                  
-                  return (
-                    <div key={category} className="space-y-4 animate-fade-in">
-                      <div className="flex items-center gap-2">
-                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-3">
-                          {category}
-                        </h4>
-                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                      </div>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-                        {icons.map((icon) => (
-                          <button
-                            key={icon.id}
-                            onClick={() => {
-                              onIconSelect(icon.id, icon.svg_path, icon.is_filled);
-                            }}
-                            className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
-                          >
-                            {renderIconPreview(icon, selectedIconId === icon.id)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+              categoryOrder.map((category) => {
+                const icons = categorizedIcons[category];
+                if (!icons || icons.length === 0) return null;
                 
-                {/* Show debug info if no categories matched */}
-                {Object.keys(categorizedIcons).length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <p className="font-medium">Category mismatch detected</p>
-                    <p className="text-sm mt-2">
-                      Available icons: {filteredIcons.length}, but no categories matched
-                    </p>
-                    <p className="text-xs mt-1 text-destructive">
-                      Check database icon categories
-                    </p>
+                return (
+                  <div key={category} className="space-y-4 animate-fade-in">
+                    <div className="flex items-center gap-2">
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-3">
+                        {category}
+                      </h4>
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                    </div>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                      {icons.map((icon) => (
+                        <button
+                          key={icon.id}
+                          onClick={() => {
+                            onIconSelect(icon.id, icon.svg_path, icon.is_filled);
+                          }}
+                          className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
+                        >
+                          {renderIconPreview(icon, selectedIconId === icon.id)}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </>
+                );
+              })
             )}
           </div>
         </div>

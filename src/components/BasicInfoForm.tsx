@@ -13,16 +13,6 @@ import { useCredits } from '@/hooks/useCredits';
 import { validateName, validateVenue, validateMessage, validateWeddingDate, sanitizeInput } from '@/lib/security';
 import VenueStyleSelector from './VenueStyleSelector';
 
-// Add this inside the component, after the useVenueIcons import
-const { venueIcons } = useVenueIcons();
-console.log('🔍 Venue Icons Debug:', {
-  totalIcons: venueIcons.length,
-  categories: [...new Set(venueIcons.map(i => i.category))],
-  filledCount: venueIcons.filter(i => i.is_filled).length,
-  outlineCount: venueIcons.filter(i => !i.is_filled).length,
-  sampleIcon: venueIcons[0]
-});
-
 interface BasicInfoFormProps {
   cardData: WeddingCardData;
   onDataChange: (data: Partial<WeddingCardData>) => void;
