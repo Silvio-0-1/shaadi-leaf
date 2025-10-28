@@ -91,6 +91,38 @@ export const VenueIconManager = () => {
     setEditingIcon(icon.id);
   };
 
+  const handleSvgUpload = async (e: React.ChangeEvent<HTMLInputElement>, isFilled: boolean) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(text, 'image/svg+xml');
+      const pathElements = svgDoc.querySelectorAll('path');
+      
+      if (pathElements.length === 0) {
+        toast.error('No path found in SVG file');
+        return;
+      }
+
+      // Combine all paths if there are multiple
+      const paths = Array.from(pathElements).map(p => p.getAttribute('d')).filter(Boolean);
+      const combinedPath = paths.join(' ');
+
+      if (isFilled) {
+        setFormData({ ...formData, svg_path_filled: combinedPath });
+      } else {
+        setFormData({ ...formData, svg_path_outline: combinedPath });
+      }
+      
+      toast.success('SVG uploaded successfully');
+    } catch (error) {
+      console.error('Error parsing SVG:', error);
+      toast.error('Failed to parse SVG file');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -219,14 +251,14 @@ export const VenueIconManager = () => {
 
               <div className="space-y-4">
                 <div className="border rounded-lg p-4 bg-muted/20">
-                  <Label htmlFor="svg_path_outline" className="text-base font-semibold">Outline Version *</Label>
-                  <p className="text-xs text-muted-foreground mb-3">SVG path for outline style (24x24 viewBox)</p>
-                  <Textarea
-                    id="svg_path_outline"
-                    value={formData.svg_path_outline}
-                    onChange={(e) => setFormData({ ...formData, svg_path_outline: e.target.value })}
-                    placeholder="M12 2C8.13 2 5 5.13 5 9c0 5.25..."
-                    rows={3}
+                  <Label htmlFor="svg_file_outline" className="text-base font-semibold">Outline Version *</Label>
+                  <p className="text-xs text-muted-foreground mb-3">Upload SVG file for outline style</p>
+                  <Input
+                    id="svg_file_outline"
+                    type="file"
+                    accept=".svg"
+                    onChange={(e) => handleSvgUpload(e, false)}
+                    className="cursor-pointer"
                   />
                   {formData.svg_path_outline && (
                     <div className="mt-3 flex justify-center p-3 bg-background rounded border">
@@ -236,14 +268,14 @@ export const VenueIconManager = () => {
                 </div>
 
                 <div className="border rounded-lg p-4 bg-muted/20">
-                  <Label htmlFor="svg_path_filled" className="text-base font-semibold">Filled Version *</Label>
-                  <p className="text-xs text-muted-foreground mb-3">SVG path for filled style (24x24 viewBox)</p>
-                  <Textarea
-                    id="svg_path_filled"
-                    value={formData.svg_path_filled}
-                    onChange={(e) => setFormData({ ...formData, svg_path_filled: e.target.value })}
-                    placeholder="M12 2C8.13 2 5 5.13 5 9c0 5.25..."
-                    rows={3}
+                  <Label htmlFor="svg_file_filled" className="text-base font-semibold">Filled Version *</Label>
+                  <p className="text-xs text-muted-foreground mb-3">Upload SVG file for filled style</p>
+                  <Input
+                    id="svg_file_filled"
+                    type="file"
+                    accept=".svg"
+                    onChange={(e) => handleSvgUpload(e, true)}
+                    className="cursor-pointer"
                   />
                   {formData.svg_path_filled && (
                     <div className="mt-3 flex justify-center p-3 bg-background rounded border">
@@ -274,8 +306,15 @@ export const VenueIconManager = () => {
               <p className="text-xs text-muted-foreground capitalize">{icon.category}</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-center p-6 bg-muted/30 rounded-lg">
-                {renderIcon(icon.svg_path, icon.is_filled)}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-2">Outline</p>
+                  {renderIcon(icon.svg_path, false)}
+                </div>
+                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-2">Filled</p>
+                  {renderIcon(icon.svg_path, true)}
+                </div>
               </div>
               
               <div className="flex gap-2">
