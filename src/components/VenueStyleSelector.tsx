@@ -51,6 +51,8 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
 
   const renderIconPreview = (icon: typeof venueIcons[0], isSelected: boolean = false) => {
+    const iconColor = isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))';
+    
     return (
       <div className="relative group">
         <div
@@ -59,8 +61,8 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
             "hover:border-primary hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1",
             "cursor-pointer bg-card",
             isSelected
-              ? "border-primary bg-primary/10 shadow-md scale-105 text-primary"
-              : "border-border text-foreground"
+              ? "border-primary bg-primary/10 shadow-md scale-105"
+              : "border-border"
           )}
         >
           <svg
@@ -68,8 +70,8 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
             xmlns="http://www.w3.org/2000/svg"
             className="w-10 h-10 transition-all duration-300"
             style={{
-              fill: icon.is_filled ? 'currentColor' : 'none',
-              stroke: icon.is_filled ? 'none' : 'currentColor',
+              fill: icon.is_filled ? iconColor : 'none',
+              stroke: icon.is_filled ? 'none' : iconColor,
               strokeWidth: icon.is_filled ? 0 : 2,
               strokeLinecap: 'round' as const,
               strokeLinejoin: 'round' as const,
