@@ -59,22 +59,21 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
             "hover:border-primary hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1",
             "cursor-pointer bg-card",
             isSelected
-              ? "border-primary bg-primary/10 shadow-md scale-105"
-              : "border-border"
+              ? "border-primary bg-primary/10 shadow-md scale-105 text-primary"
+              : "border-border text-foreground"
           )}
         >
           <svg
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
-            className={cn(
-              "w-10 h-10 transition-all duration-300",
-              icon.is_filled 
-                ? isSelected ? "fill-primary" : "fill-foreground"
-                : isSelected ? "stroke-primary fill-none" : "stroke-foreground fill-none"
-            )}
-            strokeWidth={icon.is_filled ? 0 : 2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            className="w-10 h-10 transition-all duration-300"
+            style={{
+              fill: icon.is_filled ? 'currentColor' : 'none',
+              stroke: icon.is_filled ? 'none' : 'currentColor',
+              strokeWidth: icon.is_filled ? 0 : 2,
+              strokeLinecap: 'round' as const,
+              strokeLinejoin: 'round' as const,
+            }}
           >
             <path d={icon.svg_path} />
           </svg>
