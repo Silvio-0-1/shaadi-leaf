@@ -50,11 +50,13 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
 
   const renderIconPreview = (icon: typeof venueIcons[0], isSelected: boolean = false) => {
+    const iconColor = isSelected ? "text-primary" : "text-foreground group-hover:text-primary";
+    
     return (
       <div className="relative group">
         <div
           className={cn(
-            "aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center p-3",
+            "aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center p-4",
             "hover:border-primary hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1",
             "cursor-pointer bg-card",
             isSelected
@@ -65,17 +67,12 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
           <svg
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
-            className={cn(
-              "w-full h-full max-w-[40px] max-h-[40px] transition-all duration-300",
-              isSelected ? "scale-110" : "group-hover:scale-110"
-            )}
-            style={{
-              fill: icon.is_filled ? (isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))') : 'none',
-              stroke: icon.is_filled ? 'none' : (isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'),
-              strokeWidth: icon.is_filled ? 0 : 2,
-              strokeLinecap: 'round',
-              strokeLinejoin: 'round'
-            }}
+            className={cn("w-10 h-10 transition-all duration-300", iconColor)}
+            fill={icon.is_filled ? "currentColor" : "none"}
+            stroke={icon.is_filled ? "none" : "currentColor"}
+            strokeWidth={icon.is_filled ? "0" : "2"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <path d={icon.svg_path} />
           </svg>
