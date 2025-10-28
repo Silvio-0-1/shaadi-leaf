@@ -54,28 +54,31 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
       <div className="relative group">
         <div
           className={cn(
-            "aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center p-4",
+            "aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center p-3",
             "hover:border-primary hover:bg-primary/5 hover:shadow-lg hover:-translate-y-1",
-            "cursor-pointer",
+            "cursor-pointer bg-card",
             isSelected
               ? "border-primary bg-primary/10 shadow-md scale-105"
-              : "border-border bg-card"
+              : "border-border"
           )}
         >
-        <svg
-          viewBox="0 0 24 24"
-          className={cn(
-            "w-8 h-8 transition-all duration-300",
-            isSelected ? "text-primary scale-110" : "text-foreground group-hover:text-primary group-hover:scale-110"
-          )}
-          fill={icon.is_filled ? "currentColor" : "none"}
-          stroke={icon.is_filled ? "none" : "currentColor"}
-          strokeWidth={icon.is_filled ? 0 : 2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d={icon.svg_path} />
-        </svg>
+          <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            className={cn(
+              "w-full h-full max-w-[40px] max-h-[40px] transition-all duration-300",
+              isSelected ? "scale-110" : "group-hover:scale-110"
+            )}
+            style={{
+              fill: icon.is_filled ? (isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))') : 'none',
+              stroke: icon.is_filled ? 'none' : (isSelected ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'),
+              strokeWidth: icon.is_filled ? 0 : 2,
+              strokeLinecap: 'round',
+              strokeLinejoin: 'round'
+            }}
+          >
+            <path d={icon.svg_path} />
+          </svg>
         </div>
         <p className={cn(
           "text-xs text-center mt-2 font-medium transition-colors duration-200",
