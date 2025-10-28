@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useVenueIcons } from '@/hooks/useVenueIcons';
 import { cn } from '@/lib/utils';
 import { Switch } from "@/components/ui/switch";
@@ -19,14 +19,11 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
 
   if (!venue.trim()) return null;
 
-  console.log('VenueIcons total:', venueIcons.length);
-  console.log('ShowFilled:', showFilled);
-  
   // Filter icons by filled/outline preference
-  const filteredIcons = venueIcons.filter(icon => icon.is_filled === showFilled);
-  
-  console.log('Filtered icons:', filteredIcons.length);
-  console.log('Sample icons:', filteredIcons.slice(0, 3));
+  const filteredIcons = useMemo(
+    () => venueIcons.filter(icon => icon.is_filled === showFilled),
+    [venueIcons, showFilled]
+  );
 
   // Map database categories to premium UI categories
   const categoryMapping: Record<string, string> = {
@@ -37,14 +34,17 @@ const VenueStyleSelector = ({ venue, selectedIconId, onIconSelect }: VenueStyleS
   };
 
   // Group icons by mapped category
-  const categorizedIcons = filteredIcons.reduce((acc, icon) => {
-    const mappedCategory = categoryMapping[icon.category] || 'Colorful';
-    if (!acc[mappedCategory]) {
-      acc[mappedCategory] = [];
-    }
-    acc[mappedCategory].push(icon);
-    return acc;
-  }, {} as Record<string, typeof venueIcons>);
+  const categorizedIcons = useMemo(
+    () => filteredIcons.reduce((acc, icon) => {
+      const mappedCategory = categoryMapping[icon.category] || 'Colorful';
+      if (!acc[mappedCategory]) {
+        acc[mappedCategory] = [];
+      }
+      acc[mappedCategory].push(icon);
+      return acc;
+    }, {} as Record<string, typeof venueIcons>),
+    [filteredIcons]
+  );
 
   // Define category order for consistent display
   const categoryOrder = ['Minimal', 'Decorative', 'Gold & Premium', 'Modern', 'Colorful'];
