@@ -377,30 +377,6 @@ useEffect(() => {
   }
 }, [cardData.customization?.fontSizes, setFontSize]);
 
-// Trigger re-measurement of text elements when font sizes change
-useEffect(() => {
-  // Force a re-render of text elements to recalculate their dimensions
-  const textElements = ['brideName', 'groomName', 'weddingDate', 'venue', 'message'];
-  const timer = setTimeout(() => {
-    textElements.forEach(elementId => {
-      const fontSize = getFontSize(elementId);
-      if (fontSize) {
-        // Update the element sizes to trigger border recalculation
-        setElementSizes(prev => ({
-          ...prev,
-          [elementId]: {
-            ...prev[elementId],
-            // Force a size update by adding a small timestamp-based change
-            _timestamp: Date.now()
-          }
-        }));
-      }
-    });
-  }, 50); // Small delay to ensure DOM has updated
-
-  return () => clearTimeout(timer);
-}, [elementFontSizes, getFontSize]);
-
   const addToHistory = useCallback((newPositions: CardElements) => {
     setHistory(prev => {
       const newHistory = prev.slice(0, historyIndex + 1);
