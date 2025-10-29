@@ -243,10 +243,6 @@ export const validateCreditOperation = (
     };
   }
   
-  // Rate limiting for credit operations (except AI generation)
-  if (operationType === 'ai_generate_message') {
-    return { isValid: true };
-  }
-  
+  // Rate limiting for credit operations
   return validateRateLimit(`credit_${operationType}`, 20, 60);
 };
