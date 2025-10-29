@@ -122,6 +122,86 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
     message: { width: 300, height: 80 }
   });
 
+  // Update text box dimensions when font size changes
+  useEffect(() => {
+    const fontSizes = cardData.customization?.fontSizes;
+    if (!fontSizes) return;
+
+    const calculateDimensions = (elementId: string, fontSize: number) => {
+      // Calculate proportional dimensions based on font size
+      // These ratios ensure text fits comfortably within the border
+      switch (elementId) {
+        case 'brideName':
+        case 'groomName':
+          return {
+            width: Math.max(200, fontSize * 10),
+            height: Math.max(60, fontSize * 3)
+          };
+        case 'weddingDate':
+          return {
+            width: Math.max(180, fontSize * 12),
+            height: Math.max(40, fontSize * 2.5)
+          };
+        case 'venue':
+          return {
+            width: Math.max(220, fontSize * 14),
+            height: Math.max(50, fontSize * 3)
+          };
+        case 'message':
+          return {
+            width: Math.max(300, fontSize * 18),
+            height: Math.max(80, fontSize * 6)
+          };
+        default:
+          return null;
+      }
+    };
+
+    setTextSizes(prev => {
+      const newTextSizes = { ...prev };
+      let hasChanges = false;
+
+      // Update dimensions for each element that has a font size change
+      if (fontSizes.brideNameSize) {
+        const dims = calculateDimensions('brideName', fontSizes.brideNameSize);
+        if (dims && (prev.brideName.width !== dims.width || prev.brideName.height !== dims.height)) {
+          newTextSizes.brideName = dims;
+          hasChanges = true;
+        }
+      }
+      if (fontSizes.groomNameSize) {
+        const dims = calculateDimensions('groomName', fontSizes.groomNameSize);
+        if (dims && (prev.groomName.width !== dims.width || prev.groomName.height !== dims.height)) {
+          newTextSizes.groomName = dims;
+          hasChanges = true;
+        }
+      }
+      if (fontSizes.dateSize) {
+        const dims = calculateDimensions('weddingDate', fontSizes.dateSize);
+        if (dims && (prev.weddingDate.width !== dims.width || prev.weddingDate.height !== dims.height)) {
+          newTextSizes.weddingDate = dims;
+          hasChanges = true;
+        }
+      }
+      if (fontSizes.venueSize) {
+        const dims = calculateDimensions('venue', fontSizes.venueSize);
+        if (dims && (prev.venue.width !== dims.width || prev.venue.height !== dims.height)) {
+          newTextSizes.venue = dims;
+          hasChanges = true;
+        }
+      }
+      if (fontSizes.messageSize) {
+        const dims = calculateDimensions('message', fontSizes.messageSize);
+        if (dims && (prev.message.width !== dims.width || prev.message.height !== dims.height)) {
+          newTextSizes.message = dims;
+          hasChanges = true;
+        }
+      }
+
+      return hasChanges ? newTextSizes : prev;
+    });
+  }, [cardData.customization?.fontSizes]);
+
   // Update positions when template loads and has default positions
   useEffect(() => {
     if (template?.defaultPositions && !initialPositions) {
