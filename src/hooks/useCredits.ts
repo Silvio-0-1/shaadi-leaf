@@ -126,15 +126,12 @@ export const useCredits = () => {
         throw new Error(creditValidation.error);
       }
 
-      // Additional rate limiting for credit operations
-      // AI message generation has a 5 second cooldown
-      const isAIGeneration = actionType === 'ai_generate_message';
-      const maxOps = isAIGeneration ? 1 : 30;
-      const timeWindow = isAIGeneration ? 5/60 : 60; // 5 seconds for AI, 60 minutes for others
-      
-      const rateLimitCheck = validateRateLimit(`credit_${actionType}`, maxOps, timeWindow);
-      if (!rateLimitCheck.isValid) {
-        throw new Error(rateLimitCheck.error);
+      // Additional rate limiting for credit operations (except AI generation)
+      if (actionType !== 'ai_generate_message') {
+        const rateLimitCheck = validateRateLimit(`credit_${actionType}`, 30, 60);
+        if (!rateLimitCheck.isValid) {
+          throw new Error(rateLimitCheck.error);
+        }
       }
 
       const { data, error } = await supabase.rpc('deduct_credits', {
