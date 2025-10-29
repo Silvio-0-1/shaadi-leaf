@@ -1656,7 +1656,7 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
                     onChange={(value) => handleTextChange('message', value)}
                     onComplete={() => setEditingElement(null)}
                     isMultiline={true}
-                    className="text-sm italic text-center max-w-xs"
+                    className="text-sm italic text-center w-full"
                     style={{ 
                       color: getTextColor('message'),
                       fontFamily: getFontFamily('message')
@@ -1664,7 +1664,7 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
                   />
                 ) : (
                   <p 
-                    className="text-center italic leading-relaxed max-w-xs transition-all duration-200 cursor-pointer"
+                    className="text-center italic leading-relaxed w-full transition-all duration-200 cursor-pointer"
                     style={{ 
                       color: getTextColor('message'),
                       fontFamily: getFontFamily('message'),
