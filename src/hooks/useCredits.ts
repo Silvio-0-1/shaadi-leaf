@@ -127,7 +127,12 @@ export const useCredits = () => {
       }
 
       // Additional rate limiting for credit operations
-      const rateLimitCheck = validateRateLimit(`credit_${actionType}`, 30, 60);
+      // AI message generation has a 5 second cooldown
+      const isAIGeneration = actionType === 'ai_generate_message';
+      const maxOps = isAIGeneration ? 1 : 30;
+      const timeWindow = isAIGeneration ? 5/60 : 60; // 5 seconds for AI, 60 minutes for others
+      
+      const rateLimitCheck = validateRateLimit(`credit_${actionType}`, maxOps, timeWindow);
       if (!rateLimitCheck.isValid) {
         throw new Error(rateLimitCheck.error);
       }
