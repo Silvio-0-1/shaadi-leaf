@@ -402,10 +402,12 @@ const ResizableTextBox = ({
           isDragging || isResizing || isRotating ? 'shadow-2xl' : isSelected ? 'shadow-lg' : ''
         } ${isSelected ? 'outline-2 outline-primary outline-offset-1' : ''}`}
         style={{
-          overflow: 'hidden',
+          overflow: 'visible',
           wordWrap: 'break-word',
+          overflowWrap: 'break-word',
           hyphens: 'auto',
-          lineHeight: '1.2',
+          lineHeight: '1.4',
+          whiteSpace: 'normal',
           ...textColorStyles,
         }}
       >

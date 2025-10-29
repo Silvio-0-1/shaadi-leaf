@@ -149,8 +149,8 @@ const PremiumCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onDa
           };
         case 'message':
           return {
-            width: Math.max(300, fontSize * 18),
-            height: Math.max(80, fontSize * 6)
+            width: Math.max(300, fontSize * 20),
+            height: Math.max(100, fontSize * 8)
           };
         default:
           return null;
