@@ -126,10 +126,12 @@ export const useCredits = () => {
         throw new Error(creditValidation.error);
       }
 
-      // Additional rate limiting for credit operations
-      const rateLimitCheck = validateRateLimit(`credit_${actionType}`, 30, 60);
-      if (!rateLimitCheck.isValid) {
-        throw new Error(rateLimitCheck.error);
+      // Additional rate limiting for credit operations (except AI generation)
+      if (actionType !== 'ai_generate_message') {
+        const rateLimitCheck = validateRateLimit(`credit_${actionType}`, 30, 60);
+        if (!rateLimitCheck.isValid) {
+          throw new Error(rateLimitCheck.error);
+        }
       }
 
       const { data, error } = await supabase.rpc('deduct_credits', {
