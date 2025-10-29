@@ -404,9 +404,7 @@ const ResizableTextBox = ({
         style={{
           overflow: 'hidden',
           wordWrap: 'break-word',
-          overflowWrap: 'break-word',
           hyphens: 'auto',
-          whiteSpace: 'normal',
           lineHeight: '1.2',
           ...textColorStyles,
         }}
