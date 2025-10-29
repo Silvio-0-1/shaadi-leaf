@@ -1631,10 +1631,10 @@ const handleFontSizeChange = useCallback((elementId: string, newSize: number) =>
               fontSize={getFontSize('message')}
               fontFamily={getFontFamily('message')}
               text={cardData.message}
-              minWidth={70}
-              maxWidth={600}
-              minHeight={30}
-              maxHeight={250}
+              minWidth={80}
+              maxWidth={500}
+              minHeight={80}
+              maxHeight={200}
               isSelected={selectedElement === 'message'}
               onSelect={handleElementSelect}
               customization={cardData.customization}
