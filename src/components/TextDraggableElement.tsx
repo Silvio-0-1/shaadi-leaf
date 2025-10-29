@@ -368,7 +368,10 @@ const TextDraggableElement = ({
           style={{
             // Remove scale transform to prevent layout issues
             fontSize: `${previewFontSize}px`,
-            whiteSpace: 'nowrap', // Keep text on single line
+            whiteSpace: 'normal',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+            hyphens: 'auto',
             ...textColorStyles,
           }}
         >
