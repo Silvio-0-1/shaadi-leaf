@@ -90,9 +90,10 @@ useEffect(() => {
       // Only update size if text content has actually changed
       const newSize = { width: measuredWidth, height: measuredHeight };
       setElementSize(newSize);
+      onResize(id, newSize);
     }
   }
-}, [text, isResizing, isDragging]); // Only depend on text changes and resize states
+}, [text, fontSize, fontFamily, isResizing, isDragging, autoSize, minWidth, maxWidth, minHeight, maxHeight, onResize, id]); // Include fontSize and fontFamily to trigger re-measurement
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
