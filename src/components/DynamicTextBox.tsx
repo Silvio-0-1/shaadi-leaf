@@ -324,10 +324,15 @@ const renderResizeHandles = () => {
       {/* Text content wrapper */}
       <div
         ref={textContentRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden"
+        className="w-full h-full flex items-center justify-center"
         style={{
           fontSize: `${fontSize}px`,
-          fontFamily: fontFamily
+          fontFamily: fontFamily,
+          overflow: 'visible',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal',
+          lineHeight: '1.4'
         }}
       >
         {children}
