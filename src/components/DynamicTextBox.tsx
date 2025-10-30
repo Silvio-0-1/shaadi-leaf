@@ -26,6 +26,7 @@ interface DynamicTextBoxProps {
   onDragEnd?: () => void;
   onTextChange?: (value: string) => void;
   autoSize?: boolean;
+  disableAutoSize?: boolean;
   children: React.ReactNode;
 }
 
@@ -52,6 +53,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   onDragEnd,
   onTextChange,
   autoSize = true,
+  disableAutoSize = false,
   children
 }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -63,10 +65,10 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const textContentRef = useRef<HTMLDivElement>(null);
 
   // Auto-size based on text content and font size
-  // Disable auto-sizing when manually resizing
+  // Disable auto-sizing when manually resizing or when explicitly disabled
 useEffect(() => {
   // Only auto-size when text content or font size changes, not when resizing manually
-  if (autoSize && textContentRef.current && !isResizing && !isDragging) {
+  if (autoSize && !disableAutoSize && textContentRef.current && !isResizing && !isDragging) {
     
     if (text && text.length > 0) {
       const textElement = textContentRef.current;
@@ -92,7 +94,7 @@ useEffect(() => {
       setElementSize(newSize);
     }
   }
-}, [text, fontSize, fontFamily, isResizing, isDragging, autoSize, minWidth, maxWidth, minHeight, maxHeight]); // Don't include onResize/id to prevent loops
+}, [text, fontSize, fontFamily, isResizing, isDragging, autoSize, disableAutoSize, minWidth, maxWidth, minHeight, maxHeight]); // Don't include onResize/id to prevent loops
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
