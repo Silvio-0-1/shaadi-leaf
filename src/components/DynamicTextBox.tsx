@@ -330,12 +330,11 @@ const renderResizeHandles = () => {
         style={{
           fontSize: `${fontSize}px`,
           fontFamily: fontFamily,
-          overflow: 'hidden',
+          overflow: 'visible',
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
           whiteSpace: 'normal',
-          lineHeight: '1.4',
-          padding: '8px'
+          lineHeight: '1.4'
         }}
       >
         {children}
