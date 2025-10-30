@@ -107,6 +107,37 @@ const EnhancedCardEditor = ({ cardData, initialPositions, onPositionsUpdate, onD
     venue: false,
     message: false
   });
+
+  // Reset manual resize flag when font size changes from slider
+  useEffect(() => {
+    const fontSizes = cardData.customization?.fontSizes;
+    if (!fontSizes) return;
+
+    // Reset manuallyResized flags when font sizes change from slider
+    setManuallyResized(prev => {
+      const newState = { ...prev };
+      let hasChanges = false;
+
+      // Check each element's font size and reset if changed
+      const currentFontSizes = {
+        brideName: fontSizes.brideNameSize,
+        groomName: fontSizes.groomNameSize,
+        weddingDate: fontSizes.dateSize,
+        venue: fontSizes.venueSize,
+        message: fontSizes.messageSize
+      };
+
+      Object.entries(currentFontSizes).forEach(([key, size]) => {
+        if (size && prev[key]) {
+          // Reset manual resize flag to allow auto-sizing
+          newState[key] = false;
+          hasChanges = true;
+        }
+      });
+
+      return hasChanges ? newState : prev;
+    });
+  }, [cardData.customization?.fontSizes]);
   
   // Handle element selection with timing protection
   const handleElementSelect = useCallback((elementId: string) => {
