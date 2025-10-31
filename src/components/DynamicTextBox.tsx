@@ -180,14 +180,11 @@ useEffect(() => {
     if (isLocked) return;
 
     if (isWidthResizing) {
-      // Handle width-only resize with auto-height
+      // Handle width-only resize - keep height constant
       const deltaX = e.clientX - dragStart.x;
       const newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
       
-      // Calculate dynamic height based on new width
-      const newHeight = calculateDynamicHeight(newWidth);
-      
-      const newSize = { width: newWidth, height: newHeight };
+      const newSize = { width: newWidth, height: elementSize.height };
       setElementSize(newSize);
       onResize(id, newSize);
       
