@@ -307,9 +307,9 @@ const renderResizeHandles = () => {
     userSelect: 'none',
     zIndex: isSelected ? 1000 : 10,
     transition: isResizing ? 'none' : 'all 0.2s ease-out',
-    border: '2px solid transparent',
+    border: isSelected && !isLocked ? '2px dashed #3b82f6' : '2px solid transparent',
     borderRadius: '4px',
-    backgroundColor: 'transparent',
+    backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
   };
 
   return (
