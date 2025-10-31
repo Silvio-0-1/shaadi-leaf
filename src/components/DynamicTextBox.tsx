@@ -96,7 +96,7 @@ useEffect(() => {
       setElementSize(newSize);
     }
   }
-}, [text, fontSize, fontFamily, isResizing, isDragging, isWidthResizing, autoSize, disableAutoSize, minWidth, maxWidth, minHeight, maxHeight]); // Don't include onResize/id to prevent loops
+}, [text, fontSize, fontFamily, isResizing, isDragging, isWidthResizing, autoSize, disableAutoSize, minWidth, maxWidth, minHeight, maxHeight, hasManuallyResized]); // Don't include onResize/id to prevent loops
 
   // Helper function to calculate height based on width and text content
   const calculateDynamicHeight = useCallback((width: number) => {
