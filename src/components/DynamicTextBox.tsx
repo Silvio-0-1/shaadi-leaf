@@ -58,6 +58,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isWidthResizing, setIsWidthResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState<string | null>(null);
   const [elementSize, setElementSize] = useState({ width: minWidth, height: minHeight });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -68,7 +69,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   // Disable auto-sizing when manually resizing or when explicitly disabled
 useEffect(() => {
   // Only auto-size when text content or font size changes, not when resizing manually
-  if (autoSize && !disableAutoSize && textContentRef.current && !isResizing && !isDragging) {
+  if (autoSize && !disableAutoSize && textContentRef.current && !isResizing && !isDragging && !isWidthResizing) {
     
     if (text && text.length > 0) {
       const textElement = textContentRef.current;
@@ -94,7 +95,32 @@ useEffect(() => {
       setElementSize(newSize);
     }
   }
-}, [text, fontSize, fontFamily, isResizing, isDragging, autoSize, disableAutoSize, minWidth, maxWidth, minHeight, maxHeight]); // Don't include onResize/id to prevent loops
+}, [text, fontSize, fontFamily, isResizing, isDragging, isWidthResizing, autoSize, disableAutoSize, minWidth, maxWidth, minHeight, maxHeight]); // Don't include onResize/id to prevent loops
+
+  // Helper function to calculate height based on width and text content
+  const calculateDynamicHeight = useCallback((width: number) => {
+    if (!textContentRef.current || !text) return minHeight;
+    
+    const tempElement = document.createElement('div');
+    tempElement.style.position = 'absolute';
+    tempElement.style.visibility = 'hidden';
+    tempElement.style.width = `${width}px`;
+    tempElement.style.fontSize = `${fontSize}px`;
+    tempElement.style.fontFamily = fontFamily;
+    tempElement.style.fontWeight = textContentRef.current.style.fontWeight || 'normal';
+    tempElement.style.lineHeight = '1.4';
+    tempElement.style.padding = '8px';
+    tempElement.style.wordWrap = 'break-word';
+    tempElement.style.overflowWrap = 'break-word';
+    tempElement.style.whiteSpace = 'normal';
+    tempElement.textContent = text;
+    
+    document.body.appendChild(tempElement);
+    const measuredHeight = Math.max(minHeight, Math.min(maxHeight, tempElement.offsetHeight));
+    document.body.removeChild(tempElement);
+    
+    return measuredHeight;
+  }, [text, fontSize, fontFamily, minHeight, maxHeight]);
 
   const getContainerBounds = useCallback(() => {
     if (!containerRef.current) return { width: 600, height: 400, left: 0, top: 0 };
@@ -115,19 +141,28 @@ useEffect(() => {
 
     const target = e.target as HTMLElement;
     const isResizeHandle = target.classList.contains('resize-handle');
+    const isWidthHandle = target.classList.contains('width-resize-handle');
     
-    if (isResizeHandle) {
-  // Handle corner resize - prevent event from bubbling
-  const handleType = target.getAttribute('data-handle');
-  setIsResizing(true);
-  setResizeHandle(handleType);
-  onSelect(id); // Make sure element is selected
-  
-  setDragStart({
-    x: e.clientX,
-    y: e.clientY
-  });
-} else {
+    if (isWidthHandle) {
+      // Handle width-only resize
+      setIsWidthResizing(true);
+      onSelect(id);
+      setDragStart({
+        x: e.clientX,
+        y: e.clientY
+      });
+    } else if (isResizeHandle) {
+      // Handle corner resize - prevent event from bubbling
+      const handleType = target.getAttribute('data-handle');
+      setIsResizing(true);
+      setResizeHandle(handleType);
+      onSelect(id); // Make sure element is selected
+      
+      setDragStart({
+        x: e.clientX,
+        y: e.clientY
+      });
+    } else {
       // Handle drag (existing functionality)
       setIsDragging(true);
       onSelect(id);
@@ -144,7 +179,21 @@ useEffect(() => {
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isLocked) return;
 
-    if (isResizing && resizeHandle) {
+    if (isWidthResizing) {
+      // Handle width-only resize with auto-height
+      const deltaX = e.clientX - dragStart.x;
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, elementSize.width + deltaX));
+      
+      // Calculate dynamic height based on new width
+      const newHeight = calculateDynamicHeight(newWidth);
+      
+      const newSize = { width: newWidth, height: newHeight };
+      setElementSize(newSize);
+      onResize(id, newSize);
+      
+      // Update drag start for next movement
+      setDragStart({ x: e.clientX, y: e.clientY });
+    } else if (isResizing && resizeHandle) {
       // Handle corner resize
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
@@ -196,7 +245,7 @@ useEffect(() => {
       
       onMove(id, { x: constrainedX, y: constrainedY });
     }
-  }, [isLocked, isResizing, resizeHandle, isDragging, dragStart, elementSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize, onMove, getContainerBounds]);
+  }, [isLocked, isWidthResizing, isResizing, resizeHandle, isDragging, dragStart, elementSize, minWidth, maxWidth, minHeight, maxHeight, id, onResize, onMove, getContainerBounds, calculateDynamicHeight]);
 
   const handleMouseUp = useCallback(() => {
     if (isDragging) {
@@ -207,11 +256,14 @@ useEffect(() => {
       setIsResizing(false);
       setResizeHandle(null);
     }
-  }, [isDragging, isResizing, onDragEnd]);
+    if (isWidthResizing) {
+      setIsWidthResizing(false);
+    }
+  }, [isDragging, isResizing, isWidthResizing, onDragEnd]);
 
   // Mouse event listeners
   useEffect(() => {
-    if (isDragging || isResizing) {
+    if (isDragging || isResizing || isWidthResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       
@@ -220,7 +272,7 @@ useEffect(() => {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
+  }, [isDragging, isResizing, isWidthResizing, handleMouseMove, handleMouseUp]);
 
 // Corner resize handles
 const renderResizeHandles = () => {
@@ -292,6 +344,38 @@ const renderResizeHandles = () => {
         }}
         onMouseDown={handleMouseDownCapture}
       />
+      
+      {/* Width-only resize handle (right edge middle) */}
+      <div
+        className="width-resize-handle"
+        style={{
+          position: 'absolute',
+          right: '-6px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: '12px',
+          height: '30px',
+          backgroundColor: '#10b981',
+          border: '2px solid white',
+          borderRadius: '4px',
+          cursor: 'ew-resize',
+          zIndex: 1000,
+          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+          transition: 'all 0.2s ease',
+          opacity: isWidthResizing ? 1 : 0.8,
+        }}
+        onMouseDown={handleMouseDownCapture}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#059669';
+          e.currentTarget.style.opacity = '1';
+        }}
+        onMouseLeave={(e) => {
+          if (!isWidthResizing) {
+            e.currentTarget.style.backgroundColor = '#10b981';
+            e.currentTarget.style.opacity = '0.8';
+          }
+        }}
+      />
     </>
   );
 };
@@ -306,7 +390,7 @@ const renderResizeHandles = () => {
     cursor: isLocked ? 'default' : (isDragging ? 'grabbing' : 'grab'),
     userSelect: 'none',
     zIndex: isSelected ? 1000 : 10,
-    transition: isResizing ? 'none' : 'all 0.2s ease-out',
+    transition: (isResizing || isWidthResizing) ? 'none' : 'all 0.2s ease-out',
     border: isSelected && !isLocked ? '2px dashed #3b82f6' : '2px solid transparent',
     borderRadius: '4px',
     backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
@@ -330,7 +414,8 @@ const renderResizeHandles = () => {
         style={{
           fontSize: `${fontSize}px`,
           fontFamily: fontFamily,
-          overflow: 'visible',
+          overflow: 'hidden',
+          padding: '8px',
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
           whiteSpace: 'normal',
