@@ -62,6 +62,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   const [resizeHandle, setResizeHandle] = useState<string | null>(null);
   const [elementSize, setElementSize] = useState({ width: minWidth, height: minHeight });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [hasManuallyResized, setHasManuallyResized] = useState(false);
   const elementRef = useRef<HTMLDivElement>(null);
   const textContentRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +70,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   // Disable auto-sizing when manually resizing or when explicitly disabled
 useEffect(() => {
   // Only auto-size when text content or font size changes, not when resizing manually
-  if (autoSize && !disableAutoSize && textContentRef.current && !isResizing && !isDragging && !isWidthResizing) {
+  if (autoSize && !disableAutoSize && !hasManuallyResized && textContentRef.current && !isResizing && !isDragging && !isWidthResizing) {
     
     if (text && text.length > 0) {
       const textElement = textContentRef.current;
@@ -186,6 +187,7 @@ useEffect(() => {
       
       const newSize = { width: newWidth, height: elementSize.height };
       setElementSize(newSize);
+      setHasManuallyResized(true);
       onResize(id, newSize);
       
       // Update drag start for next movement
@@ -221,6 +223,7 @@ useEffect(() => {
       // Smooth resize with transition
       const newSize = { width: newWidth, height: newHeight };
       setElementSize(newSize);
+      setHasManuallyResized(true);
       onResize(id, newSize);
       
       // Update drag start for next movement
