@@ -487,15 +487,7 @@ const EnhancedCardEditor = ({
             photo: { ...prev.photo, size: newSize },
           };
         } else {
-          // For text elements, DO NOT update font size based on resize
-          // Just track the size change
-          if (isTextElement) {
-            // REMOVE THIS ENTIRE BLOCK - Don't call updateFontSizeFromResize
-            // const newFontSize = updateFontSizeFromResize(elementId, newSize);
-            // ... rest of font size update logic
-          }
-
-          // Update element sizes tracking
+          // For text elements, only update size tracking, no font size changes for width-only resize
           setElementSizes((prev) => ({ ...prev, [elementId]: newSize }));
 
           newPositions = prev;
@@ -506,7 +498,29 @@ const EnhancedCardEditor = ({
       });
     },
     [addToHistory],
-  ); // Remove updateFontSizeFromResize from dependencies
+  );
+
+  // Handle proportional resize (blue corner handles) - updates font size
+  const handleProportionalResize = useCallback(
+    (elementId: string, newSize: { width: number; height: number }) => {
+      const isTextElement = ["brideName", "groomName", "weddingDate", "venue", "message"].includes(elementId);
+
+      if (isTextElement) {
+        // Update font size based on resize for proportional resizing
+        const newFontSize = updateFontSizeFromResize(elementId, newSize);
+        
+        setElementSizes((prev) => ({ ...prev, [elementId]: newSize }));
+        setFontSize(elementId, newFontSize);
+      }
+
+      setPositions((prev) => {
+        const newPositions = prev;
+        addToHistory(newPositions);
+        return newPositions;
+      });
+    },
+    [addToHistory, updateFontSizeFromResize, setFontSize],
+  );
 
   const handleElementRotate = useCallback((elementId: string, rotation: number) => {
     setElementRotations((prev) => ({
@@ -1420,6 +1434,7 @@ const EnhancedCardEditor = ({
             position={positions.brideName}
             onMove={handleElementMove}
             onResize={handleElementResize}
+            onProportionalResize={handleProportionalResize}
             containerRef={cardRef}
             fontSize={getFontSize("brideName")}
             fontFamily={getFontFamily("heading")}
@@ -1514,6 +1529,7 @@ const EnhancedCardEditor = ({
             position={positions.groomName}
             onMove={handleElementMove}
             onResize={handleElementResize}
+            onProportionalResize={handleProportionalResize}
             containerRef={cardRef}
             fontSize={getFontSize("groomName")}
             fontFamily={getFontFamily("heading")}
@@ -1572,6 +1588,7 @@ const EnhancedCardEditor = ({
               position={positions.weddingDate}
               onMove={handleElementMove}
               onResize={handleElementResize}
+              onProportionalResize={handleProportionalResize}
               containerRef={cardRef}
               fontSize={getFontSize("weddingDate")}
               fontFamily={getFontFamily("date")}
@@ -1618,6 +1635,7 @@ const EnhancedCardEditor = ({
               position={positions.venue}
               onMove={handleElementMove}
               onResize={handleElementResize}
+              onProportionalResize={handleProportionalResize}
               containerRef={cardRef}
               fontSize={getFontSize("venue")}
               fontFamily={getFontFamily("venue")}
@@ -1712,6 +1730,7 @@ const EnhancedCardEditor = ({
               position={positions.message}
               onMove={handleElementMove}
               onResize={handleElementResize}
+              onProportionalResize={handleProportionalResize}
               containerRef={cardRef}
               fontSize={getFontSize("message")}
               fontFamily={getFontFamily("message")}

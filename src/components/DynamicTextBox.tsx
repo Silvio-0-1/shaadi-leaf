@@ -8,6 +8,7 @@ interface DynamicTextBoxProps {
   position: ElementPosition;
   onMove: (elementId: string, position: ElementPosition) => void;
   onResize: (elementId: string, size: { width: number; height: number }) => void;
+  onProportionalResize?: (elementId: string, size: { width: number; height: number }) => void;
   containerRef: React.RefObject<HTMLDivElement>;
   fontSize: number;
   fontFamily: string;
@@ -35,6 +36,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
   position,
   onMove,
   onResize,
+  onProportionalResize,
   containerRef,
   fontSize,
   fontFamily,
@@ -255,7 +257,12 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
         const newSize = { width: newWidth, height: newHeight };
         setElementSize(newSize);
         setHasManuallyResized(true);
-        onResize(id, newSize);
+        // Call onProportionalResize for corner handles (blue handles)
+        if (onProportionalResize) {
+          onProportionalResize(id, newSize);
+        } else {
+          onResize(id, newSize);
+        }
 
         // Update drag start for next movement
         setDragStart({ x: e.clientX, y: e.clientY });
