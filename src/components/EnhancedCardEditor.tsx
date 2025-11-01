@@ -487,12 +487,47 @@ const EnhancedCardEditor = ({
             photo: { ...prev.photo, size: newSize },
           };
         } else {
-          // For text elements, DO NOT update font size based on resize
-          // Just track the size change
+          // For text elements, only update font size if BOTH dimensions changed significantly
+          // (indicating corner resize, not width-only resize)
           if (isTextElement) {
-            // REMOVE THIS ENTIRE BLOCK - Don't call updateFontSizeFromResize
-            // const newFontSize = updateFontSizeFromResize(elementId, newSize);
-            // ... rest of font size update logic
+            const oldSize = elementSizes[elementId] || textSizes[elementId];
+
+            if (oldSize) {
+              const widthChange = Math.abs(newSize.width - oldSize.width);
+              const heightChange = Math.abs(newSize.height - oldSize.height);
+
+              // If both width AND height changed significantly, it's a corner resize
+              // Update font size proportionally
+              if (widthChange > 5 && heightChange > 5) {
+                const newFontSize = updateFontSizeFromResize(elementId, newSize);
+
+                // Update customization to reflect the new font size
+                const fontSizeKey =
+                  elementId === "brideName"
+                    ? "brideNameSize"
+                    : elementId === "groomName"
+                      ? "groomNameSize"
+                      : elementId === "weddingDate"
+                        ? "dateSize"
+                        : elementId === "venue"
+                          ? "venueSize"
+                          : elementId === "message"
+                            ? "messageSize"
+                            : null;
+
+                if (fontSizeKey) {
+                  const updatedCustomization = {
+                    ...cardData.customization,
+                    fontSizes: {
+                      ...cardData.customization?.fontSizes,
+                      [fontSizeKey]: newFontSize,
+                    },
+                  };
+                  onDataChange({ customization: updatedCustomization });
+                }
+              }
+              // Otherwise, it's width-only resize - don't change font size
+            }
           }
 
           // Update element sizes tracking
@@ -505,8 +540,8 @@ const EnhancedCardEditor = ({
         return newPositions;
       });
     },
-    [addToHistory],
-  ); // Remove updateFontSizeFromResize from dependencies
+    [addToHistory, updateFontSizeFromResize, cardData.customization, onDataChange, elementSizes, textSizes],
+  );
 
   const handleElementRotate = useCallback((elementId: string, rotation: number) => {
     setElementRotations((prev) => ({
