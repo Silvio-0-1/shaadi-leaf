@@ -471,7 +471,7 @@ const DynamicTextBox: React.FC<DynamicTextBoxProps> = ({
         style={{
           fontSize: `${fontSize}px`,
           fontFamily: fontFamily,
-          overflow: "hidden",
+          overflow: "visible",
           padding: "8px",
           wordWrap: "break-word",
           overflowWrap: "break-word",
